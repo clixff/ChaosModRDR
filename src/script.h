@@ -7,7 +7,9 @@
 #include <string>
 #include <stdint.h>
 #include <windows.h>
-
+#include "Effects/effect.h"
+#include <vector>
+#include <map>
 
 
 struct Vector2
@@ -66,6 +68,10 @@ public:
 
 	/** Enabled and disbles the mod */
 	void ToggleModStatus();
+
+	void ActivateEffect(Effect* effect);
+
+	void ActivateRandomEffect();
 private:
 	void Main();
 	void Update();
@@ -85,8 +91,8 @@ private:
 	/** Timers and effects */
 
 	/** In seconds */
-	int effectsInterval = 90;
-	int effectsVoteTime = 45;
+	int effectsInterval = 30;
+	int effectsVoteTime = 15;
 
 	uint32_t timeoutStartTime = 0;
 	uint32_t timeoutEndTime = 0;
@@ -95,4 +101,14 @@ private:
 	bool bVotingEnabled = false;
 	
 	void ResetEffectsTimeout();
+
+	std::vector<Effect*> activeEffects;
+
+	void DrawEffectInUI(Effect* effect, int32_t index);
+
+	std::vector<Effect*> AllEffects;
+
+	std::map<std::string, Effect*> EffectsMap;
+
+	void InitEffects();
 };

@@ -19,6 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Effects\effect.cpp" />
+    <ClCompile Include="src\Effects\misc.cpp" />
+    <ClCompile Include="src\Effects\peds.cpp" />
+    <ClCompile Include="src\Effects\player.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\script.cpp" />
   </ItemGroup>
@@ -28,6 +32,10 @@
     <ClInclude Include="..\rdr2_sdk\inc\nativeCaller.h" />
     <ClInclude Include="..\rdr2_sdk\inc\natives.h" />
     <ClInclude Include="..\rdr2_sdk\inc\types.h" />
+    <ClInclude Include="src\Effects\effect.h" />
+    <ClInclude Include="src\Effects\misc.h" />
+    <ClInclude Include="src\Effects\peds.h" />
+    <ClInclude Include="src\Effects\player.h" />
     <ClInclude Include="src\script.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -1,4 +1,7 @@
 #include "script.h"
+#include "Effects/peds.h"
+#include "Effects/player.h"
+#include "Effects/misc.h"
 
 ChaosMod* ChaosMod::Singleton = nullptr;
 
@@ -74,24 +77,49 @@ void ChaosMod::ToggleModStatus()
 
 		ModUITextString = "Chaos Mod enabled";
 
-		Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-		Vector3 playerVelocity = ENTITY::GET_ENTITY_VELOCITY(playerPed, 0);
-
-		PED::SET_PED_TO_RAGDOLL(playerPed, 5000, 5000, 0, true, true, false);
-
-		ENTITY::SET_ENTITY_VELOCITY(playerPed, playerVelocity.x, playerVelocity.y, 20.0f);
+		for (auto* effect : activeEffects)
+		{
+			effect->OnActivate();
+		}
 	}
 	else
 	{
 		ModUITextString = "Chaos Mod disabled";
+
+		activeEffects = {};
 	}
 
 	ModUITextEndTime = GetTickCount() + 3000;
 }
 
+void ChaosMod::ActivateEffect(Effect* effect)
+{
+	if (!effect)
+	{
+		return;
+	}
+
+	effect->OnActivate();
+
+	this->activeEffects.push_back(effect);
+}
+
+void ChaosMod::ActivateRandomEffect()
+{
+	if (AllEffects.size() == 0)
+	{
+		return;
+	}
+
+	int effectID = rand() % AllEffects.size();
+
+	ActivateEffect(AllEffects[effectID]);
+}
+
 void ChaosMod::Main()
 {
+	InitEffects();
+
 	while (true)
 	{
 		Update();
@@ -105,7 +133,7 @@ void ChaosMod::Update()
 	/** Draw mod UI text */
 	if (GetTickCount() < ModUITextEndTime)
 	{
-		ChaosMod::DrawText((char*)ModUITextString.c_str(), Vector2(0.5f, 0.5f), Vector2(0.55f, 0.55f), LinearColor(255, 255, 255, 255), false, 5, LinearColor(0, 0, 0, 255));
+		ChaosMod::DrawText((char*)ModUITextString.c_str(), Vector2(0.5f, 0.5f), Vector2(0.55f, 0.55f), LinearColor(255, 255, 255, 255), true, 5, LinearColor(0, 0, 0, 255));
 	}
 
 	if (!bEnabled)
@@ -118,12 +146,25 @@ void ChaosMod::Update()
 		/** TODO: Activate voting */
 
 		bVotingEnabled = true;
+
+		for (int32_t i = 0; i < activeEffects.size(); i++)
+		{
+			auto* effect = activeEffects[i];
+
+			if (effect && !effect->bTimed)
+			{
+				effect->OnDeactivate();
+				activeEffects.erase(activeEffects.begin() + i);
+				i--;
+			}
+		}
 	}
 
 	if (timeoutEndTime && GetTickCount() >= timeoutEndTime)
 	{
 		ResetEffectsTimeout();
 		/** TODO: Activate selected effect */
+		ActivateRandomEffect();
 	}
 
 	DrawUI();
@@ -152,6 +193,11 @@ void ChaosMod::DrawUI()
 
 	/** Draw progress bar foreground */
 	GRAPHICS::DRAW_RECT(effectTimeoutValue / 2.0f, ProgressBarHeight / 2.0f, effectTimeoutValue, ProgressBarHeight, 143, 6, 6, 255, 0, 0);
+
+	for (int32_t i = 0; i < activeEffects.size(); i++)
+	{
+		DrawEffectInUI(activeEffects[i], i);
+	}
 }
 
 bool ChaosMod::isKeyPressed(uint8_t key)
@@ -174,4 +220,50 @@ void ChaosMod::ResetEffectsTimeout()
 	timeoutStartTime = GetTickCount();
 	timeoutEndTime = timeoutStartTime + (effectsInterval * 1000);
 	timeoutVotingStartTime = timeoutEndTime - (effectsVoteTime * 1000);
+}
+
+void ChaosMod::DrawEffectInUI(Effect* effect, int32_t index)
+{
+	if (!effect)
+	{
+		return;
+	}
+
+	float X = 1690.0f / 1920.0f;
+	float minY = 378.0f;
+	float margin = 52.0f;
+	float Y = (minY + (index * margin)) / 1080.0f;
+
+	if (effect->bTimed)
+	{
+		GRAPHICS::DRAW_RECT(X, Y, 400.0f / 1920.0f, 40.0f / 1080.0f, 0, 0, 0, 120, 0, 0);
+	}
+
+	UI::SET_TEXT_SCALE(0.0f, 0.35f);
+	UI::SET_TEXT_COLOR_RGBA(255, 255, 255, 240);
+	UI::SET_TEXT_CENTRE(1);
+	UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 255);
+
+	char* varString = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)effect->name.c_str());
+
+	UI::DRAW_TEXT(varString, X, Y - 0.0125f);
+}
+
+void ChaosMod::InitEffects()
+{
+	AllEffects = {
+		new EffectSpawnSoldier(),
+		new EffectSpawnLenny(),
+		new EffectSpawnDrunkardJon(),
+		new EffectSpawnChicken(),
+		new EffectLaunchPlayerUp(),
+		new EffectSpawnHotchkissCannon()
+	};
+
+	EffectsMap.clear();
+
+	for (auto* effect : AllEffects)
+	{
+		EffectsMap.emplace(effect->ID, effect);
+	}
 }

@@ -16,6 +16,9 @@
     <Filter Include="include">
       <UniqueIdentifier>{c23759df-fdc7-43e9-a407-6fb6c77e71ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Effects">
+      <UniqueIdentifier>{eaa6283a-e9ae-4403-8b6e-c09e328d6756}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -23,6 +26,18 @@
     </ClCompile>
     <ClCompile Include="src\script.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\effect.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\peds.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\player.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\misc.cpp">
+      <Filter>Source Files\Effects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +58,18 @@
     </ClInclude>
     <ClInclude Include="..\rdr2_sdk\inc\types.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\effect.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\peds.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\player.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\misc.h">
+      <Filter>Source Files\Effects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
