@@ -39,6 +39,9 @@
     <ClCompile Include="src\Effects\misc.cpp">
       <Filter>Source Files\Effects</Filter>
     </ClCompile>
+    <ClCompile Include="src\Effects\vehs.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\script.h">
@@ -69,6 +72,9 @@
       <Filter>Source Files\Effects</Filter>
     </ClInclude>
     <ClInclude Include="src\Effects\misc.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\vehs.h">
       <Filter>Source Files\Effects</Filter>
     </ClInclude>
   </ItemGroup>

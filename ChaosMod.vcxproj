@@ -23,6 +23,7 @@
     <ClCompile Include="src\Effects\misc.cpp" />
     <ClCompile Include="src\Effects\peds.cpp" />
     <ClCompile Include="src\Effects\player.cpp" />
+    <ClCompile Include="src\Effects\vehs.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\script.cpp" />
   </ItemGroup>
@@ -36,6 +37,7 @@
     <ClInclude Include="src\Effects\misc.h" />
     <ClInclude Include="src\Effects\peds.h" />
     <ClInclude Include="src\Effects\player.h" />
+    <ClInclude Include="src\Effects\vehs.h" />
     <ClInclude Include="src\script.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

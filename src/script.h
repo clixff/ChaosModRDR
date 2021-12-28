@@ -111,4 +111,22 @@ private:
 	std::map<std::string, Effect*> EffectsMap;
 
 	void InitEffects();
+
+private:
+	/** Debug */
+
+	bool bEffectsActivatesAfterTimer = true;
+
+	/** For debug only, disables effect activation after timer  */
+	void ToggleDefaultEffectActivation();
+
+	int32_t debugSelectedEffectIndex = 0;
+
+	bool bEffectSelectionVisible = false;
+
+	void ToggleEffectSelection();
+
+	void ChangeSelectedEffect(int value);
+
+	void ActivateSelectedEffect();
 };

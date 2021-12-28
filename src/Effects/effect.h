@@ -5,7 +5,20 @@
 #include <main.h>
 #include <string>
 #include <stdint.h>
+#include <vector>
 #include <windows.h>
+
+struct NearbyEntities
+{
+	int32_t size;
+	int64_t entities[100];
+};
+
+void LoadModel(Hash model);
+
+
+
+void InitWeaponHashes();
 
 class Effect
 {
@@ -25,6 +38,12 @@ public:
 
 	/** In seconds */
 	uint32_t EffectDuration = 0;
+
+	uint32_t DeactivationTime = 0;
+	uint32_t ActivationTime = 0;
+
+	static std::vector<const char*> WeaponNames;
+	static std::vector<Hash> WeaponHashes;
 };
 
 class TestEffect : public Effect
