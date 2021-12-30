@@ -8,6 +8,8 @@
 #include <vector>
 #include <windows.h>
 
+# define M_PI	3.14159265358979323846
+
 struct NearbyEntities
 {
 	int32_t size;
@@ -16,9 +18,9 @@ struct NearbyEntities
 
 void LoadModel(Hash model);
 
-
-
 void InitWeaponHashes();
+
+void InitWeatherHashes();
 
 class Effect
 {
@@ -44,6 +46,9 @@ public:
 
 	static std::vector<const char*> WeaponNames;
 	static std::vector<Hash> WeaponHashes;
+
+	static std::vector<const char*> weatherNames;
+	static std::vector<Hash> weatherHashes;
 };
 
 class TestEffect : public Effect

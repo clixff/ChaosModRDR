@@ -146,19 +146,227 @@ private:
 	std::set<Entity> entities;
 };
 
-class EffectLightnings : public Effect
+class EffectDoomsday : public Effect
 {
 public:
-	EffectLightnings()
+	EffectDoomsday()
 	{
-		ID = "lightnings";
-		name = "Lightnings Everywhere";
+		ID = "doomsday";
+		name = "Doomsday";
 		bTimed = true;
-		EffectDuration = 35;
+		EffectDuration = 20;
 	}
 
 	virtual void OnActivate() override;
 	virtual void OnDeactivate() override;
 
 	virtual void OnTick() override;
+private:
+	Vector3 randomDirection;
+
+	std::set<Entity> entities;
 };
+
+class EffectPlayIntro : public Effect
+{
+public:
+	EffectPlayIntro()
+	{
+		ID = "play_intro";
+		name = "Play Game Intro";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+};
+
+class EffectSetTimeMorning : public Effect
+{
+public:
+	EffectSetTimeMorning()
+	{
+		ID = "set_time_morning";
+		name = "Set Time to Morning";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSetTimeNight : public Effect
+{
+public:
+	EffectSetTimeNight()
+	{
+		ID = "set_time_night";
+		name = "Set Time to Night";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSetRandomTime : public Effect
+{
+public:
+	EffectSetRandomTime()
+	{
+		ID = "set_random_time";
+		name = "Set Random Time of Day";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSetRandomWeather : public Effect
+{
+public:
+	EffectSetRandomWeather()
+	{
+		ID = "set_random_weather";
+		name = "Set Random Weather";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSetSunnyWeather : public Effect
+{
+public:
+	EffectSetSunnyWeather()
+	{
+		ID = "set_sunny_weather";
+		name = "Set Sunny Weather";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSetRainyWeather : public Effect
+{
+public:
+	EffectSetRainyWeather()
+	{
+		ID = "set_rainy_weather";
+		name = "Set Rainy Weather";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSetRapidWeather : public Effect
+{
+public:
+	EffectSetRapidWeather()
+	{
+		ID = "rapid_weather";
+		name = "Rapid Weather Changing";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnDeactivate() override;
+
+	virtual void OnTick() override;
+};
+
+class EffectEarthquake : public Effect
+{
+public:
+	EffectEarthquake()
+	{
+		ID = "darthquake";
+		name = "Earthquake";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnTick() override;
+private:
+
+	std::set<Entity> entities;
+};
+
+class EffectEveryoneIsInvincible : public Effect
+{
+public:
+	EffectEveryoneIsInvincible()
+	{
+		ID = "invincible_everyone";
+		name = "Everyone is Invincible";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnDeactivate() override;
+	virtual void OnTick() override;
+private:
+
+	std::set<Entity> entities;
+};
+
+/** Original code by ChaosModV contributors */
+class Effect120FOV : public Effect
+{
+public:
+	Effect120FOV()
+	{
+		ID = "fov_120";
+		name = "FOV 120";
+		bTimed = true;
+		EffectDuration = 15;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+	virtual void OnTick() override;
+private:
+	Camera cam;
+};
+
+class EffectIgniteNearbyPeds : public Effect
+{
+public:
+	EffectIgniteNearbyPeds()
+	{
+		ID = "ignite_nearby_peds";
+		name = "Ignite Nearby Peds";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectLightningOnce : public Effect
+{
+public:
+	EffectLightningOnce()
+	{
+		ID = "lightning_once";
+		name = "Lightning In a Few Meters";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectLightningEnemy : public Effect
+{
+public:
+	EffectLightningEnemy()
+	{
+		ID = "lightning_enemy";
+		name = "Kill Enemy with Lightning";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+std::vector<Entity> GetNearbyProps(int32_t Max);

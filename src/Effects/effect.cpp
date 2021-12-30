@@ -3,6 +3,9 @@
 std::vector<const char*> Effect::WeaponNames = std::vector<const char*>();
 std::vector<Hash> Effect::WeaponHashes = std::vector<Hash>();
 
+std::vector<const char*> Effect::weatherNames = std::vector<const char*>();
+std::vector<Hash> Effect::weatherHashes = std::vector<Hash>();
+
 Effect::Effect()
 {
 }
@@ -112,5 +115,40 @@ void InitWeaponHashes()
 	for (auto name : Effect::WeaponNames)
 	{
 		Effect::WeaponHashes.push_back(GAMEPLAY::GET_HASH_KEY((char*)name));
+	}
+}
+
+void InitWeatherHashes()
+{
+	Effect::weatherNames = {
+		"SUNNY",
+		"MISTY",
+		"FOG",
+		"CLOUDS",
+		"OVERCAST",
+		"OVERCASTDARK",
+		"DRIZZLE",
+		"RAIN",
+		"THUNDER",
+		"THUNDERSTORM",
+		"HURRICANE",
+		"HIGHPRESSURE",
+		"SHOWER",
+		"HAIL",
+		"SLEET",
+		"SNOWCLEARING",
+		"SNOWLIGHT",
+		"SNOW",
+		"BLIZZARD",
+		"GROUNDBLIZZARD",
+		"WHITEOUT",
+		"SANDSTORM"
+	};
+
+	Effect::weatherHashes.clear();
+
+	for (auto name : Effect::weatherNames)
+	{
+		Effect::weatherHashes.push_back(GAMEPLAY::GET_HASH_KEY((char*)name));
 	}
 }

@@ -1,4 +1,5 @@
 #include "player.h"
+#include "peds.h"
 
 void EffectLaunchPlayerUp::OnActivate()
 {
@@ -141,31 +142,12 @@ void EffectRemoveAllWeapons::OnActivate()
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	static Hash unarmed = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_UNARMED");
-	WEAPON::SET_CURRENT_PED_WEAPON(playerPed, unarmed, 1, 0, 0, 0);
-
-	for (Hash weaponHash : WeaponHashes)
-	{
-		WEAPON::REMOVE_WEAPON_FROM_PED(playerPed, weaponHash, 0, 0);
-	}
-
-}
-
-void EffectHonor1::OnActivate()
-{
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	DECORATOR::DECOR_SET_INT(playerPed, (char*)"honor_override", -9999);
-
-}
-
-void EffectHonor2::OnActivate()
-{
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	DECORATOR::DECOR_SET_INT(playerPed, (char*)"honor_override", 10);
+	RemoveAllPedWeapons(playerPed);
 }
 
 void EffectDropWeapon::OnActivate()
 {
+
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	static Hash unarmed = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_UNARMED");
@@ -217,4 +199,215 @@ void EffectGiveRandomWeapon::OnActivate()
 	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, weaponHash, 100, 1, 0x2cd419dc);
 	WEAPON::SET_PED_AMMO(playerPed, weaponHash, 100);
 	WEAPON::SET_CURRENT_PED_WEAPON(playerPed, weaponHash, 1, 0, 0, 0);
+}
+
+void EffectSetDrunk::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	AUDIO::SET_PED_IS_DRUNK(playerPed, true);
+	CAM::SHAKE_GAMEPLAY_CAM((char*)"DRUNK_SHAKE", 1.0f);
+	PED::SET_PED_CONFIG_FLAG(playerPed, 100, true);
+	GRAPHICS::ANIMPOSTFX_PLAY((char*)"PlayerDrunk01");
+}
+
+void EffectSetDrunk::OnDeactivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	AUDIO::SET_PED_IS_DRUNK(playerPed, false);
+	CAM::STOP_GAMEPLAY_CAM_SHAKING(true);
+	PED::SET_PED_CONFIG_FLAG(playerPed, 100, false);
+	GRAPHICS::ANIMPOSTFX_STOP((char*)"PlayerDrunk01");
+}
+
+void EffectClearPursuit::OnActivate()
+{
+	Player player = PLAYER::PLAYER_ID();
+	PURSUIT::CLEAR_CURRENT_PURSUIT();
+	PURSUIT::SET_PLAYER_WANTED_INTENSITY(player, 0);
+	PURSUIT::SET_PLAYER_PRICE_ON_A_HEAD(player, 0);
+}
+
+void EffectIncreaseBounty::OnActivate()
+{
+	Player player = PLAYER::PLAYER_ID();
+	int priceOnHead = PURSUIT::GET_PLAYER_PRICE_ON_A_HEAD(player);
+	PURSUIT::SET_PLAYER_PRICE_ON_A_HEAD(player, priceOnHead + 100 * 100);
+}
+
+void EffectRemoveCurrentVehicle::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(veh, false, false);
+
+		VEHICLE::DELETE_VEHICLE(&veh);
+
+		
+	}
+	else if (PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		Ped mount = PED::GET_MOUNT(playerPed);
+
+		PED::DELETE_PED(&mount);
+	}
+}
+
+void EffectGiveLasso::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_LASSO");
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, weaponHash, 100, 1, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(playerPed, weaponHash, 100);
+	WEAPON::SET_CURRENT_PED_WEAPON(playerPed, weaponHash, 1, 0, 0, 0);
+}
+
+void EffectTeleportToVanHorn::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	TeleportPlayerTo(3035.75f, 431.968f, 68.7f);
+	ENTITY::SET_ENTITY_HEADING(playerPed, 27);
+
+	ENTITY::SET_ENTITY_VELOCITY(playerPed, 0.0f, 0.0f, 0.0f);
+}
+
+void EffectIgnitePlayer::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	
+	FIRE::START_ENTITY_FIRE(playerPed, 1.0f, 0, 0);
+}
+
+void EffectKickflip::OnActivate()
+{
+	Effect::OnActivate();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		Vector3 vec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+		ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z + 2.0f, false, false, false, false);
+
+		Vector3 vel = ENTITY::GET_ENTITY_VELOCITY(veh, 0);
+
+		ENTITY::SET_ENTITY_VELOCITY(playerPed, vel.x, vel.y, vel.z);
+	}
+
+	PED::SET_PED_TO_RAGDOLL(playerPed, 1000, 1000, 0, true, true, false);
+
+	ENTITY::APPLY_FORCE_TO_ENTITY(playerPed, 1, 0, 0, 10, 2, 0, 0, 0, true, true, true, false, true);
+}
+
+void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val)
+{
+	Hash hash = GAMEPLAY::GET_HASH_KEY((char*)model);
+
+	LoadModel(hash);
+
+	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
+	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
+	*ptr1_val = *ptr1;
+	*ptr2_val = *ptr2;
+
+	*ptr1 = *ptr2 = hash;
+
+	WAIT(1000);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	PED::SET_PED_VISIBLE(playerPed, 1);
+}
+
+void ResetPlayerModel(uint64_t ptr1_val, uint64_t ptr2_val)
+{
+	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
+	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
+	*ptr1 = ptr1_val;
+	*ptr2 = ptr2_val;
+
+	//WAIT(1000);
+
+	//Ped playerPed = PLAYER::PLAYER_PED_ID();
+	//PED::SET_PED_VISIBLE(playerPed, 1);
+}
+
+void EffectLightningWeapons::OnActivate()
+{
+	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+}
+
+void EffectLightningWeapons::OnDeactivate()
+{
+	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+}
+
+void EffectLightningWeapons::OnTick()
+{
+	Vector3 vec;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
+
+	if (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z)
+	{
+		return;
+	}
+
+	lastVec = vec;
+
+	/** _FORCE_LIGHTNING_FLASH_AT_COORDS */
+	invoke<Void>(0x67943537D179597C, vec.x, vec.y, vec.z);
+}
+
+void IEffectSkinChange::OnActivate()
+{
+	Effect::OnActivate();
+
+	SetPlayerModel(this->skinToSet, &oldSkin1, &oldSkin2);
+}
+
+void IEffectSkinChange::OnDeactivate()
+{
+	ResetPlayerModel(oldSkin1, oldSkin2);
+}
+
+void EffectHonorGood::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	(*getGlobalPtr(0x2BA2)) = 0;
+
+	int honor = *getGlobalPtr(0x2BA2);
+
+	*getGlobalPtr(1347477 + 155 + 1) = 240;
+}
+
+void EffectHonorBad::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	(*getGlobalPtr(0x2BA2)) = 0;
+
+	int honor = *getGlobalPtr(0x2BA2);
+
+	*getGlobalPtr(1347477 + 155 + 1) = -240;
+}
+
+void EffectHonorReset::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	(*getGlobalPtr(0x2BA2)) = 0;
+
+	int honor = *getGlobalPtr(0x2BA2);
+
+	*getGlobalPtr(1347477 + 155 + 1) = 40;
 }

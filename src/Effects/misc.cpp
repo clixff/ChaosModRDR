@@ -50,6 +50,21 @@ void EffectTeleportEverything::OnActivate()
 		ENTITY::SET_ENTITY_COORDS(entity, playerCoord.x, playerCoord.y, playerCoord.z, 0, 0, 0, 0);
 	}
 
+	int* objects = new int[20];
+
+	worldGetAllObjects(objects, 20);
+
+	for (int32_t i = 0; i < 20; i++)
+	{
+		Entity entity = objects[i];
+		
+		if (ENTITY::DOES_ENTITY_EXIST(entity))
+		{
+			ENTITY::SET_ENTITY_COORDS(entity, playerCoord.x, playerCoord.y, playerCoord.z, 0, 0, 0, 0);
+		}
+	}
+
+	delete[] objects;
 }
 
 void EffectSnowstorm::OnActivate()
@@ -304,6 +319,7 @@ void EffectInvertedGravity::OnTick()
 		entities.clear();
 		auto nearbyPeds = GetNearbyPeds(45);
 		auto nearbyVehs = GetNearbyVehs(45);
+		auto nearbyProps = GetNearbyProps(45);
 
 		for (auto ped : nearbyPeds)
 		{
@@ -314,6 +330,12 @@ void EffectInvertedGravity::OnTick()
 		{
 			entities.insert(veh);
 		}
+
+		for (auto prop : nearbyProps)
+		{
+			entities.insert(prop);
+		}
+
 
 		entities.insert(PLAYER::PLAYER_PED_ID());
 	}
@@ -327,9 +349,8 @@ void EffectInvertedGravity::OnTick()
 	}
 }
 
-# define M_PI	3.14159265358979323846
 
-void EffectLightnings::OnActivate()
+void EffectDoomsday::OnActivate()
 {
 	GAMEPLAY::CLEAR_OVERRIDE_WEATHER();
 	static Hash weather = GAMEPLAY::GET_HASH_KEY((char*)"THUNDERSTORM");
@@ -337,9 +358,11 @@ void EffectLightnings::OnActivate()
 	GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
 
 	GAMEPLAY::SET_WIND_SPEED(150.0f);
+	GRAPHICS::SET_TIMECYCLE_MODIFIER((char*)"EagleEyeTest");
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
 }
 
-void EffectLightnings::OnDeactivate()
+void EffectDoomsday::OnDeactivate()
 {
 	GAMEPLAY::CLEAR_OVERRIDE_WEATHER();
 	static Hash weather = GAMEPLAY::GET_HASH_KEY((char*)"SUNNY");
@@ -347,19 +370,263 @@ void EffectLightnings::OnDeactivate()
 	GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
 
 	GAMEPLAY::SET_WIND_SPEED(0.0f);
+
+	GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
 }
 
-void EffectLightnings::OnTick()
+void EffectDoomsday::OnTick()
+{
+	if (GetTickCount() % 250 == 0)
+	{
+		entities.clear();
+		auto nearbyPeds = GetNearbyPeds(45);
+		auto nearbyVehs = GetNearbyVehs(45);
+		auto nearbyProps = GetNearbyProps(20);
+
+		Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+		nearbyPeds.push_back(playerPed);
+
+		for (auto ped : nearbyPeds)
+		{
+			if (ENTITY::DOES_ENTITY_EXIST(ped))
+			{
+				PED::SET_PED_TO_RAGDOLL(ped, 1000, 1000, 0, true, true, false);
+				entities.insert(ped);
+			}
+		}
+
+		for (auto veh : nearbyVehs)
+		{
+			entities.insert(veh);
+		}
+
+		for (auto prop : nearbyProps)
+		{
+			entities.insert(prop);
+		}
+
+
+		Vector3 playerVec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+		float radius = float(rand() % 100);
+
+		/** In radians */
+		float angle = float(rand() % 360) * (M_PI / 180.0f);
+
+		playerVec.x += radius * sin(angle);
+		playerVec.y += radius * cos(angle);
+
+		/** _FORCE_LIGHTNING_FLASH_AT_COORDS */
+		invoke<Void>(0x67943537D179597C, playerVec.x, playerVec.y, playerVec.z);
+		randomDirection.x = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
+		randomDirection.y = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
+		randomDirection.z = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
+
+	}
+
+	for (auto entity : entities)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(entity))
+		{
+
+			//ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entity, 0, randomDirection.x, randomDirection.y, randomDirection.z, false, false, true, false);
+			ENTITY::SET_ENTITY_VELOCITY(entity, randomDirection.x, randomDirection.y, randomDirection.z);
+		}
+	}
+}
+
+void EffectPlayIntro::OnActivate()
+{
+	GRAPHICS::ANIMPOSTFX_PLAY((char*)"Title_GameIntro");
+}
+
+void EffectPlayIntro::OnDeactivate()
+{
+	GRAPHICS::ANIMPOSTFX_STOP((char*)"Title_GameIntro");
+}
+
+void SetWeather(Hash hash)
+{
+	GAMEPLAY::CLEAR_OVERRIDE_WEATHER();
+	GAMEPLAY::SET_WEATHER_TYPE(hash, 0, 1, 0, 0.0, 0);
+	GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+}
+
+void EffectSetRandomWeather::OnActivate()
+{
+	Hash weatherHash = Effect::weatherHashes[rand() % Effect::weatherHashes.size()];
+
+	SetWeather(weatherHash);
+}
+
+void EffectSetTimeMorning::OnActivate()
+{
+	TIME::SET_CLOCK_TIME(7, 0, 0);
+}
+
+void EffectSetTimeNight::OnActivate()
+{
+	TIME::SET_CLOCK_TIME(22, 0, 0);
+}
+
+void EffectSetRandomTime::OnActivate()
+{
+	TIME::SET_CLOCK_TIME(rand() % 24, 0, 0);
+}
+
+void EffectSetSunnyWeather::OnActivate()
+{
+	SetWeather(GAMEPLAY::GET_HASH_KEY((char*)"SUNNY"));
+}
+
+void EffectSetRainyWeather::OnActivate()
+{
+	SetWeather(GAMEPLAY::GET_HASH_KEY((char*)"RAIN"));
+}
+
+void EffectSetRapidWeather::OnDeactivate()
+{
+	SetWeather(GAMEPLAY::GET_HASH_KEY((char*)"SUNNY"));
+}
+
+void EffectSetRapidWeather::OnTick()
+{
+	if (GetTickCount() % 1000 == 0)
+	{
+		Hash weatherHash = Effect::weatherHashes[rand() % Effect::weatherHashes.size()];
+
+		SetWeather(weatherHash);
+	}
+}
+
+void EffectEarthquake::OnTick()
+{
+	if (GetTickCount() % 500 == 0)
+	{
+		entities.clear();
+		auto nearbyPeds = GetNearbyPeds(45);
+		auto nearbyVehs = GetNearbyVehs(45);
+		auto nearbyProps = GetNearbyProps(20);
+
+		Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+		nearbyPeds.push_back(playerPed);
+
+		for (auto ped : nearbyPeds)
+		{
+			if (ENTITY::DOES_ENTITY_EXIST(ped))
+			{
+				PED::SET_PED_TO_RAGDOLL(ped, 1000, 1000, 0, true, true, false);
+				entities.insert(ped);
+			}
+		}
+
+		for (auto veh : nearbyVehs)
+		{
+			entities.insert(veh);
+		}
+
+		for (auto prop : nearbyProps)
+		{
+			entities.insert(prop);
+		}
+	}
+
+	for (auto entity : entities)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(entity))
+		{
+			Vector3 randomDirection;
+			randomDirection.x = float((rand() % 7) + 1) * (rand() % 2 ? -1.0f : 1.0f);
+			randomDirection.y = float((rand() % 7) + 1) * (rand() % 2 ? -1.0f : 1.0f);
+			randomDirection.z = float((rand() % 2) + 1) * (rand() % 2 ? -1.0f : 1.0f);
+			ENTITY::SET_ENTITY_VELOCITY(entity, randomDirection.x, randomDirection.y, randomDirection.z);
+		}
+	}
+}
+
+void EffectEveryoneIsInvincible::OnDeactivate()
+{
+	for (auto ped : entities)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			ENTITY::SET_ENTITY_INVINCIBLE(ped, false);
+		}
+	}
+
+	entities.clear();
+}
+
+void EffectEveryoneIsInvincible::OnTick()
 {
 	if (GetTickCount() % 1000)
 	{
 		return;
 	}
 
+	auto peds = GetNearbyPeds(45);
+
+	peds.push_back(PLAYER::PLAYER_PED_ID());
+
+	for (auto ped : peds)
+	{
+		ENTITY::SET_ENTITY_INVINCIBLE(ped, true);
+
+		entities.insert(ped);
+	}
+}
+
+void Effect120FOV::OnActivate()
+{
+	this->cam = CAM::CREATE_CAM((char*)"DEFAULT_SCRIPTED_CAMERA", 1);
+	CAM::RENDER_SCRIPT_CAMS(true, true, 500, 1, 1, 1);
+}
+
+void Effect120FOV::OnDeactivate()
+{
+	CAM::SET_CAM_ACTIVE(this->cam, false);
+	CAM::RENDER_SCRIPT_CAMS(false, true, 700, 1, 1, 1);
+	CAM::DESTROY_CAM(this->cam, true);
+	this->cam = 0;
+}
+
+void Effect120FOV::OnTick()
+{
+	CAM::SET_CAM_ACTIVE(this->cam, true);
+
+	Vector3 camCoord = CAM::GET_GAMEPLAY_CAM_COORD();
+	Vector3 camRotation = CAM::GET_GAMEPLAY_CAM_ROT(2);
+	CAM::SET_CAM_PARAMS(this->cam, camCoord.x, camCoord.y, camCoord.z, camRotation.x, camRotation.y, camRotation.z, 120, 0, 0, 2, 0, 0, 0);
+}
+
+void EffectIgniteNearbyPeds::OnActivate()
+{
+	auto peds = GetNearbyPeds(45);
+
+	for (auto ped : peds)
+	{
+		Hash pedModel = ENTITY::GET_ENTITY_MODEL(ped);
+
+		/** IS_MODEL_A_HORSE */
+		bool bModelIsHorse = invoke<bool>(0x772A1969F649E902, pedModel);
+
+		/** Don't ignite horses */
+		if (!bModelIsHorse)
+		{
+			FIRE::START_ENTITY_FIRE(ped, 1.0f, 0, 0);
+		}
+	}
+}
+
+void EffectLightningOnce::OnActivate()
+{
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	Vector3 playerVec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
 
-	float radius = float(rand() % 100);
+	float radius = float((rand() % 5) + 5);
 
 	/** In radians */
 	float angle = float(rand() % 360) * (M_PI / 180.0f);
@@ -367,5 +634,61 @@ void EffectLightnings::OnTick()
 	playerVec.x += radius * sin(angle);
 	playerVec.y += radius * cos(angle);
 
+	/** _FORCE_LIGHTNING_FLASH_AT_COORDS */
 	invoke<Void>(0x67943537D179597C, playerVec.x, playerVec.y, playerVec.z);
+}
+
+std::vector<Entity> GetNearbyProps(int32_t Max)
+{
+	std::vector<Entity> propsOut;
+
+	if (Max > 255)
+	{
+		Max = 255;
+	}
+
+	int* worldProps = new int[255];
+
+	worldGetAllObjects(worldProps, 255);
+
+	for (int32_t i = 0; i < Max; i++)
+	{
+		Entity prop = worldProps[i];
+		if (ENTITY::DOES_ENTITY_EXIST(Max))
+		{
+			propsOut.push_back(prop);
+		}
+	}
+
+	delete[] worldProps;
+
+	return propsOut;
+}
+
+void EffectLightningEnemy::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	auto nearbyPeds = GetNearbyPeds(45);
+
+	for (auto ped : nearbyPeds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			int rel = PED::GET_RELATIONSHIP_BETWEEN_PEDS(ped, playerPed);
+
+			/** If ped is an enemy */
+			if (rel == 5)
+			{
+				Vector3 vec = ENTITY::GET_ENTITY_COORDS(ped, true, 0);
+
+				ENTITY::SET_ENTITY_HEALTH(ped, 1, 0);
+
+				/** _FORCE_LIGHTNING_FLASH_AT_COORDS */
+				invoke<Void>(0x67943537D179597C, vec.x, vec.y, vec.z);
+
+				return;
+			}
+		}
+	}
 }

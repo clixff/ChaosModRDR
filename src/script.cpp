@@ -76,7 +76,7 @@ void ChaosMod::ToggleModStatus()
 	{
 		ResetEffectsTimeout();
 
-		ModUITextString = "Chaos Mod enabled";
+		ModUITextString = "~COLOR_MENU_GREEN~Chaos Mod enabled\n\n~COLOR_PURE_WHITE~Loaded " + std::to_string(AllEffects.size()) + " effects";
 
 		for (auto* effect : activeEffects)
 		{
@@ -85,7 +85,7 @@ void ChaosMod::ToggleModStatus()
 	}
 	else
 	{
-		ModUITextString = "Chaos Mod disabled";
+		ModUITextString = "~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod disabled";
 
 		activeEffects = {};
 	}
@@ -126,6 +126,7 @@ void ChaosMod::ActivateRandomEffect()
 void ChaosMod::Main()
 {
 	InitWeaponHashes();
+	InitWeatherHashes();
 	InitEffects();
 
 	while (true)
@@ -272,6 +273,18 @@ void ChaosMod::DrawUI()
 
 		UI::DRAW_TEXT(varString, 0.5f, 0.5f);
 	}
+
+
+	UI::SET_TEXT_SCALE(0.0f, 0.45f);
+	UI::SET_TEXT_COLOR_RGBA(255, 255, 255, 120);
+	UI::SET_TEXT_CENTRE(1);
+	UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 255);
+
+	std::string honorStr = "HONOR IS " + std::to_string(int(*getGlobalPtr(0x2BA2)));
+
+	char* varString = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)honorStr.c_str());
+
+	UI::DRAW_TEXT(varString, 0.5f, 0.6f);
 }
 
 bool ChaosMod::isKeyPressed(uint8_t key)
@@ -355,8 +368,6 @@ void ChaosMod::InitEffects()
 		new EffectSpawnVampire(),
 		new EffectGiveRifle(),
 		new EffectGiveRevolver(),
-		new EffectHonor1(), /** Doesn't work */
-		new EffectHonor2(), /** Doesn't work */
 		new EffectRemoveAllWeapons(),
 		new EffectNoAmmo(),
 		new EffectDropWeapon(),
@@ -373,8 +384,56 @@ void ChaosMod::InitEffects()
 		new EffectSpawnGiantCop(),
 		new EffectLaunchPedsUp(),
 		new EffectInvertedGravity(),
-		new EffectLightnings(),
-		new EffectGiveRandomWeapon()
+		new EffectDoomsday(),
+		new EffectGiveRandomWeapon(),
+		new EffectSetDrunk(),
+		new EffectSpawnAngryDwarf(),
+		new EffectSpawnAngrySkeleton(),
+		new EffectSpawnCompanionBertram(),
+		new EffectPlayIntro(),
+		new EffectSetRandomWeather(),
+		new EffectSetSunnyWeather(),
+		new EffectSetRainyWeather(),
+		new EffectSetRapidWeather(),
+		new EffectSetTimeMorning(),
+		new EffectSetTimeNight(),
+		new EffectSetRandomTime(),
+		new EffectClearPursuit(),
+		new EffectIncreaseBounty(),
+		new EffectSpawnFrozenCouple(),
+		new EffectEarthquake(),
+		new EffectRemoveCurrentVehicle(),
+		new EffectMinecartRain(),
+		new EffectGiveLasso(),
+		new EffectFullAcceleration(),
+		new EffectEveryoneIsInvincible(),
+		new EffectTeleportToVanHorn(),
+		new EffectEveryoneExitsVehs(),
+		new EffectSetPlayerIntroRandomVeh(),
+		new Effect120FOV(),
+		new EffectSpawnRobot(),
+		new EffectSpawnHotAirBalloon(),
+		new EffectSpawnLassoGuy(),
+		new EffectIgnitePlayersWagon(),
+		new EffectIgniteNearbyWagons(),
+		new EffectIgnitePlayer(),
+		new EffectIgniteNearbyPeds(),
+		new EffectLightningOnce(),
+		new EffectKickflip(),
+		new EffectSpawnCanoe(),
+		new EffectHorsesRain(),
+		new EffectLightningEnemy(),
+		new EffectLightningWeapons(),
+		new EffectSkyrimIntro(),
+		new EffectCowSkin(),
+		new EffectDwarfSkin(),
+		new EffectPigSkin(),
+		new EffectRatSkin(),
+		new EffectTurtleSkin(),
+		new EffectSpawnParrotCompanion(),
+		new EffectHonorGood(),
+		new EffectHonorBad(),
+		new EffectHonorReset()
 	};
 
 	EffectsMap.clear();

@@ -91,8 +91,8 @@ private:
 	/** Timers and effects */
 
 	/** In seconds */
-	int effectsInterval = 30;
-	int effectsVoteTime = 15;
+	int effectsInterval = 90;
+	int effectsVoteTime = 45;
 
 	uint32_t timeoutStartTime = 0;
 	uint32_t timeoutEndTime = 0;

@@ -3,7 +3,7 @@
 #include "effect.h"
 #include <vector>
 
-Ped SpawnPedAroundPlayer(Hash skinModel);
+Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle = true);
 
 class EffectSpawnSoldier : public Effect
 {
@@ -174,5 +174,111 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectSpawnAngrySkeleton : public Effect
+{
+public:
+	EffectSpawnAngrySkeleton()
+	{
+		ID = "spawn_skeleton";
+		name = "Spawn Angry Skeleton";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnAngryDwarf : public Effect
+{
+public:
+	EffectSpawnAngryDwarf()
+	{
+		ID = "spawn_dwarf";
+		name = "Spawn Angry Dwarf";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnCompanionBertram : public Effect
+{
+public:
+	EffectSpawnCompanionBertram()
+	{
+		ID = "spawn_bertram";
+		name = "Spawn Companion Bertram";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnFrozenCouple : public Effect
+{
+public:
+	EffectSpawnFrozenCouple()
+	{
+		ID = "spawn_frozen_couple";
+		name = "Spawn Frozen Couple";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectSpawnRobot : public Effect
+{
+public:
+	EffectSpawnRobot()
+	{
+		ID = "spawn_robot";
+		name = "Spawn Robot Companion";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnLassoGuy : public Effect
+{
+public:
+	EffectSpawnLassoGuy()
+	{
+		ID = "lasso_guy";
+		name = "Spawn Lasso Guy";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSkyrimIntro : public Effect
+{
+public:
+	EffectSkyrimIntro()
+	{
+		ID = "skyrim_intro";
+		name = "You're Finally Awake";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnParrotCompanion : public Effect
+{
+public:
+	EffectSpawnParrotCompanion()
+	{
+		ID = "parrot_companion";
+		name = "Spawn Parrot Companion";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
 
 std::vector<Ped> GetNearbyPeds(int32_t Max);
+
+void RemoveAllPedWeapons(Ped ped);
