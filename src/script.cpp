@@ -5,6 +5,7 @@
 #include "Effects/vehs.h"
 
 ChaosMod* ChaosMod::Singleton = nullptr;
+std::mutex ChaosMod::globalMutex = std::mutex();
 
 ChaosMod::ChaosMod()
 {
@@ -17,12 +18,6 @@ ChaosMod::~ChaosMod()
 void ChaosMod::ScriptMain()
 {
 	srand(GetTickCount());
-
-	/** Destroy old mod instance */
-	if (ChaosMod::Singleton)
-	{
-		delete ChaosMod::Singleton;
-	}
 
 	/** Create mod instance and activate it */
 	ChaosMod::Singleton = new ChaosMod();
@@ -78,9 +73,9 @@ void ChaosMod::ToggleModStatus()
 
 		ModUITextString = "~COLOR_MENU_GREEN~Chaos Mod enabled\n\n~COLOR_PURE_WHITE~Loaded " + std::to_string(AllEffects.size()) + " effects";
 
-		for (auto* effect : activeEffects)
+		if (wsServer)
 		{
-			effect->OnActivate();
+			wsServer->SendMessageToClient("mod_enabled");
 		}
 	}
 	else
@@ -88,6 +83,16 @@ void ChaosMod::ToggleModStatus()
 		ModUITextString = "~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod disabled";
 
 		activeEffects = {};
+
+		for (auto* effect : activeEffects)
+		{
+			effect->OnDeactivate();
+		}
+
+		if (wsServer)
+		{
+			wsServer->SendMessageToClient("mod_disabled");
+		}
 	}
 
 	ModUITextEndTime = GetTickCount() + 3000;
@@ -128,6 +133,11 @@ void ChaosMod::Main()
 	InitWeaponHashes();
 	InitWeatherHashes();
 	InitEffects();
+
+	wsServer = new WebSocketServer();
+	wsServer->Init(9149);
+
+	wsThread = std::thread([this] {  this->wsServer->Run(); });
 
 	while (true)
 	{
@@ -171,7 +181,10 @@ void ChaosMod::Update()
 
 	if (timeoutVotingStartTime && !bVotingEnabled && GetTickCount() >= timeoutVotingStartTime)
 	{
-		/** TODO: Activate voting */
+		if (wsServer)
+		{
+			wsServer->SendMessageToClient("vote_activate");
+		}
 
 		bVotingEnabled = true;
 
@@ -191,12 +204,49 @@ void ChaosMod::Update()
 	if (timeoutEndTime && GetTickCount() >= timeoutEndTime)
 	{
 		ResetEffectsTimeout();
-		/** TODO: Activate selected effect */
+
 		if (bEffectsActivatesAfterTimer)
 		{
-			ActivateRandomEffect();
+			if (wsServer)
+			{
+				wsServer->SendMessageToClient("vote_ended");
+			}
+			//ActivateRandomEffect();
 		}
 	}
+
+	ChaosMod::globalMutex.lock();
+
+	if (intervalsData.intervalTime)
+	{
+		this->effectsInterval = intervalsData.intervalTime;
+		this->effectsVoteTime = intervalsData.votingTime;
+
+		ResetEffectsTimeout();
+
+		intervalsData.intervalTime = 0;
+		intervalsData.votingTime = 0;
+	}
+
+	if (!effectToActivate.id.empty())
+	{
+		auto* effect = this->EffectsMap[effectToActivate.id];
+
+		if (effect)
+		{
+			effect->name = effectToActivate.name;
+			effect->EffectDuration = effectToActivate.duration;
+
+			this->ActivateEffect(effect);
+		}
+
+		effectToActivate.id = "";
+		effectToActivate.name = "";
+		effectToActivate.duration = 0;
+	}
+
+	ChaosMod::globalMutex.unlock();
+
 
 	DrawUI();
 }
@@ -233,6 +283,23 @@ void ChaosMod::InputTick()
 		if (isKeyPressed(VK_RETURN))
 		{
 			ActivateSelectedEffect();
+		}
+	}
+
+	/** 
+	 * For unknown reason, in debug mode mod breaks when trying to disable it with Ctrl+R if websocketpp loop is active
+	 * So you need to press Ctrl+Y first to stop the websocket server and terminate its thread
+	*/
+	if (isKeyPressed(0x59) && isKeyPressed(VK_CONTROL))
+	{
+		if (wsServer)
+		{
+			MessageBox(NULL, "Websocket server stopped", "ChaosMod", MB_OK);
+			wsServer->Stop();
+			delete wsServer;
+			wsServer = nullptr;
+
+			wsThread.join();
 		}
 	}
 }
@@ -273,18 +340,6 @@ void ChaosMod::DrawUI()
 
 		UI::DRAW_TEXT(varString, 0.5f, 0.5f);
 	}
-
-
-	UI::SET_TEXT_SCALE(0.0f, 0.45f);
-	UI::SET_TEXT_COLOR_RGBA(255, 255, 255, 120);
-	UI::SET_TEXT_CENTRE(1);
-	UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 255);
-
-	std::string honorStr = "HONOR IS " + std::to_string(int(*getGlobalPtr(0x2BA2)));
-
-	char* varString = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)honorStr.c_str());
-
-	UI::DRAW_TEXT(varString, 0.5f, 0.6f);
 }
 
 bool ChaosMod::isKeyPressed(uint8_t key)

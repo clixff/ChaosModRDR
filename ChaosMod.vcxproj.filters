@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Effects">
       <UniqueIdentifier>{eaa6283a-e9ae-4403-8b6e-c09e328d6756}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Server">
+      <UniqueIdentifier>{c4a50baa-94f5-48b5-b7d1-0ac07fe0d32e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -41,6 +44,9 @@
     </ClCompile>
     <ClCompile Include="src\Effects\vehs.cpp">
       <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\server.cpp">
+      <Filter>Source Files\Server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +82,12 @@
     </ClInclude>
     <ClInclude Include="src\Effects\vehs.h">
       <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\server.h">
+      <Filter>Source Files\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pch.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

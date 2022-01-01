@@ -51,26 +51,10 @@ public:
 	static std::vector<Hash> weatherHashes;
 };
 
-class TestEffect : public Effect
+/** Effect data from nodejs */
+struct EffectToActivate
 {
-public:
-	TestEffect()
-	{
-		ID = "test_effect";
-		name = "Test Effect";
-		bTimed = false;
-	}
+	std::string id = "";
+	std::string name = "";
+	int32_t duration = 0;
 };
-
-class TestEffectTimed : public Effect
-{
-public:
-	TestEffectTimed()
-	{
-		ID = "test_effect_timed";
-		name = "Test Effect Timed";
-		bTimed = true;
-		EffectDuration = 30;
-	}
-};
-

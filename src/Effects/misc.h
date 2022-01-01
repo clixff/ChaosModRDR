@@ -92,7 +92,7 @@ public:
 		ID = "peds_wanna_kill_player";
 		name = "Peds Wanna Kill Player";
 		bTimed = true;
-		EffectDuration = 30;
+		EffectDuration = 25;
 	}
 
 	virtual void OnActivate() override;

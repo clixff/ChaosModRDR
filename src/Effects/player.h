@@ -104,7 +104,7 @@ public:
 	EffectGivePlayerMoney()
 	{
 		ID = "give_player_money";
-		name = "Give the player 300$";
+		name = "Give 300$ to Player";
 		bTimed = false;
 	}
 
@@ -130,7 +130,7 @@ public:
 	EffectGiveRifle()
 	{
 		ID = "give_rifle";
-		name = "Give the player a rifle";
+		name = "Give a Rifle to Player";
 		bTimed = false;
 	}
 
@@ -143,7 +143,7 @@ public:
 	EffectGiveRevolver()
 	{
 		ID = "give_revolver";
-		name = "Give the player a revolver";
+		name = "Give a Revolver To Player";
 		bTimed = false;
 	}
 
@@ -170,7 +170,7 @@ public:
 	EffectRemoveAllWeapons()
 	{
 		ID = "remove_all_weapons";
-		name = "Remove all player weapons";
+		name = "Remove All Player Weapons";
 		bTimed = false;
 	}
 
@@ -310,6 +310,8 @@ public:
 
 	virtual void OnActivate() override;
 	virtual void OnDeactivate() override;
+
+	virtual void OnTick() override;
 };
 
 class EffectClearPursuit : public Effect

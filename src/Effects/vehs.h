@@ -56,7 +56,7 @@ class EffectFullAcceleration : public Effect
 public:
 	EffectFullAcceleration()
 	{
-		ID = "full acceleration";
+		ID = "full_acceleration";
 		name = "Full Acceleration";
 		bTimed = true;
 		EffectDuration = 30;
@@ -141,9 +141,9 @@ public:
 		name = "Spawn Canoe";
 	}
 
-	virtual void OnActivate() override;
+	virtual void OnActivate() override; 
 };
-
+ 
 class EffectHorsesRain : public Effect
 {
 public:

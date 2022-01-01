@@ -219,6 +219,16 @@ void EffectSetDrunk::OnDeactivate()
 	GRAPHICS::ANIMPOSTFX_STOP((char*)"PlayerDrunk01");
 }
 
+void EffectSetDrunk::OnTick()
+{
+	Effect::OnTick();
+
+	if (GetTickCount() % 4000 == 0)
+	{
+		PED::SET_PED_TO_RAGDOLL(PLAYER::PLAYER_PED_ID(), 1000, 1000, 0, true, true, false);
+	}
+}
+
 void EffectClearPursuit::OnActivate()
 {
 	Player player = PLAYER::PLAYER_ID();
@@ -251,6 +261,11 @@ void EffectRemoveCurrentVehicle::OnActivate()
 	else if (PED::IS_PED_ON_MOUNT(playerPed))
 	{
 		Ped mount = PED::GET_MOUNT(playerPed);
+
+		/** _REMOVE_PED_FROM_MOUNT */
+		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
+
+		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(mount, false, false);
 
 		PED::DELETE_PED(&mount);
 	}
@@ -390,7 +405,7 @@ void EffectHonorGood::OnActivate()
 	*getGlobalPtr(1347477 + 155 + 1) = 240;
 }
 
-void EffectHonorBad::OnActivate()
+void EffectHonorBad::OnActivate() 
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 

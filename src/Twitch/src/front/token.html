@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChaosModRDR</title>
+</head>
+<body>
+    OK
+    <script type="text/javascript">
+        console.log("Test");
+        const hash=window.location.hash;
+        console.log(hash);
+        window.location.hash="";
+        if(hash.startsWith("#access_token="))
+        { 
+            const tokenStr=hash.slice(14, 44); 
+            fetch(`http://${window.location.host}/token-update?token=${tokenStr}`, { method: "POST" } );
+        }
+    </script>
+</body>
+</html>

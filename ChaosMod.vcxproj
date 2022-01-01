@@ -26,6 +26,7 @@
     <ClCompile Include="src\Effects\vehs.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\script.cpp" />
+    <ClCompile Include="src\server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\rdr2_sdk\inc\enums.h" />
@@ -38,7 +39,9 @@
     <ClInclude Include="src\Effects\peds.h" />
     <ClInclude Include="src\Effects\player.h" />
     <ClInclude Include="src\Effects\vehs.h" />
+    <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\script.h" />
+    <ClInclude Include="src\server.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -162,12 +165,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;CHAOSMOD_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;ASIO_STANDALONE;_WEBSOCKETPP_CPP11_INTERNAL_;_WEBSOCKETPP_CPP11_FUNCTIONAL_;WIN32;NDEBUG;CHAOSMOD_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>E:\source\rdr2_sdk\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>thirdparty\asio\asio\include;thirdparty\rapidjson\include;thirdparty\websocketpp;E:\source\rdr2_sdk\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

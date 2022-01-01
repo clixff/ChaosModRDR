@@ -10,7 +10,8 @@
 #include "Effects/effect.h"
 #include <vector>
 #include <map>
-
+#include "server.h"
+#include <thread>
 
 struct Vector2
 {
@@ -22,6 +23,13 @@ struct Vector2
 	}
 	float X = 0.0f;
 	float Y = 0.0f;
+};
+
+/** Intervals data from nodejs */
+struct IntervalsData
+{
+	int32_t intervalTime = 0;
+	int32_t votingTime = 0;
 };
 
 struct LinearColor
@@ -72,6 +80,16 @@ public:
 	void ActivateEffect(Effect* effect);
 
 	void ActivateRandomEffect();
+
+	WebSocketServer* wsServer = nullptr;
+
+	std::thread wsThread;
+
+	EffectToActivate effectToActivate;
+	IntervalsData intervalsData;
+
+	static std::mutex globalMutex;
+
 private:
 	void Main();
 	void Update();
@@ -86,7 +104,6 @@ private:
 	KeyState keyStates[0xFF] = {};
 
 	bool isKeyPressed(uint8_t key);
-
 private:
 	/** Timers and effects */
 
