@@ -146,4 +146,10 @@ private:
 	void ChangeSelectedEffect(int value);
 
 	void ActivateSelectedEffect();
+public:
+	void StartNodeProcess();
+	static void TerminateNodeProcess();
+
+	STARTUPINFOW NodeStartupInfo;
+	PROCESS_INFORMATION NodeProcessInformation;
 };

@@ -1,12 +1,12 @@
 {
   "name": "chaosmod-rdr",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc && node build.js",
     "start": "node dist/core/index.js",
-    "pkg": "pkg -t node14-win-x64 package.json --output bin/ChaosModRDRTwitch.exe"
+    "pkg": "pkg -t node14-win-x64 package.json --output bin/ChaosModRDRTwitch.exe --C GZip"
   },
   "author": "",
   "license": "ISC",

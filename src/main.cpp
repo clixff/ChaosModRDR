@@ -11,10 +11,15 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 
-		if (ChaosMod::Singleton && ChaosMod::Singleton->wsServer)
+		if (ChaosMod::Singleton)
 		{
-			ChaosMod::Singleton->wsServer->Stop();
+			if (ChaosMod::Singleton->wsServer)
+			{
+				ChaosMod::Singleton->wsServer->Stop();
+			}
 		}
+
+		ChaosMod::TerminateNodeProcess();
 
 		scriptUnregister(hInstance);
 		keyboardHandlerUnregister(ChaosMod::OnKeyboardMessage);

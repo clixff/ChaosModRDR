@@ -3,6 +3,7 @@
 #include "Effects/player.h"
 #include "Effects/misc.h"
 #include "Effects/vehs.h"
+#include <tlhelp32.h>
 
 ChaosMod* ChaosMod::Singleton = nullptr;
 std::mutex ChaosMod::globalMutex = std::mutex();
@@ -128,6 +129,55 @@ void ChaosMod::ActivateRandomEffect()
 	ActivateEffect(AllEffects[effectID]);
 }
 
+void ChaosMod::StartNodeProcess()
+{
+	ZeroMemory(&this->NodeStartupInfo, sizeof(this->NodeStartupInfo));
+	NodeStartupInfo.cb = sizeof(this->NodeStartupInfo);
+	ZeroMemory(&this->NodeProcessInformation, sizeof(this->NodeProcessInformation));
+
+	WCHAR gameDir[MAX_PATH];
+	GetCurrentDirectoryW(MAX_PATH, gameDir);
+
+	std::wstring chaosDir = gameDir;
+
+	chaosDir += +L"\\ChaosMod";
+
+	std::wstring exePath = chaosDir;
+
+	exePath += L"\\ChaosModRDRTwitch.exe";
+
+
+	LPWSTR exePath_c = const_cast<wchar_t*>(exePath.c_str());
+	LPWSTR chaosDir_c = const_cast<wchar_t*>(chaosDir.c_str());
+
+	auto processCreationResult = CreateProcessW(NULL, exePath_c, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, chaosDir_c, &NodeStartupInfo, &NodeProcessInformation);
+}
+
+void ChaosMod::TerminateNodeProcess()
+{
+	PROCESSENTRY32W processEntry;
+	processEntry.dwSize = sizeof(PROCESSENTRY32W);
+
+	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+	if (Process32FirstW(snapshot, &processEntry) == TRUE)
+	{
+		while (Process32NextW(snapshot, &processEntry) == TRUE)
+		{
+			if (_wcsicmp(processEntry.szExeFile, L"ChaosModRDRTwitch.exe") == 0)
+			{
+				HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processEntry.th32ProcessID);
+
+				TerminateProcess(hProcess, 0);
+
+				CloseHandle(hProcess);
+			}
+		}
+	}
+
+	CloseHandle(snapshot);
+}
+
 void ChaosMod::Main()
 {
 	InitWeaponHashes();
@@ -138,6 +188,10 @@ void ChaosMod::Main()
 	wsServer->Init(9149);
 
 	wsThread = std::thread([this] {  this->wsServer->Run(); });
+	
+	TerminateNodeProcess();
+
+	StartNodeProcess();
 
 	while (true)
 	{
@@ -235,7 +289,10 @@ void ChaosMod::Update()
 		if (effect)
 		{
 			effect->name = effectToActivate.name;
-			effect->EffectDuration = effectToActivate.duration;
+			if (effectToActivate.duration)
+			{
+				effect->EffectDuration = effectToActivate.duration;
+			}
 
 			this->ActivateEffect(effect);
 		}
@@ -294,13 +351,19 @@ void ChaosMod::InputTick()
 	{
 		if (wsServer)
 		{
-			MessageBox(NULL, "Websocket server stopped", "ChaosMod", MB_OK);
+			MessageBeep(MB_OK);
 			wsServer->Stop();
 			delete wsServer;
 			wsServer = nullptr;
 
 			wsThread.join();
 		}
+
+		HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, NodeProcessInformation.dwProcessId);
+
+		TerminateProcess(hProcess, 0);
+
+		CloseHandle(hProcess);
 	}
 }
 
@@ -502,6 +565,8 @@ void ChaosMod::InitEffects()
 
 void ChaosMod::ToggleDefaultEffectActivation()
 {
+	MessageBeep(MB_OK);
+
 	bEffectsActivatesAfterTimer = !bEffectsActivatesAfterTimer;
 }
 
