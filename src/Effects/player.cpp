@@ -208,6 +208,8 @@ void EffectSetDrunk::OnActivate()
 	CAM::SHAKE_GAMEPLAY_CAM((char*)"DRUNK_SHAKE", 1.0f);
 	PED::SET_PED_CONFIG_FLAG(playerPed, 100, true);
 	GRAPHICS::ANIMPOSTFX_PLAY((char*)"PlayerDrunk01");
+
+	invoke<Void>(0x406CCF555B04FAD3, playerPed, true, 1.0f);
 }
 
 void EffectSetDrunk::OnDeactivate()
@@ -217,13 +219,15 @@ void EffectSetDrunk::OnDeactivate()
 	CAM::STOP_GAMEPLAY_CAM_SHAKING(true);
 	PED::SET_PED_CONFIG_FLAG(playerPed, 100, false);
 	GRAPHICS::ANIMPOSTFX_STOP((char*)"PlayerDrunk01");
+
+	invoke<Void>(0x406CCF555B04FAD3, playerPed, false, 0.0f);
 }
 
 void EffectSetDrunk::OnTick()
 {
 	Effect::OnTick();
 
-	if (GetTickCount() % 4000 == 0)
+	if (GetTickCount() % 7000 == 0)
 	{
 		PED::SET_PED_TO_RAGDOLL(PLAYER::PLAYER_PED_ID(), 1000, 1000, 0, true, true, false);
 	}
@@ -425,6 +429,8 @@ void EffectHonorGood::OnActivate()
 
 void EffectHonorBad::OnActivate() 
 {
+	Effect:OnActivate();
+
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	(*getGlobalPtr(0x2BA2)) = 0;
@@ -436,6 +442,8 @@ void EffectHonorBad::OnActivate()
 
 void EffectHonorReset::OnActivate()
 {
+	Effect::OnActivate();
+
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	(*getGlobalPtr(0x2BA2)) = 0;
@@ -443,4 +451,180 @@ void EffectHonorReset::OnActivate()
 	int honor = *getGlobalPtr(0x2BA2);
 
 	*getGlobalPtr(1347477 + 155 + 1) = 40;
+}
+
+void EffectPlayerSleep::OnActivate()
+{
+	Effect::OnActivate();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		Vector3 vec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+		ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z + 2.0f, false, false, false, false);
+	}
+
+	PED::SET_PED_TO_RAGDOLL(playerPed, EffectDuration * 1000 + 3000, EffectDuration * 1000 + 3000, 0, true, true, false);
+}
+
+void EffectPlayerIsMinion::OnActivate()
+{
+	Effect::OnActivate();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	/** _SET_PED_SCALE */
+	invoke<Void>(0x25ACFC650B65C538, playerPed, 0.4f);
+}
+
+void EffectPlayerIsMinion::OnDeactivate()
+{
+	Effect::OnDeactivate();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	/** _SET_PED_SCALE */
+	invoke<Void>(0x25ACFC650B65C538, playerPed, 1.0f);
+}
+
+void EffectTeleportToWaypoint::OnActivate()
+{
+	Effect::OnDeactivate();
+
+	if (!RADAR::IS_WAYPOINT_ACTIVE())
+	{
+		return;
+	}
+
+	Entity entity = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(entity, true))
+	{
+		entity = PED::GET_VEHICLE_PED_IS_IN(entity, false);
+	}
+	else if (PED::IS_PED_ON_MOUNT(entity))
+	{
+		entity = PED::GET_MOUNT(entity);
+	}
+
+	Vector3 coords = RADAR::GET_WAYPOINT_COORDS_3D();
+
+	bool bUpdatedCoords = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, 100.0, &coords.z, FALSE);
+
+	if (!bUpdatedCoords)
+	{
+		static const float groundCheckHeight[] = {
+				100.0, 150.0, 50.0, 0.0, 200.0, 250.0, 300.0, 350.0, 400.0,
+				450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0
+		};
+
+		for (float height : groundCheckHeight)
+		{
+			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(entity, coords.x, coords.y, height, 0, 0, 1);
+			WAIT(100);
+			if (GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, height, &coords.z, FALSE))
+			{
+				coords.z += 3.0;
+				break;
+			}
+		}
+	}
+
+	ENTITY::SET_ENTITY_COORDS(entity, coords.x, coords.y, coords.z, false, false, false, false);
+}
+
+void EffectExplosiveWeapons::OnActivate()
+{
+	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+}
+
+void EffectExplosiveWeapons::OnDeactivate()
+{
+	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+}
+
+void EffectExplosiveWeapons::OnTick()
+{
+	Vector3 vec;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
+
+	if (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z)
+	{
+		return;
+	}
+
+	lastVec = vec;
+
+	FIRE::ADD_EXPLOSION(vec.x, vec.y, vec.z, 27, 1.0f, true, false, 1.0f);
+}
+
+void EffectBloodTrails::OnTick()
+{
+	if (GetTickCount() % 5000 == 0)
+	{
+		invoke<Void>(0xC349EE1E6EFA494B, PLAYER::PLAYER_PED_ID(), 1.0f, 1.0f, 1.0f);
+	}
+}
+
+void EffectSetRandomWalkStyle::OnActivate()
+{
+	static std::vector<const char*> walkStyles = {
+		"cower_known",
+		"injured_left_leg"
+		"injured_general",
+		"injured_right_leg",
+		"injured_left_arm",
+		"injured_right_arm",
+		"injured_torso",
+		"very_drunk",
+		"moderate_drunk"
+	};
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	invoke<Void>(0x923583741DC87BCE, playerPed, "default");
+	invoke<Void>(0x89F5E7ADECCCB49C, playerPed, walkStyles[rand() % walkStyles.size()]);
+}
+
+void EffectSetRandomWalkStyle::OnDeactivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	invoke<Void>(0x923583741DC87BCE, playerPed, "arthur_healthy");
+	invoke<Void>(0x89F5E7ADECCCB49C, playerPed, "default");
+}
+
+void EffectTeleportWeapons::OnActivate()
+{
+	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+}
+
+void EffectTeleportWeapons::OnDeactivate()
+{
+	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+}
+
+void EffectTeleportWeapons::OnTick()
+{
+	Vector3 vec;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
+
+	if (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z)
+	{
+		return;
+	}
+
+	lastVec = vec;
+
+	ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z + 0.0f, false, false, false, false);
 }

@@ -369,4 +369,64 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectAltTab : public Effect
+{
+public:
+	EffectAltTab()
+	{
+		ID = "alt_tab";
+		name = "Alt + Tab";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectRemoveWeaponFromEveryone : public Effect
+{
+public:
+	EffectRemoveWeaponFromEveryone()
+	{
+		ID = "remove_weapons_everyone";
+		name = "Remove Weapons From Everyone";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSetFoggyWeather : public Effect
+{
+public:
+	EffectSetFoggyWeather()
+	{
+		ID = "set_foggy_weather";
+		name = "Set Foggy Weather";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectGhostTown : public Effect
+{
+public:
+	EffectGhostTown()
+	{
+		ID = "ghost_town";
+		name = "Ghost Town";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+	virtual void OnTick() override;
+private:
+	std::set<Entity> entities;
+};
+
+
+
 std::vector<Entity> GetNearbyProps(int32_t Max);

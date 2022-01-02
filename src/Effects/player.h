@@ -499,5 +499,117 @@ public:
 	}
 };
 
+class EffectPlayerSleep : public IEffectSkinChange
+{
+public:
+	EffectPlayerSleep()
+	{
+		ID = "player_sleep";
+		name = "I Need Some Sleep";
+		bTimed = true;
+		EffectDuration = 15;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectPlayerIsMinion : public IEffectSkinChange
+{
+public:
+	EffectPlayerIsMinion()
+	{
+		ID = "player_minion";
+		name = "Player Is Minion";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+};
+
+
+class EffectTeleportToWaypoint : public IEffectSkinChange
+{
+public:
+	EffectTeleportToWaypoint()
+	{
+		ID = "tp_to_waypoint";
+		name = "Teleport To Waypoint";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
 void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val);
 void ResetPlayerModel(uint64_t ptr1_val, uint64_t ptr2_val);
+
+class EffectExplosiveWeapons : public Effect
+{
+public:
+	EffectExplosiveWeapons()
+	{
+		ID = "explosive_weapons";
+		name = "Explosive Weapons";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+
+	virtual void OnTick() override;
+private:
+	Vector3 lastVec;
+};
+
+class EffectTeleportWeapons : public Effect
+{
+public:
+	EffectTeleportWeapons()
+	{
+		ID = "teleport_weapons";
+		name = "Teleportation Weapons";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+
+	virtual void OnTick() override;
+private:
+	Vector3 lastVec;
+};
+
+
+class EffectBloodTrails : public Effect
+{
+public:
+	EffectBloodTrails()
+	{
+		ID = "blood_trails";
+		name = "Blood Trails";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnTick() override;
+};
+
+
+class EffectSetRandomWalkStyle : public Effect
+{
+public:
+	EffectSetRandomWalkStyle()
+	{
+		ID = "random_walk_style";
+		name = "Set Random Walk Style";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+};

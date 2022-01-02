@@ -423,3 +423,97 @@ void EffectHorsesRain::OnTick()
 
 	horses.push_back(horse);
 }
+
+void EffectDetachWheels::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		for (int32_t i = 0; i < 4; i++)
+		{
+			invoke<Void>(0xd4f5efb55769d272, veh, i);
+		}
+
+	}
+}
+
+void EffectSetPedsIntoPlayerVehicle::OnActivate()
+{
+	Effect::OnActivate();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	auto nearbyPeds = GetNearbyPeds(30);
+
+	bool bIsMount = false;
+
+	Entity veh = 0;
+	int32_t seatsNum = 0;
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		auto hash = ENTITY::GET_ENTITY_MODEL(veh);
+
+		seatsNum = VEHICLE::GET_VEHICLE_MODEL_NUMBER_OF_SEATS(hash) - 1;
+	}
+	else if (PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		bIsMount = true;
+		veh = PED::GET_MOUNT(playerPed);
+	}
+	else
+	{
+		return;
+	}
+
+	for (auto ped : nearbyPeds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			auto hash = ENTITY::GET_ENTITY_MODEL(ped);
+
+			/** IS_MODEL_A_HORSE */
+			bool bModelIsHorse = invoke<bool>(0x772A1969F649E902, hash);
+
+			if (bModelIsHorse)
+			{
+				continue;
+			}
+
+			if (bIsMount)
+			{
+				bool bIsMountSeatFree = invoke<bool>(0xAAB0FE202E9FC9F0, veh, 0);
+				if (bIsMountSeatFree)
+				{
+					/** __SET_PED_ON_MOUNT */
+					invoke<Void>(0x028F76B6E78246EB, ped, veh, 0, true);
+				}
+
+				return;
+			}
+			else
+			{
+				for (int32_t i = 0; i < seatsNum; i++)
+				{
+					bool bIsSeatFree = VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i);
+
+					if (bIsSeatFree)
+					{
+						PED::SET_PED_INTO_VEHICLE(ped, veh, i);
+						break;
+					}
+
+					if (i == seatsNum - 1)
+					{
+						return;
+					}
+				}
+			}
+		}
+	}
+}

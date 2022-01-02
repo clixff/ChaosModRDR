@@ -254,7 +254,7 @@ void EffectAllPedsWannaKillPlayer::OnTick()
 
 void EffectRagdollEveryone::OnActivate()
 {
-	auto nearbyPeds = GetNearbyPeds(45);
+	auto nearbyPeds = GetNearbyPeds(100);
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	nearbyPeds.push_back(playerPed);
@@ -270,7 +270,7 @@ void EffectRagdollEveryone::OnActivate()
 
 void EffectLaunchPedsUp::OnActivate()
 {
-	auto nearbyPeds = GetNearbyPeds(45);
+	auto nearbyPeds = GetNearbyPeds(100);
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	bool bPlayerOnMount = PED::IS_PED_ON_MOUNT(playerPed);
@@ -296,7 +296,7 @@ void EffectLaunchPedsUp::OnActivate()
 
 void EffectInvertedGravity::OnActivate()
 {
-	auto nearbyPeds = GetNearbyPeds(45);
+	auto nearbyPeds = GetNearbyPeds(100);
 	entities.clear();
 
 	nearbyPeds.push_back(PLAYER::PLAYER_PED_ID());
@@ -689,6 +689,99 @@ void EffectLightningEnemy::OnActivate()
 
 				return;
 			}
+		}
+	}
+}
+
+void EffectAltTab::OnActivate()
+{
+	HWND hWnd = FindWindow(NULL, "Red Dead Redemption 2");
+
+	if (IsWindow(hWnd))
+	{
+		PostMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+	}
+}
+
+void EffectRemoveWeaponFromEveryone::OnActivate()
+{
+	Effect::OnActivate();
+
+	auto peds = GetNearbyPeds(45);
+
+	peds.push_back(PLAYER::PLAYER_PED_ID());
+
+	for (auto ped : peds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			Hash pedModel = ENTITY::GET_ENTITY_MODEL(ped);
+
+			/** IS_MODEL_A_HORSE */
+			bool bModelIsHorse = invoke<bool>(0x772A1969F649E902, pedModel);
+
+			if (!bModelIsHorse)
+			{
+				RemoveAllPedWeapons(ped);
+			}
+		}
+	}
+}
+
+void EffectSetFoggyWeather::OnActivate()
+{
+	SetWeather(GAMEPLAY::GET_HASH_KEY((char*)"FOG"));
+}
+
+
+
+void EffectGhostTown::OnActivate()
+{
+	Effect::OnActivate();
+
+	entities.clear();
+}
+
+void EffectGhostTown::OnDeactivate()
+{
+	Effect::OnDeactivate();
+
+	for (auto entity : entities)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(entity))
+		{
+			ENTITY::SET_ENTITY_VISIBLE(entity, true);
+		}
+	}
+
+	entities.clear();
+}
+
+void EffectGhostTown::OnTick()
+{
+	Effect::OnTick();
+
+	if (GetTickCount() % 1000)
+	{
+		return;
+	}
+
+	auto nearbyPeds = GetNearbyPeds(40);
+	auto nearbyVehs = GetNearbyVehs(40);
+
+	auto nearbyEntites = nearbyVehs;
+
+	for (auto ped : nearbyPeds)
+	{
+		nearbyEntites.push_back(ped);
+	}
+
+	for (auto entity : nearbyEntites)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(entity))
+		{
+			entities.insert(entity);
+			ENTITY::SET_ENTITY_VISIBLE(entity, false);
 		}
 	}
 }

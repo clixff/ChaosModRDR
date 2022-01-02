@@ -163,3 +163,27 @@ private:
 	std::vector<Ped> horses;
 
 };
+
+class EffectDetachWheels : public Effect
+{
+public:
+	EffectDetachWheels()
+	{
+		ID = "detach_wheels";
+		name = "Detach Wheels From Player's Veh";
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSetPedsIntoPlayerVehicle : public Effect
+{
+public:
+	EffectSetPedsIntoPlayerVehicle()
+	{
+		ID = "set_peds_into_player_veh";
+		name = "Teleport Peds Into Player's Veh";
+	}
+
+	virtual void OnActivate() override;
+};

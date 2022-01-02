@@ -415,6 +415,14 @@ void EffectSpawnAngryDwarf::OnActivate()
 	SetPedOnMount(ped, horse, -1);
 
 	MarkPedAsEnemy(ped);
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, true) && !PED::IS_PED_ON_MOUNT(playerPed))
+	{
+
+	}
+
+	/** _REMOVE_PED_FROM_MOUNT */
+	invoke<Void>(0x5337B721C51883A9, ped, 0, 0);
 }
 
 void EffectSpawnCompanionBertram::OnActivate()
@@ -594,4 +602,115 @@ void EffectSpawnShireHorse::OnActivate()
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	SetPedOnMount(playerPed, horse, -1);
+}
+
+void EffectUndeadNightmare::OnActivate()
+{
+	Effect::OnActivate();
+
+	TIME::SET_CLOCK_TIME(22, 0, 0);
+
+	static Hash weatherHash = GAMEPLAY::GET_HASH_KEY((char*)"FOG");
+
+	GAMEPLAY::CLEAR_OVERRIDE_WEATHER();
+	GAMEPLAY::SET_WEATHER_TYPE(weatherHash, 0, 1, 0, 0.0, 0);
+	GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+
+	static Hash skin = GAMEPLAY::GET_HASH_KEY((char*)"A_M_M_ARMCHOLERACORPSE_01");
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Vector3 playerVec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+	static Hash copGroup = GAMEPLAY::GET_HASH_KEY((char*)"COP");
+	static Hash civ1Group = GAMEPLAY::GET_HASH_KEY((char*)"CIVMALE");
+	static Hash civ2Group = GAMEPLAY::GET_HASH_KEY((char*)"CIVFEMALE");
+	static Hash playerGroup = GAMEPLAY::GET_HASH_KEY((char*)"PLAYER");
+
+	Hash enemyGroup;
+
+	PED::ADD_RELATIONSHIP_GROUP((char*)"_CHAOS_ZOMBIE", &enemyGroup);
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, playerGroup);
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, playerGroup, enemyGroup);
+
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, copGroup, enemyGroup);
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, copGroup);
+
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, civ1Group, enemyGroup);
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, civ1Group);
+
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, civ2Group, enemyGroup);
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, civ2Group);
+
+	for (int32_t i = 0; i < 5; i++)
+	{
+		Ped zombie = SpawnPedAroundPlayer(skin, false);
+
+		float radius = 10.0f;
+
+		Vector3 coord = playerVec;
+
+		/** In radians */
+		float angle = i * (360.0f / 5) * (M_PI / 180.0f);
+
+		coord.x += radius * sin(angle);
+		coord.y += radius * cos(angle);
+
+		ENTITY::SET_ENTITY_COORDS(zombie, coord.x, coord.y, coord.z, false, false, false, false);
+
+		/** Set walking style */
+		invoke<Void>(0x89F5E7ADECCCB49C, zombie, "very_drunk");
+
+		static Hash combatMod = GAMEPLAY::GET_HASH_KEY((char*)"MeleeApproach");
+		
+		/** _SET_PED_COMBAT_STYLE_MOD */
+		invoke<Void>(0x8B1E8E35A6E814EA, zombie, combatMod, -1.0f);
+
+		PED::SET_PED_RELATIONSHIP_GROUP_HASH(zombie, enemyGroup);
+
+		/** BF_CanFightArmedPedsWhenNotArmed */
+		PED::SET_PED_COMBAT_ATTRIBUTES(zombie, 5, true);
+		/** BF_AlwaysFight */
+		PED::SET_PED_COMBAT_ATTRIBUTES(zombie, 46, true);
+		/** BF_CanUseVehicles */
+		PED::SET_PED_COMBAT_ATTRIBUTES(zombie, 1, false);
+		/** BF_CanLeaveVehicle */
+		PED::SET_PED_COMBAT_ATTRIBUTES(zombie, 3, true);
+
+		AI::TASK_COMBAT_PED(zombie, PLAYER::PLAYER_PED_ID(), 0, 16);
+	}
+}
+
+void EffectSpawnDogCompanion::OnActivate()
+{
+	Effect::OnActivate();
+
+	static std::vector<const char*> dogModels = {
+		"A_C_DogAmericanFoxhound_01",
+		"A_C_DogAustralianSheperd_01",
+		"A_C_DogBluetickCoonhound_01",
+		"A_C_DogCatahoulaCur_01",
+		"A_C_DogChesBayRetriever_01",
+		"A_C_DogCollie_01",
+		"A_C_DogHobo_01",
+		"A_C_DogHound_01",
+		"A_C_DogHusky_01"
+	};
+
+	Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)dogModels[rand() % dogModels.size()]);
+
+	Ped ped = SpawnPedAroundPlayer(skinModel);
+
+	MarkPedAsCompanion(ped);
+}
+
+void EffectSpawnCatCompanion::OnActivate()
+{
+	Effect::OnActivate();
+
+	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Cat_01");
+
+	Ped ped = SpawnPedAroundPlayer(skinModel);
+
+	MarkPedAsCompanion(ped);
 }

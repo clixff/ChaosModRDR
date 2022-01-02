@@ -2,6 +2,7 @@
 
 #include "effect.h"
 #include <vector>
+#include <set>
 
 Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle = true);
 
@@ -286,6 +287,45 @@ public:
 	{
 		ID = "spawn_shire_horse";
 		name = "Spawn Shire Horse";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectUndeadNightmare : public Effect
+{
+public:
+	EffectUndeadNightmare()
+	{
+		ID = "undead_nightmare";
+		name = "Undead Nightmare";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnDogCompanion : public Effect
+{
+public:
+	EffectSpawnDogCompanion()
+	{
+		ID = "spawn_dog_companion";
+		name = "Spawn Dog Companion";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnCatCompanion : public Effect
+{
+public:
+	EffectSpawnCatCompanion()
+	{
+		ID = "spawn_cat_companion";
+		name = "Spawn Cat Companion";
 		bTimed = false;
 	}
 
