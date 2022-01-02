@@ -7,6 +7,11 @@ body, html, #wrapper
     user-select: none;
 }
 
+#wrapper
+{
+    transition: opacity 500ms ease;
+}
+
 #votes
 {
     font-size: 24px;

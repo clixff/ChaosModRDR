@@ -8,6 +8,7 @@ export interface IEffect
     name: string,
     enabled: boolean;
     duration?: number;
+    chance?: number;
 };
 
 export interface IConfig

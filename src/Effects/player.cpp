@@ -386,6 +386,24 @@ void IEffectSkinChange::OnActivate()
 {
 	Effect::OnActivate();
 
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		Vector3 vec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+		ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z + 2.0f, false, false, false, false);
+	}
+	else if (PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		Ped mount = PED::GET_MOUNT(playerPed);
+
+		/** _REMOVE_PED_FROM_MOUNT */
+		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
+	}
+
 	SetPlayerModel(this->skinToSet, &oldSkin1, &oldSkin2);
 }
 

@@ -279,6 +279,19 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectSpawnShireHorse : public Effect
+{
+public:
+	EffectSpawnShireHorse()
+	{
+		ID = "spawn_shire_horse";
+		name = "Spawn Shire Horse";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 
 void RemoveAllPedWeapons(Ped ped);

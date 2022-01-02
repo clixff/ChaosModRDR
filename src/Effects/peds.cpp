@@ -582,3 +582,16 @@ void EffectSpawnParrotCompanion::OnActivate()
 		ENTITY::SET_ENTITY_COORDS(ped, vec.x, vec.y, vec.z, false, false, false, false);
 	}
 }
+
+void EffectSpawnShireHorse::OnActivate()
+{
+	Effect::OnActivate();
+
+	static Hash horseModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Horse_Shire_DarkBay");
+
+	Ped horse = SpawnPedAroundPlayer(horseModel);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	SetPedOnMount(playerPed, horse, -1);
+}

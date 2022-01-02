@@ -35,8 +35,13 @@ const poll: [IEffectVotingData, IEffectVotingData, IEffectVotingData, IEffectVot
 
 let bVotingActive = false;
 
-let effectsList: Array<IEffect> = [];
+export let effectsList: Array<IEffect> = [];
 let effectsMap = new Map<string, IEffect>();
+
+/** Temporarily disabled effects 
+ *  (They were activated in previous poll)
+ */
+export let disabledEffects: Array<IEffect> = [];
 
 export function newVote(optionNum: number, userID: string)
 {
@@ -60,6 +65,18 @@ export function newVote(optionNum: number, userID: string)
     }
 }
 
+export function reactivateDisabledEffects()
+{
+    for (let effect of disabledEffects)
+    {
+        if (!effectsList.includes(effect))
+        {
+            effectsList.push(effect);
+        }
+    }
+
+    disabledEffects = [];
+}
 
 export function getWinnerIDByVotes(votes: Array<number>): number
 {
@@ -108,18 +125,46 @@ export function setVotingActive(value: boolean): void
     bVotingActive = value;
 };
 
+export function generateRandomEffectWithChance(effects: Array<IEffect>): IEffect
+{
+    let chancesArray: Array<number> = [];
+
+    for (let i = 0; i < effects.length; i++)
+    {
+        let effect = effects[i];
+        let chance = effect.chance && isFinite(effect.chance) ? effect.chance : 1;
+
+        if (chance > 10)
+        {
+            chance = 10;
+        }
+
+        chancesArray = chancesArray.concat(new Array(chance).fill(i));
+    }
+
+    const randomIndex = chancesArray[randomInteger(0, chancesArray.length - 1)];
+
+    return effects[randomIndex];
+}
+
 export function setRandomPollOptions(): void
 {
     const pool = [...effectsList];
     
     for (let i = 0; i < 3; i++)
     {
-        const index = randomInteger(0, pool.length - 1);
-        const effect = pool[index];
+        const effect = generateRandomEffectWithChance(pool);
+
+        const index = pool.indexOf(effect);
+
         poll[i].id = effect.id;    
         poll[i].name = effect.name;
         poll[i].votes = [];
-        pool.splice(index, 1);
+
+        if (index !== -1)
+        {
+            pool.splice(index, 1);
+        }
     }
 
     poll[3].id = 'random_effect';
@@ -156,7 +201,7 @@ export function getWinnerEffect(effectID: string): IEffect | null
 {
     if (effectID === 'random_effect')
     {
-        return effectsList[randomInteger(0, effectsList.length - 1)];
+        return generateRandomEffectWithChance(effectsList);
     }
     
     const effect = effectsMap.get(effectID);
@@ -197,4 +242,16 @@ export function resetPoll(): void
     poll[3].id = 'random_effect';
     poll[3].name = 'Random Effect';
     poll[3].votes = [];
+}
+
+export function tempDisableEffect(effect: IEffect): void
+{
+    const index = effectsList.indexOf(effect);
+
+    if (index !== -1)
+    {
+        effectsList.splice(index, 1);
+    }
+
+    disabledEffects.push(effect);
 }

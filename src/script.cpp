@@ -306,8 +306,8 @@ void ChaosMod::InputTick()
 
 void ChaosMod::DrawUI()
 {
-	/** 16px on 1080p */
-	static const float ProgressBarHeight = 16.0f / 1080.f;
+	/** 18px on 1080p */
+	static const float ProgressBarHeight = 18.0f / 1080.f;
 
 	/** Draw progress bar background */
 	GRAPHICS::DRAW_RECT(0.5f, ProgressBarHeight / 2.0f, 1.0f, ProgressBarHeight, 0, 0, 0, 168, 0, 0);
@@ -488,7 +488,8 @@ void ChaosMod::InitEffects()
 		new EffectSpawnParrotCompanion(),
 		new EffectHonorGood(),
 		new EffectHonorBad(),
-		new EffectHonorReset()
+		new EffectHonorReset(),
+		new EffectSpawnShireHorse()
 	};
 
 	EffectsMap.clear();

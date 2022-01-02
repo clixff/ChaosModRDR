@@ -2,7 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { getConfig, readConfig } from './config';
 import { randomInteger } from './index';
 import { getTwitchUser, startListeningChat } from './twitch';
-import { getPollNames, getVotesArray, getWInnerData, getWinnerEffect, getWinnerIDByVotes, IsVotingEnabled, resetPoll, setRandomPollOptions, setVotingActive } from './voting';
+import { disabledEffects, effectsList, getPollNames, getVotesArray, getWInnerData, getWinnerEffect, getWinnerIDByVotes, IsVotingEnabled, reactivateDisabledEffects, resetPoll, setRandomPollOptions, setVotingActive, tempDisableEffect } from './voting';
 
 let gameWebSocketClient: WebSocket | null = null;
 let clientReconnectInterval: NodeJS.Timer | null = null;
@@ -76,11 +76,14 @@ export function connectWebsocketClient(): void
 				case 'mod_enabled':
 					onModEnabled();
 					resetPollAndSend();
+					setPollVisible(false);
 					break;
 				case 'mod_disabled':
 					{
 						setVotingActive(false);
 						resetPollAndSend();
+						setPollVisible(false);
+
 						break;	
 					}
 				case 'vote_activate':
@@ -89,11 +92,13 @@ export function connectWebsocketClient(): void
 						setVotingActive(true);
 						sendVotes(getVotesArray());
 						updatePollOptions(getPollNames());
-						setPollStarted();
+						// setPollStarted();
+						setPollVisible(true);
 						break;
 					}
 				case 'vote_ended':
 					{
+						setPollVisible(true);
 						sendVotes(getVotesArray());
 						setVotingActive(false);
     					const winnerData = getWInnerData();
@@ -102,10 +107,14 @@ export function connectWebsocketClient(): void
 
 						const effect = getWinnerEffect(winnerData.id);
 
+						reactivateDisabledEffects();
+
 						console.log(`Winner is ${effect ? effect.id : effect}`);
 
 						if (effect)
 						{
+							tempDisableEffect(effect);
+
 							gameWebSocketClient.send(JSON.stringify({ 
 								type: "activate-effect", 
 								id: effect.id,
@@ -113,6 +122,8 @@ export function connectWebsocketClient(): void
 								duration: effect.duration ? effect.duration : 0 
 						 	}));
 						}
+
+						setPollFadeOut();
 
 						break;
 					}
@@ -188,6 +199,28 @@ function setPollStarted()
 		for (let ws of overlayServer.clients)
 		{
 			ws.send(JSON.stringify({ type: 'poll-started' }));
+		}
+	}
+}
+
+function setPollVisible(bVisible: boolean)
+{
+	if (overlayServer)
+	{
+		for (let ws of overlayServer.clients)
+		{
+			ws.send(JSON.stringify({ type: 'set-poll-visible', data: bVisible }));
+		}
+	}
+}
+
+function setPollFadeOut()
+{
+	if (overlayServer)
+	{
+		for (let ws of overlayServer.clients)
+		{
+			ws.send(JSON.stringify({ type: 'set-poll-fade-out' }));
 		}
 	}
 }

@@ -160,6 +160,45 @@ function pollStarted()
     }
 }
 
+let fadeOutTimeout: NodeJS.Timer | null = null;
+
+
+function setPollVisible(bVisible: boolean): void
+{
+    const wrapper = document.getElementById('wrapper');
+
+    if (fadeOutTimeout)
+    {
+        clearTimeout(fadeOutTimeout);
+        fadeOutTimeout = null;
+    }
+
+    if (wrapper)
+    {
+        wrapper.style.opacity = bVisible ? '1' : '0';
+    }
+}
+
+
+function setPollFadeOut()
+{
+    if (fadeOutTimeout)
+    {
+        clearTimeout(fadeOutTimeout);
+        fadeOutTimeout = null;
+    }
+
+    fadeOutTimeout = setTimeout(() =>
+    {
+        const wrapper = document.getElementById('wrapper');
+
+        if (wrapper)
+        {
+            wrapper.style.opacity = '0';
+        }
+    }, 10000);
+}
+
 let connectionInterval: NodeJS.Timer | null = null;
 
 function connectWS()
@@ -205,6 +244,12 @@ function connectWS()
                         break;
                     case "poll-started":
                         pollStarted();
+                        break;
+                    case "set-poll-visible":
+                        setPollVisible(msg.data);
+                        break;
+                    case 'set-poll-fade-out':
+                        setPollFadeOut();
                         break;
                 }
             }
