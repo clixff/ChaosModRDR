@@ -628,3 +628,31 @@ void EffectTeleportWeapons::OnTick()
 
 	ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z + 0.0f, false, false, false, false);
 }
+
+void EffectGiveSniperRifle::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_SNIPERRIFLE_ROLLINGBLOCK");
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, weaponHash, 35, 1, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(playerPed, weaponHash, 35);
+	WEAPON::SET_CURRENT_PED_WEAPON(playerPed, weaponHash, 1, 0, 0, 0);
+}
+
+void EffectGiveDynamite::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_THROWN_DYNAMITE");
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, weaponHash, 3, 1, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(playerPed, weaponHash, 3);
+	WEAPON::SET_CURRENT_PED_WEAPON(playerPed, weaponHash, 1, 0, 0, 0);
+}
+
+
+void EffectThrowingKnives::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_THROWN_THROWING_KNIVES");
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, weaponHash, 10, 1, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(playerPed, weaponHash, 10);
+	WEAPON::SET_CURRENT_PED_WEAPON(playerPed, weaponHash, 1, 0, 0, 0);
+}

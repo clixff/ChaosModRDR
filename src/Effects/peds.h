@@ -332,6 +332,19 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectSpawnBearCompanion : public Effect
+{
+public:
+	EffectSpawnBearCompanion()
+	{
+		ID = "spawn_bear_companion";
+		name = "Spawn Bear Companion";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 
 void RemoveAllPedWeapons(Ped ped);

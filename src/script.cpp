@@ -7,6 +7,11 @@
 
 ChaosMod* ChaosMod::Singleton = nullptr;
 std::mutex ChaosMod::globalMutex = std::mutex();
+uint32_t ChaosMod::LastTick = 0;
+uint64_t ChaosMod::ThreadID = 0;
+Ped ChaosMod::PLAYER_PED = 0;
+HMODULE ChaosMod::hInstance = 0;
+
 
 ChaosMod::ChaosMod()
 {
@@ -14,6 +19,15 @@ ChaosMod::ChaosMod()
 
 ChaosMod::~ChaosMod()
 {
+	if (notificationData)
+	{
+		delete notificationData;
+	}
+
+	if (notificationDuration)
+	{
+		delete notificationDuration;
+	}
 }
 
 void ChaosMod::ScriptMain()
@@ -64,39 +78,47 @@ void ChaosMod::OnKeyboardMessage(DWORD key, WORD repeats, BYTE scanCode, BOOL is
 	}
 }
 
+
 void ChaosMod::ToggleModStatus()
 {
 	bEnabled = !bEnabled;
+
 
 	if (bEnabled)
 	{
 		ResetEffectsTimeout();
 
-		ModUITextString = "~COLOR_MENU_GREEN~Chaos Mod enabled\n\n~COLOR_PURE_WHITE~Loaded " + std::to_string(AllEffects.size()) + " effects";
+		ModUITextString = "~COLOR_GREEN~Chaos Mod enabled\n\n~COLOR_PURE_WHITE~Loaded " + std::to_string(AllEffects.size()) + " effects";
 
 		if (wsServer)
 		{
 			wsServer->SendMessageToClient("mod_enabled");
 		}
+
+		std::string effectsNumStr = "~q~Loaded ~COLOR_GOLD~" + std::to_string(AllEffects.size()) + "~q~ effects";
+
+
+		ShowNotification("~COLOR_GREEN~Chaos Mod Enabled", effectsNumStr.c_str(), "scoretimer_textures", "scoretimer_generic_tick", 2000, "COLOR_GREEN");
 	}
 	else
 	{
 		ModUITextString = "~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod disabled";
-
-		activeEffects = {};
 
 		for (auto* effect : activeEffects)
 		{
 			effect->OnDeactivate();
 		}
 
+		activeEffects = {};
+
 		if (wsServer)
 		{
 			wsServer->SendMessageToClient("mod_disabled");
 		}
+
+		ShowNotification("~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod Disabled", "", "scoretimer_textures", "scoretimer_generic_cross", 2000, "COLOR_PLAYER_STATUS_NEGATIVE");
 	}
 
-	ModUITextEndTime = GetTickCount() + 3000;
 }
 
 void ChaosMod::ActivateEffect(Effect* effect)
@@ -178,17 +200,57 @@ void ChaosMod::TerminateNodeProcess()
 	CloseHandle(snapshot);
 }
 
+void ChaosMod::StopServer()
+{
+	auto* mod = ChaosMod::Get();
+
+	if (mod)
+	{
+		ChaosMod::globalMutex.lock();
+
+		if (mod->wsServer)
+		{
+			MessageBeep(MB_OK);
+			mod->wsServer->Stop();
+			delete mod->wsServer;
+			mod->wsServer = nullptr;
+
+		}
+
+		HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, mod->NodeProcessInformation.dwProcessId);
+
+		if (hProcess != NULL)
+		{
+			TerminateProcess(hProcess, 0);
+
+			CloseHandle(hProcess);
+		}
+
+		ChaosMod::globalMutex.unlock();
+	}
+}
+
 void ChaosMod::Main()
 {
 	InitWeaponHashes();
 	InitWeatherHashes();
 	InitEffects();
 
+	ChaosMod::globalMutex.lock();
+
+	ChaosMod::LastTick = GetTickCount();
+
+	ChaosMod::globalMutex.unlock();
+
+	ChaosMod::ThreadID = GetCurrentThreadId();
+
 	wsServer = new WebSocketServer();
 	wsServer->Init(9149);
 
 	wsThread = std::thread([this] {  this->wsServer->Run(); });
-	
+
+	wsThread.detach();
+
 	TerminateNodeProcess();
 
 	StartNodeProcess();
@@ -199,6 +261,7 @@ void ChaosMod::Main()
 		InputTick();
 		WAIT(0);
 	}
+
 }
 
 void ChaosMod::Update()
@@ -208,6 +271,13 @@ void ChaosMod::Update()
 	{
 		ChaosMod::DrawText((char*)ModUITextString.c_str(), Vector2(0.5f, 0.5f), Vector2(0.55f, 0.55f), LinearColor(255, 255, 255, 255), true, 5, LinearColor(0, 0, 0, 255));
 	}
+
+	ChaosMod::globalMutex.lock();
+
+	ChaosMod::LastTick = GetTickCount();
+	ChaosMod::PLAYER_PED = PLAYER::PLAYER_PED_ID();
+
+	ChaosMod::globalMutex.unlock();
 
 	if (!bEnabled)
 	{
@@ -345,25 +415,11 @@ void ChaosMod::InputTick()
 
 	/** 
 	 * For unknown reason, in debug mode mod breaks when trying to disable it with Ctrl+R if websocketpp loop is active
-	 * So you need to press Ctrl+Y first to stop the websocket server and terminate its thread
+	 * So you need to press F11 first to stop the websocket server and terminate its thread
 	*/
-	if (isKeyPressed(0x59) && isKeyPressed(VK_CONTROL))
+	if (isKeyPressed(VK_F11))
 	{
-		if (wsServer)
-		{
-			MessageBeep(MB_OK);
-			wsServer->Stop();
-			delete wsServer;
-			wsServer = nullptr;
-
-			wsThread.join();
-		}
-
-		HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, NodeProcessInformation.dwProcessId);
-
-		TerminateProcess(hProcess, 0);
-
-		CloseHandle(hProcess);
+		ChaosMod::StopServer();
 	}
 }
 
@@ -568,7 +624,11 @@ void ChaosMod::InitEffects()
 		new EffectSpawnCatCompanion(),
 		new EffectSetPedsIntoPlayerVehicle(),
 		new EffectSetRandomWalkStyle(),
-		new EffectTeleportWeapons()
+		new EffectTeleportWeapons(),
+		new EffectGiveSniperRifle(),
+		new EffectGiveDynamite(),
+		new EffectThrowingKnives(),
+		new EffectSpawnBearCompanion()
 	};
 
 	EffectsMap.clear();
@@ -621,4 +681,40 @@ void ChaosMod::ActivateSelectedEffect()
 
 		bEffectSelectionVisible = false;
 	}
+}
+
+void ChaosMod::ShowNotification(const char* title, const char* subtitle, const char* iconDict, const char* iconName, int32_t durationMs, const char* iconColor)
+{
+	if (!notificationDuration)
+	{
+		notificationDuration = new NotificationDuration();
+	}
+
+	if (!notificationData)
+	{
+		notificationData = new NotificationData();
+	}
+
+	notificationDuration->ms = durationMs;
+
+	if (strlen(iconColor) == 0)
+	{
+		iconColor = "COLOR_PURE_WHITE";
+	}
+
+	notificationData->title = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)title);
+	notificationData->subtitle = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)subtitle);
+
+	notificationData->iconDict = GAMEPLAY::GET_HASH_KEY((char*)iconDict);
+	notificationData->icon = GAMEPLAY::GET_HASH_KEY((char*)iconName);
+	notificationData->iconColor = GAMEPLAY::GET_HASH_KEY((char*)iconColor);
+
+	if (!TEXTURE::HAS_STREAMED_TEXTURE_DICT_LOADED((char*)iconDict))
+	{
+		TEXTURE::REQUEST_STREAMED_TEXTURE_DICT((char*)iconDict, 0);
+		WAIT(100);
+	}
+
+	/** _UI_FEED_POST_SAMPLE_TOAST */
+	UIUNK::_0x26E87218390E6729((Any*)notificationDuration, (Any*)notificationData, 1, 1);
 }

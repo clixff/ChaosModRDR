@@ -1,11 +1,13 @@
 #include <main.h>
 #include "script.h"
+#include <string>
 
 BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 {
 	switch (reason)
 	{
 	case DLL_PROCESS_ATTACH:
+		ChaosMod::hInstance = hInstance;
 		scriptRegister(hInstance, ChaosMod::ScriptMain);
 		keyboardHandlerRegister(ChaosMod::OnKeyboardMessage);
 		break;
@@ -18,7 +20,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 				ChaosMod::Singleton->wsServer->Stop();
 			}
 		}
-
+		
 		ChaosMod::TerminateNodeProcess();
 
 		scriptUnregister(hInstance);

@@ -50,21 +50,43 @@ void EffectTeleportEverything::OnActivate()
 		ENTITY::SET_ENTITY_COORDS(entity, playerCoord.x, playerCoord.y, playerCoord.z, 0, 0, 0, 0);
 	}
 
-	int* objects = new int[20];
+	props.clear();
+	oldPropsCoords.clear();
 
-	worldGetAllObjects(objects, 20);
+	int* objects = new int[10];
 
-	for (int32_t i = 0; i < 20; i++)
+	int32_t foundObjects = worldGetAllObjects(objects, 10);
+
+	for (int32_t i = 0; i < foundObjects; i++)
 	{
 		Entity entity = objects[i];
 		
 		if (ENTITY::DOES_ENTITY_EXIST(entity))
 		{
+			props.push_back(entity);
+			oldPropsCoords.push_back(ENTITY::GET_ENTITY_COORDS(entity, false, 0));
 			ENTITY::SET_ENTITY_COORDS(entity, playerCoord.x, playerCoord.y, playerCoord.z, 0, 0, 0, 0);
 		}
 	}
 
 	delete[] objects;
+}
+
+void EffectTeleportEverything::OnDeactivate()
+{
+	for (int32_t i = 0; i < props.size(); i++)
+	{
+		Entity entity = props[i];
+
+		if (ENTITY::DOES_ENTITY_EXIST(entity))
+		{
+			Vector3 oldCoord = oldPropsCoords[i];
+			ENTITY::SET_ENTITY_COORDS(entity, oldCoord.x, oldCoord.y, oldCoord.z, 0, 0, 0, 0);
+		}
+	}
+
+	props.clear();
+	oldPropsCoords.clear();
 }
 
 void EffectSnowstorm::OnActivate()

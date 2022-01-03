@@ -55,6 +55,22 @@ struct KeyState
 	bool bPressed = false;
 };
 
+struct NotificationDuration {
+	alignas(32) int32_t ms = 2000;
+};
+
+struct NotificationData {
+	alignas(8) int32_t __unknown = 0;
+	alignas(8) const char* title;
+	alignas(8) const char* subtitle;
+	alignas(8) int32_t __unknown2 = 0;
+	alignas(8) Hash iconDict;
+	alignas(8) Hash icon;
+	alignas(8) Hash iconColor = 0;
+	alignas(8) int32_t __unknown4 = 0;
+};
+
+
 class ChaosMod
 {
 public:
@@ -90,6 +106,14 @@ public:
 
 	static std::mutex globalMutex;
 
+	static void StopServer();
+
+	static uint32_t LastTick;
+	static uint64_t ThreadID;
+	static Ped PLAYER_PED;
+	static HMODULE hInstance;
+
+	static void TestThread();
 private:
 	void Main();
 	void Update();
@@ -104,6 +128,11 @@ private:
 	KeyState keyStates[0xFF] = {};
 
 	bool isKeyPressed(uint8_t key);
+
+	NotificationDuration* notificationDuration = nullptr;
+	NotificationData* notificationData = nullptr;
+
+	void ShowNotification(const char* title, const char* subtitle, const char* iconDict, const char* iconName, int32_t durationMs = 2000, const char* iconColor = "");
 private:
 	/** Timers and effects */
 

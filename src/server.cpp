@@ -24,11 +24,55 @@ void WebSocketServer::Init(int32_t port)
 void WebSocketServer::Run()
 {
 	bStarted = true;
+	bool bJoinThread = false;
 	while (true)
 	{
-		instance.run_one();
+		ChaosMod::globalMutex.lock();
 
-		if (!bStarted) return;
+		uint32_t lastTick = ChaosMod::LastTick;
+
+		if (GetTickCount() > lastTick + 5000)
+		{
+			bool bGamePaused = UI::IS_PAUSE_MENU_ACTIVE();
+			Ped ped = PLAYER::PLAYER_PED_ID();
+
+			/** If game thread is sleeping, but game is not paused by player */
+			bool bReloading = !bGamePaused;
+
+			if (bReloading)
+			{
+				if (ChaosMod::PLAYER_PED)
+				{
+					bReloading = ChaosMod::PLAYER_PED != ped;
+				}
+				else
+				{
+					bReloading = false;
+				}
+			}
+
+			if (bReloading)
+			{
+				Stop();
+				bJoinThread = true;
+				bStarted = false;
+			}
+
+			ChaosMod::LastTick = GetTickCount();
+		}
+
+		ChaosMod::globalMutex.unlock();
+
+		instance.poll_one();
+
+		if (!bStarted) break;
+	}
+
+	if (bJoinThread && ChaosMod::Singleton)
+	{
+		ChaosMod::globalMutex.lock();
+		delete ChaosMod::Singleton->wsServer;
+		ChaosMod::globalMutex.unlock();
 	}
 }
 

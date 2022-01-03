@@ -23,10 +23,15 @@ public:
 	{
 		ID = "teleport_everyithing";
 		name = "Teleport Everything To Player";
-		bTimed = false;
+		bTimed = true;
+		EffectDuration = 25;
 	}
 
 	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+private:
+	std::vector<Entity> props;
+	std::vector<Vector3> oldPropsCoords;
 };
 
 

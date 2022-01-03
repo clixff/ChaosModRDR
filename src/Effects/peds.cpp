@@ -714,3 +714,14 @@ void EffectSpawnCatCompanion::OnActivate()
 
 	MarkPedAsCompanion(ped);
 }
+
+void EffectSpawnBearCompanion::OnActivate()
+{
+	Effect::OnActivate();
+
+	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_BearBlack_01");
+
+	Ped ped = SpawnPedAroundPlayer(skinModel);
+
+	MarkPedAsCompanion(ped);
+}

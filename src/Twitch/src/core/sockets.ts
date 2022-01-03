@@ -34,6 +34,8 @@ async function onModEnabled(): Promise<void>
 	}
 }
 
+let reconnectsCount = 0;
+
 export function connectWebsocketClient(): void
 {
 	gameWebSocketClient = new WebSocket('ws://localhost:9149');
@@ -45,6 +47,8 @@ export function connectWebsocketClient(): void
 			clearInterval(clientReconnectInterval);
 			clientReconnectInterval = null;
 		}
+
+		reconnectsCount = 0;
 	});
 
 	gameWebSocketClient.on('error', (err) =>
@@ -139,6 +143,15 @@ export function connectWebsocketClient(): void
 
 	gameWebSocketClient.on('close', () =>
 	{
+		reconnectsCount++;
+
+		if (reconnectsCount >= 20)
+		{
+			process.exit(0);
+			return;
+		}
+
+
 		if (clientReconnectInterval)
 		{
 			clearInterval(clientReconnectInterval);

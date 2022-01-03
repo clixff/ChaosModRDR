@@ -42,3 +42,6 @@ Don't forget to press **F7** in game when you have made changes.
 
 ### Additional
 You can disable and re-enable effect activation for testing purposes by pressing **F8**. Also by pressing **F10** you can activate and test any effect.
+
+### Known issues
+- If mod crashes after reloading savegame or starting new game, try pressing **F11** in game. After this you can reload your savegame or start new game.

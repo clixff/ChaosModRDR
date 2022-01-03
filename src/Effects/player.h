@@ -613,3 +613,42 @@ public:
 	virtual void OnActivate() override;
 	virtual void OnDeactivate() override;
 };
+
+class EffectGiveSniperRifle : public Effect
+{
+public:
+	EffectGiveSniperRifle()
+	{
+		ID = "give_sniper_rifle";
+		name = "Give a Sniper Rifle To Player";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectGiveDynamite : public Effect
+{
+public:
+	EffectGiveDynamite()
+	{
+		ID = "give_dynamite";
+		name = "Give a Dynamite To Player";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectThrowingKnives : public Effect
+{
+public:
+	EffectThrowingKnives()
+	{
+		ID = "give_knives";
+		name = "Give Throwing Knives To Player";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
