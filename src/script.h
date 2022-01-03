@@ -12,6 +12,7 @@
 #include <map>
 #include "server.h"
 #include <thread>
+#include <set>
 
 struct Vector2
 {
@@ -67,7 +68,7 @@ struct NotificationData {
 	alignas(8) Hash iconDict;
 	alignas(8) Hash icon;
 	alignas(8) Hash iconColor = 0;
-	alignas(8) int32_t __unknown4 = 0;
+	alignas(8) int32_t __unknown3 = 0;
 };
 
 
@@ -113,7 +114,10 @@ public:
 	static Ped PLAYER_PED;
 	static HMODULE hInstance;
 
-	static void TestThread();
+	/** Set of peds created by mod */
+	static std::set<Ped> pedsSet;
+	/** Set of vehs created by mod */
+	static std::set<Vehicle> vehsSet;
 private:
 	void Main();
 	void Update();

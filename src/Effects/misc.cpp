@@ -1,6 +1,7 @@
 #include "misc.h"
 #include "vehs.h"
 #include "peds.h"
+#include "../script.h"
 
 void EffectSpawnHotchkissCannon::OnActivate()
 {
@@ -13,9 +14,14 @@ void EffectSpawnHotchkissCannon::OnActivate()
 
 	LoadModel(model);
 
-	VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, rand() % 360, false, false, false, false);
+	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, rand() % 360, false, false, false, false);
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+
+	if (ENTITY::DOES_ENTITY_EXIST(veh))
+	{
+		ChaosMod::vehsSet.insert(veh);
+	}
 }
 
 

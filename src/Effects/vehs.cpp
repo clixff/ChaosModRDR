@@ -1,5 +1,6 @@
 #include "vehs.h"
 #include "peds.h"
+#include "../script.h"
 
 std::vector<Vehicle> GetNearbyVehs(int32_t Max)
 {
@@ -55,6 +56,11 @@ void EffectSpawnWagon::OnActivate()
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 
 	PED::SET_PED_INTO_VEHICLE(playerPed, veh, -1);
+
+	if (ENTITY::DOES_ENTITY_EXIST(veh))
+	{
+		ChaosMod::vehsSet.insert(veh);
+	}
 }
 
 void EffectFlipAllVehs::OnActivate()
@@ -316,6 +322,11 @@ void EffectSpawnHotAirBalloon::OnActivate()
 	windDirection.z = 25.0f;
 
 	ENTITY::SET_ENTITY_VELOCITY(veh, windDirection.x, windDirection.y, 25.0f);
+
+	if (ENTITY::DOES_ENTITY_EXIST(veh))
+	{
+		ChaosMod::vehsSet.insert(veh);
+	}
 }
 
 void EffectIgnitePlayersWagon::OnActivate()
@@ -359,6 +370,11 @@ void EffectSpawnCanoe::OnActivate()
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 
 	PED::SET_PED_INTO_VEHICLE(playerPed, veh, -1);
+
+	if (ENTITY::DOES_ENTITY_EXIST(veh))
+	{
+		ChaosMod::vehsSet.insert(veh);
+	}
 }
 
 void EffectHorsesRain::OnActivate()
@@ -376,6 +392,7 @@ void EffectHorsesRain::OnDeactivate()
 	{
 		if (ENTITY::DOES_ENTITY_EXIST(horse))
 		{
+			ChaosMod::pedsSet.erase(horse);
 			PED::DELETE_PED(&horse);
 		}
 	}

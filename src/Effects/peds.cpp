@@ -1,4 +1,5 @@
 #include "peds.h"
+#include "../script.h"
 
 void SetPedOnMount(Ped ped, Ped mount, int seat)
 {
@@ -28,6 +29,10 @@ Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle)
 	PED::SET_PED_HEARING_RANGE(ped, 10000.0f);
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(skinModel);
 	
+	if (ENTITY::DOES_ENTITY_EXIST(ped))
+	{
+		ChaosMod::pedsSet.insert(ped);
+	}
 
 	if (bSetInVehicle && !bModelIsHorse)
 	{
@@ -192,6 +197,11 @@ void EffectKidnapping::OnActivate()
 	PED::SET_PED_INTO_VEHICLE(ped, vehicle, -1);
 	PED::SET_PED_INTO_VEHICLE(sister, vehicle, 0);
 	PED::SET_PED_INTO_VEHICLE(playerPed, vehicle, 1);
+
+	if (ENTITY::DOES_ENTITY_EXIST(vehicle))
+	{
+		ChaosMod::vehsSet.insert(vehicle);
+	}
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(wagonModel);
 	
@@ -540,6 +550,11 @@ void EffectSkyrimIntro::OnActivate()
 	PED::SET_PED_INTO_VEHICLE(prisoner1, vehicle, 2);
 	PED::SET_PED_INTO_VEHICLE(prisoner2, vehicle, 3);
 	PED::SET_PED_INTO_VEHICLE(prisoner3, vehicle, 4);
+
+	if (ENTITY::DOES_ENTITY_EXIST(vehicle))
+	{
+		ChaosMod::vehsSet.insert(vehicle);
+	}
 
 	VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(vehicle, 0);
 

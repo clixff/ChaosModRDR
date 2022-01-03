@@ -36,7 +36,7 @@ Press **Ctrl+E** when source is selected and set position to `1490.0`, `105.0`
 ### Configuration
 You can tweak some params in **ChaosMod/config.json** file.
 
-For example, **effects interval**, **voting time**, **effect status** (enabled/disabled), **effect duration**, **effect chance** and **effect name**.
+For example, **effects interval**, **voting time**, **effect status** (enabled/disabled), **effect duration**, **effect chance** (1-10) and **effect name**.
 
 Don't forget to press **F7** in game when you have made changes.
 

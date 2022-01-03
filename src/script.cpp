@@ -12,6 +12,9 @@ uint64_t ChaosMod::ThreadID = 0;
 Ped ChaosMod::PLAYER_PED = 0;
 HMODULE ChaosMod::hInstance = 0;
 
+std::set<Ped> ChaosMod::pedsSet = std::set<Ped>();
+std::set<Vehicle> ChaosMod::vehsSet = std::set<Vehicle>();
+
 
 ChaosMod::ChaosMod()
 {
@@ -99,6 +102,9 @@ void ChaosMod::ToggleModStatus()
 
 
 		ShowNotification("~COLOR_GREEN~Chaos Mod Enabled", effectsNumStr.c_str(), "scoretimer_textures", "scoretimer_generic_tick", 2000, "COLOR_GREEN");
+
+		ChaosMod::pedsSet.clear();
+		ChaosMod::vehsSet.clear();
 	}
 	else
 	{
@@ -117,6 +123,27 @@ void ChaosMod::ToggleModStatus()
 		}
 
 		ShowNotification("~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod Disabled", "", "scoretimer_textures", "scoretimer_generic_cross", 2000, "COLOR_PLAYER_STATUS_NEGATIVE");
+
+		for (auto ped : ChaosMod::pedsSet)
+		{
+			if (ENTITY::DOES_ENTITY_EXIST(ped))
+			{
+				ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
+				PED::DELETE_PED(&ped);
+			}
+		}
+
+		for (auto veh : ChaosMod::vehsSet)
+		{
+			if (ENTITY::DOES_ENTITY_EXIST(veh))
+			{
+				ENTITY::SET_ENTITY_AS_MISSION_ENTITY(veh, false, false);
+				VEHICLE::DELETE_VEHICLE(&veh);
+			}
+		}
+
+		ChaosMod::pedsSet.clear();
+		ChaosMod::vehsSet.clear();
 	}
 
 }
