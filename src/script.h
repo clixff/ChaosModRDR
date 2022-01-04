@@ -71,6 +71,37 @@ struct NotificationData {
 	alignas(8) int32_t __unknown3 = 0;
 };
 
+struct GameAssetData
+{
+	GameAssetData() {};
+	GameAssetData(const char* _dict, const char* _name)
+	{
+		dict = _dict;
+		name = _name;
+	}
+	const char* dict;
+	const char* name;
+};
+
+struct Notification2Data
+{
+	std::string title;
+	std::string subtitle;
+
+	uint32_t hideTime = 0;
+	uint32_t showTime = 0;
+
+	GameAssetData icon;
+
+	LinearColor iconColor;
+
+	const char* __titleVarStr;
+	const char* __subtitleVarStr;
+
+	bool bSubtitleExists = false;
+
+};
+
 
 class ChaosMod
 {
@@ -185,4 +216,13 @@ public:
 
 	STARTUPINFOW NodeStartupInfo;
 	PROCESS_INFORMATION NodeProcessInformation;
+
+private:
+
+	/** Notifications 2 */
+	Notification2Data notification2Data;
+
+	void ShowNotification2(const char* title, const char* subtitle, uint32_t durationMs, const char* iconDict, const char* iconName, LinearColor iconColor);
+
+	void RenderNotification2();
 };

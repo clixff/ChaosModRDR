@@ -652,3 +652,56 @@ public:
 
 	virtual void OnActivate() override;
 };
+
+class EffectTeleportFewMeters : public Effect
+{
+public:
+	EffectTeleportFewMeters()
+	{
+		ID = "tp_few_meters";
+		name = "Teleport Player a Few Meters";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectBlackingOut : public Effect
+{
+public:
+	EffectBlackingOut()
+	{
+		ID = "blacking_out";
+		name = "Blacking Out";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectRandomClothes : public Effect
+{
+public:
+	EffectRandomClothes()
+	{
+		ID = "random_clothes";
+		name = "Set Random Clothes";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectMostWanted : public Effect
+{
+public:
+	EffectMostWanted()
+	{
+		ID = "most_wanted";
+		name = "Most Wanted";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};

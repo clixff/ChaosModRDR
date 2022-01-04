@@ -84,6 +84,8 @@ void ChaosMod::OnKeyboardMessage(DWORD key, WORD repeats, BYTE scanCode, BOOL is
 
 void ChaosMod::ToggleModStatus()
 {
+	ChaosMod::globalMutex.lock();
+
 	bEnabled = !bEnabled;
 
 
@@ -91,7 +93,7 @@ void ChaosMod::ToggleModStatus()
 	{
 		ResetEffectsTimeout();
 
-		ModUITextString = "~COLOR_GREEN~Chaos Mod enabled\n\n~COLOR_PURE_WHITE~Loaded " + std::to_string(AllEffects.size()) + " effects";
+		ModUITextString = "~COLOR_GREEN~Chaos Mod enabled\n\n~q~Loaded ~COLOR_GOLD~" + std::to_string(AllEffects.size()) + "~q~ effects";
 
 		if (wsServer)
 		{
@@ -101,10 +103,12 @@ void ChaosMod::ToggleModStatus()
 		std::string effectsNumStr = "~q~Loaded ~COLOR_GOLD~" + std::to_string(AllEffects.size()) + "~q~ effects";
 
 
-		ShowNotification("~COLOR_GREEN~Chaos Mod Enabled", effectsNumStr.c_str(), "scoretimer_textures", "scoretimer_generic_tick", 2000, "COLOR_GREEN");
+		//ShowNotification("~COLOR_GREEN~Chaos Mod Enabled", effectsNumStr.c_str(), "scoretimer_textures", "scoretimer_generic_tick", 2000, "COLOR_GREEN");
 
 		ChaosMod::pedsSet.clear();
 		ChaosMod::vehsSet.clear();
+
+		ShowNotification2("~COLOR_GREEN~Chaos Mod Enabled", effectsNumStr.c_str(), 3500, "scoretimer_textures", "scoretimer_generic_tick", LinearColor(77, 170, 104, 255));
 	}
 	else
 	{
@@ -122,7 +126,10 @@ void ChaosMod::ToggleModStatus()
 			wsServer->SendMessageToClient("mod_disabled");
 		}
 
-		ShowNotification("~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod Disabled", "", "scoretimer_textures", "scoretimer_generic_cross", 2000, "COLOR_PLAYER_STATUS_NEGATIVE");
+		//ShowNotification("~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod Disabled", "", "scoretimer_textures", "scoretimer_generic_cross", 2000, "COLOR_PLAYER_STATUS_NEGATIVE");
+
+		ShowNotification2("~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod Disabled", "", 3500, "scoretimer_textures", "scoretimer_generic_cross", LinearColor(204, 0, 0, 255));
+
 
 		for (auto ped : ChaosMod::pedsSet)
 		{
@@ -146,6 +153,9 @@ void ChaosMod::ToggleModStatus()
 		ChaosMod::vehsSet.clear();
 	}
 
+	//ModUITextEndTime = GetTickCount() + 3000;
+
+	ChaosMod::globalMutex.unlock();
 }
 
 void ChaosMod::ActivateEffect(Effect* effect)
@@ -299,6 +309,11 @@ void ChaosMod::Update()
 		ChaosMod::DrawText((char*)ModUITextString.c_str(), Vector2(0.5f, 0.5f), Vector2(0.55f, 0.55f), LinearColor(255, 255, 255, 255), true, 5, LinearColor(0, 0, 0, 255));
 	}
 
+	if (GetTickCount() < notification2Data.hideTime)
+	{
+		RenderNotification2();
+	}
+
 	ChaosMod::globalMutex.lock();
 
 	ChaosMod::LastTick = GetTickCount();
@@ -334,7 +349,11 @@ void ChaosMod::Update()
 	{
 		if (wsServer)
 		{
+			ChaosMod::globalMutex.lock();
+
 			wsServer->SendMessageToClient("vote_activate");
+
+			ChaosMod::globalMutex.unlock();
 		}
 
 		bVotingEnabled = true;
@@ -360,7 +379,11 @@ void ChaosMod::Update()
 		{
 			if (wsServer)
 			{
+				ChaosMod::globalMutex.lock();
+
 				wsServer->SendMessageToClient("vote_ended");
+
+				ChaosMod::globalMutex.unlock();
 			}
 			//ActivateRandomEffect();
 		}
@@ -475,7 +498,9 @@ void ChaosMod::DrawUI()
 	{
 		auto* Effect = AllEffects[debugSelectedEffectIndex];
 
-		std::string debugText = "[DEBUG] Effect to activate: \n" + Effect->name;
+		std::string debugText = "<font face='$title'>";
+		debugText += "[DEBUG] Effect to activate: \n" + Effect->name;
+		debugText += "</font>";
 
 		UI::SET_TEXT_SCALE(0.0f, 0.5f);
 		UI::SET_TEXT_COLOR_RGBA(255, 255, 255, 240);
@@ -483,6 +508,7 @@ void ChaosMod::DrawUI()
 		UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 255);
 
 		char* varString = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)debugText.c_str());
+		varString = invoke<char*>(0xFA925AC00EB830B9, 42, (char*)"COLOR_STRING", 0, varString);
 
 		UI::DRAW_TEXT(varString, 0.5f, 0.5f);
 	}
@@ -535,7 +561,11 @@ void ChaosMod::DrawEffectInUI(Effect* effect, int32_t index)
 	UI::SET_TEXT_CENTRE(1);
 	UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 255);
 
-	char* varString = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)effect->name.c_str());
+	std::string effectName = "<font face='$title'>" + effect->name + "</font>";
+		
+	char* varString = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)effectName.c_str());
+
+	varString = invoke<char*>(0xFA925AC00EB830B9, 42, (char*)"COLOR_STRING", 0, varString);
 
 	UI::DRAW_TEXT(varString, X, Y - 0.0125f);
 }
@@ -655,7 +685,15 @@ void ChaosMod::InitEffects()
 		new EffectGiveSniperRifle(),
 		new EffectGiveDynamite(),
 		new EffectThrowingKnives(),
-		new EffectSpawnBearCompanion()
+		new EffectSpawnBearCompanion(),
+		new EffectTeleportFewMeters(),
+		new EffectBlackingOut(),
+		new EffectRandomClothes(),
+		new EffectSpawnAngryCorpse(),
+		new EffectFastPlayersWagon(),
+		new EffectSpawnAngryCaveman(),
+		new EffectSpawnAngryTwin(),
+		new EffectMostWanted()
 	};
 
 	EffectsMap.clear();
@@ -739,9 +777,128 @@ void ChaosMod::ShowNotification(const char* title, const char* subtitle, const c
 	if (!TEXTURE::HAS_STREAMED_TEXTURE_DICT_LOADED((char*)iconDict))
 	{
 		TEXTURE::REQUEST_STREAMED_TEXTURE_DICT((char*)iconDict, 0);
-		WAIT(100);
+		WAIT(1000);
 	}
 
 	/** _UI_FEED_POST_SAMPLE_TOAST */
 	UIUNK::_0x26E87218390E6729((Any*)notificationDuration, (Any*)notificationData, 1, 1);
+
+	TEXTURE::SET_STREAMED_TEXTURE_DICT_AS_NO_LONGER_NEEDED((char*)iconDict);
+}
+
+void ChaosMod::ShowNotification2(const char* title, const char* subtitle, uint32_t durationMs, const char* iconDict, const char* iconName, LinearColor iconColor)
+{
+	notification2Data.bSubtitleExists = strlen(subtitle) != 0;
+	notification2Data.title = "<font face='$title'>";
+	notification2Data.title += title;
+	notification2Data.title += "</font>";
+
+	notification2Data.subtitle = "<font face='$body2'>";
+	notification2Data.subtitle += subtitle;
+	notification2Data.subtitle += "</font>";
+
+	notification2Data.hideTime = GetTickCount() + durationMs;
+	notification2Data.showTime = GetTickCount();
+
+	if (!TEXTURE::HAS_STREAMED_TEXTURE_DICT_LOADED((char*)iconDict))
+	{
+		TEXTURE::REQUEST_STREAMED_TEXTURE_DICT((char*)iconDict, 0);
+		WAIT(100);
+	}
+
+	if (!TEXTURE::HAS_STREAMED_TEXTURE_DICT_LOADED((char*)"feeds"))
+	{
+		TEXTURE::REQUEST_STREAMED_TEXTURE_DICT((char*)"feeds", 0);
+		WAIT(100);
+	}
+
+	notification2Data.icon.dict = iconDict;
+	notification2Data.icon.name = iconName;
+	notification2Data.iconColor = iconColor;
+
+}
+
+void ChaosMod::RenderNotification2()
+{
+	float yOffset = 0.35f;
+
+	float opacity = 1.0f;
+	uint32_t timeNow = GetTickCount();
+
+	const uint32_t fadeTime = 300;
+
+	if (timeNow < notification2Data.showTime + fadeTime)
+	{
+		opacity = float(timeNow - notification2Data.showTime) / float(notification2Data.showTime + fadeTime - notification2Data.showTime);
+	}
+	else if (timeNow > notification2Data.hideTime - fadeTime)
+	{
+		uint32_t start = notification2Data.hideTime - fadeTime;
+		opacity = 1.0f-(float(timeNow - start) / float(notification2Data.hideTime - start));
+	}
+
+	if (opacity < 0.0f)
+	{
+		opacity = 0.0f;
+	}
+	else if (opacity > 1.0f)
+	{
+		opacity = 1.0f;
+	}
+
+	uint8_t alpha = uint8_t(255.0f * opacity);
+
+	if (!TEXTURE::HAS_STREAMED_TEXTURE_DICT_LOADED((char*)notification2Data.icon.dict))
+	{
+		TEXTURE::REQUEST_STREAMED_TEXTURE_DICT((char*)notification2Data.icon.dict, 0);
+		WAIT(100);
+	}
+
+	if (!TEXTURE::HAS_STREAMED_TEXTURE_DICT_LOADED((char*)"feeds"))
+	{
+		TEXTURE::REQUEST_STREAMED_TEXTURE_DICT((char*)"feeds", 0);
+		WAIT(100);
+	}
+
+	GRAPHICS::DRAW_SPRITE((char*)"feeds", (char*)"help_text_bg", 0.5f, 0.5f + yOffset, 512.0f / 1920.0f, 128.0f / 1080.0f, 0.0f, 0, 0, 0, alpha, false);
+
+	/** Icon color */
+	LinearColor iconC = notification2Data.iconColor;
+	iconC.A = uint8_t(float(iconC.A) * opacity);
+
+	GRAPHICS::DRAW_SPRITE((char*)notification2Data.icon.dict, (char*)notification2Data.icon.name, 0.41f, 0.5f + yOffset, 0.05f, 96.0f / 1080.0f, 0.0f, iconC.R, iconC.G, iconC.B, iconC.A, false);
+
+	UI::SET_TEXT_SCALE(0.0f, 0.5f);
+	UI::SET_TEXT_COLOR_RGBA(255, 255, 255, alpha);
+	UI::SET_TEXT_CENTRE(false);
+	UI::SET_TEXT_DROPSHADOW(0, 0, 0, 0, 0);
+	
+	float textY = 0.5f;
+
+	if (notification2Data.bSubtitleExists)
+	{
+		textY = 0.46f;
+	}
+	else
+	{
+		textY = 0.48f;
+	}
+
+	notification2Data.__titleVarStr = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)notification2Data.title.c_str());
+	notification2Data.__titleVarStr = invoke<const char*>(0xFA925AC00EB830B9, 42, (char*)"COLOR_STRING", 0, notification2Data.__titleVarStr);
+
+	UI::DRAW_TEXT((char*)notification2Data.__titleVarStr, 0.44f, textY + yOffset);
+
+	if (notification2Data.bSubtitleExists)
+	{
+		UI::SET_TEXT_SCALE(0.0f, 0.4f);
+		UI::SET_TEXT_COLOR_RGBA(255, 255, 255, alpha);
+		UI::SET_TEXT_CENTRE(false);
+		UI::SET_TEXT_DROPSHADOW(0, 0, 0, 0, 0);
+
+		auto subtitle = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)notification2Data.subtitle.c_str());
+		subtitle = invoke<char*>(0xFA925AC00EB830B9, 42, (char*)"COLOR_STRING", 0, subtitle);
+
+		UI::DRAW_TEXT((char*)subtitle, 0.44f, 0.5f + yOffset);
+	}
 }

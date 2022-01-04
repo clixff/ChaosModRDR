@@ -187,3 +187,17 @@ public:
 
 	virtual void OnActivate() override;
 };
+
+class EffectFastPlayersWagon : public Effect
+{
+public:
+	EffectFastPlayersWagon()
+	{
+		ID = "fast_players_wagon";
+		name = "Set Nitro On Player's Wagon";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnTick() override;
+};

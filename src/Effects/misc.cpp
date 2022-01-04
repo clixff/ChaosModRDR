@@ -261,10 +261,10 @@ void EffectAllPedsWannaKillPlayer::OnTick()
 	{
 		if (ENTITY::DOES_ENTITY_EXIST(ped))
 		{
-			static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_REVOLVER_SCHOFIELD");
-			WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 100, 1, 0x2cd419dc);
-			WEAPON::SET_PED_AMMO(ped, weaponHash, 100);
-			WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, 1, 0, 0, 0);
+			//static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_REVOLVER_SCHOFIELD");
+			//WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 100, 1, 0x2cd419dc);
+			//WEAPON::SET_PED_AMMO(ped, weaponHash, 100);
+			//WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, 1, 0, 0, 0);
 
 			/** BF_CanFightArmedPedsWhenNotArmed */
 			PED::SET_PED_COMBAT_ATTRIBUTES(ped, 5, true);

@@ -245,7 +245,7 @@ void EffectIncreaseBounty::OnActivate()
 {
 	Player player = PLAYER::PLAYER_ID();
 	int priceOnHead = PURSUIT::GET_PLAYER_PRICE_ON_A_HEAD(player);
-	PURSUIT::SET_PLAYER_PRICE_ON_A_HEAD(player, priceOnHead + 100 * 100);
+	PURSUIT::SET_PLAYER_PRICE_ON_A_HEAD(player, priceOnHead + 50 * 100);
 }
 
 void EffectRemoveCurrentVehicle::OnActivate()
@@ -359,7 +359,8 @@ void ResetPlayerModel(uint64_t ptr1_val, uint64_t ptr2_val)
 
 void EffectLightningWeapons::OnActivate()
 {
-	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &lastVec);
 }
 
 void EffectLightningWeapons::OnDeactivate()
@@ -539,7 +540,8 @@ void EffectTeleportToWaypoint::OnActivate()
 
 void EffectExplosiveWeapons::OnActivate()
 {
-	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &lastVec);
 }
 
 void EffectExplosiveWeapons::OnDeactivate()
@@ -603,7 +605,8 @@ void EffectSetRandomWalkStyle::OnDeactivate()
 
 void EffectTeleportWeapons::OnActivate()
 {
-	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &lastVec);
 }
 
 void EffectTeleportWeapons::OnDeactivate()
@@ -655,4 +658,97 @@ void EffectThrowingKnives::OnActivate()
 	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, weaponHash, 10, 1, 0x2cd419dc);
 	WEAPON::SET_PED_AMMO(playerPed, weaponHash, 10);
 	WEAPON::SET_CURRENT_PED_WEAPON(playerPed, weaponHash, 1, 0, 0, 0);
+}
+
+void EffectTeleportFewMeters::OnActivate()
+{
+	Entity entity = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(entity, true))
+	{
+		entity = PED::GET_VEHICLE_PED_IS_IN(entity, false);
+	}
+	else if (PED::IS_PED_ON_MOUNT(entity))
+	{
+		entity = PED::GET_MOUNT(entity);
+	}
+
+	Vector3 vec = ENTITY::GET_ENTITY_COORDS(entity, true, 0);
+
+	float radius = 10.0f;
+
+	/** In radians */
+	float angle = float(rand() % 360) * (M_PI / 180.0f);
+
+	vec.x += radius * sin(angle);
+	vec.y += radius * cos(angle);
+
+
+	bool bUpdatedCoords = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(vec.x, vec.y, 100.0, &vec.z, FALSE);
+
+	if (!bUpdatedCoords)
+	{
+		static const float groundCheckHeight[] = {
+				100.0, 150.0, 50.0, 0.0, 200.0, 250.0, 300.0, 350.0, 400.0,
+				450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0
+		};
+
+		for (float height : groundCheckHeight)
+		{
+			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(entity, vec.x, vec.y, height, 0, 0, 1);
+			WAIT(100);
+			if (GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(vec.x, vec.y, height, &vec.z, FALSE))
+			{
+				vec.z += 3.0;
+				break;
+			}
+		}
+	}
+
+	ENTITY::SET_ENTITY_COORDS(entity, vec.x, vec.y, vec.z, false, false, false, false);
+}
+
+void EffectBlackingOut::OnActivate()
+{
+	Effect::OnDeactivate();
+
+	GRAPHICS::ANIMPOSTFX_PLAY((char*)"PlayerWakeUpInterrogation");
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		Vector3 vec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+		ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z + 2.0f, false, false, false, false);
+	}
+
+	PED::SET_PED_TO_RAGDOLL(playerPed, 5000, 5000, 0, true, true, false);
+}
+
+void EffectRandomClothes::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	int32_t outfitID = rand() % 58;
+
+	if (outfitID == 25 || outfitID == 17 || outfitID == 14 || outfitID == 28)
+	{
+		outfitID = 0;
+	}
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, playerPed, outfitID, false);
+}
+
+void EffectMostWanted::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Player player = PLAYER::PLAYER_ID();
+
+	invoke<Void>(0xF60386770878A98F, player, GAMEPLAY::GET_HASH_KEY((char*)"CRIME_ASSAULT_LAW"), 0, 0, 1);
+	int priceOnHead = PURSUIT::GET_PLAYER_PRICE_ON_A_HEAD(player);
+	PURSUIT::SET_PLAYER_PRICE_ON_A_HEAD(player, priceOnHead + 50 * 100);
 }

@@ -534,3 +534,26 @@ void EffectSetPedsIntoPlayerVehicle::OnActivate()
 		}
 	}
 }
+
+void EffectFastPlayersWagon::OnTick()
+{
+	const float maxSpeed = 25.0f;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		float speed = ENTITY::GET_ENTITY_SPEED(veh);
+
+		float newSpeed = speed * 2.0f;
+
+		if (newSpeed > maxSpeed)
+		{
+			newSpeed = maxSpeed;
+		}
+
+		VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, newSpeed);
+	}
+}

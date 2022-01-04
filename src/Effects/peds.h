@@ -345,6 +345,47 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectSpawnAngryCorpse : public Effect
+{
+public:
+	EffectSpawnAngryCorpse()
+	{
+		ID = "spawn_angry_corpse";
+		name = "Spawn Angry Corpse";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectSpawnAngryCaveman : public Effect
+{
+public:
+	EffectSpawnAngryCaveman()
+	{
+		ID = "spawn_angry_caveman";
+		name = "Spawn Angry Caveman";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnAngryTwin : public Effect
+{
+public:
+	EffectSpawnAngryTwin()
+	{
+		ID = "spawn_angry_twin";
+		name = "Spawn Angry Twin";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 
 void RemoveAllPedWeapons(Ped ped);

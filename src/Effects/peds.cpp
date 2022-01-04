@@ -78,12 +78,20 @@ void MarkPedAsCompanion(Hash ped)
 
 void MarkPedAsEnemy(Hash ped)
 {
-	Hash playerGroup = GAMEPLAY::GET_HASH_KEY((char*)"PLAYER");
-	Hash enemyGroup;
+	static std::vector<Hash> groups = {
+		GAMEPLAY::GET_HASH_KEY((char*)"PLAYER"),
+		0x8A33CDCF, // Civ Male
+		0x3220F762 // Civ Female
+	};
 
+	Hash enemyGroup;
 	PED::ADD_RELATIONSHIP_GROUP((char*)"_CHAOS_ENEMY", &enemyGroup);
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, playerGroup);
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, playerGroup, enemyGroup);
+
+	for (uint32_t i = 0; i < groups.size(); i++)
+	{
+		PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, groups[i]);
+		PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, groups[i], enemyGroup);
+	}
 
 	PED::SET_PED_RELATIONSHIP_GROUP_HASH(ped, enemyGroup);
 
@@ -145,6 +153,8 @@ void EffectSpawnLenny::OnActivate()
 	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_RIFLE_SPRINGFIELD");
 	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 9999, true, 0x2cd419dc);
 	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, true, 0, 0, 0);
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, rand() % 13, false);
 }
 
 void EffectSpawnChicken::OnActivate()
@@ -385,13 +395,45 @@ void EffectSpawnAngrySkeleton::OnActivate()
 {
 	Effect::OnActivate();
 
-	static Hash pedModel = GAMEPLAY::GET_HASH_KEY((char*)"U_M_M_CircusWagon_01");
-	static Hash pedModel2 = GAMEPLAY::GET_HASH_KEY((char*)"CS_ODPROSTITUTE");
+	static std::vector<const char*> skins = {
+		"U_M_M_CircusWagon_01",
+		//"CS_ODPROSTITUTE",
+		"A_M_M_UniCorpse_01",
+		"A_F_M_UniCorpse_01"
+	};
 
-	Ped ped = SpawnPedAroundPlayer(rand() % 2 ? pedModel : pedModel2);
+	uint32_t skinID = rand() % skins.size();
+
+	Ped ped = SpawnPedAroundPlayer(GAMEPLAY::GET_HASH_KEY((char*)skins[skinID]));
+
+	if (skinID == 1)
+	{
+		static std::vector<uint32_t> skeletonOutfitsIDs = {
+			31, 36, 46, 56, 68, 143, 144, 147, 
+		};
+
+		/** Set outfit */
+		invoke<Void>(0x77FF8D35EEC6BBC4, ped, skeletonOutfitsIDs[rand() % skeletonOutfitsIDs.size()], false);
+	}
+	else if (skinID == 2)
+	{
+		static std::vector<uint32_t> skeletonOutfitsIDs = {
+			11, 12, 27, 28, 
+		};
+
+		/** Set outfit */
+		invoke<Void>(0x77FF8D35EEC6BBC4, ped, skeletonOutfitsIDs[rand() % skeletonOutfitsIDs.size()], false);
+	}
 
 	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 500);
 	ENTITY::SET_ENTITY_HEALTH(ped, 500, 0);
+
+	if (rand() % 2 == 0)
+	{
+		static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_MELEE_BROKEN_SWORD");
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 1, true, 0x2cd419dc);
+		WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, true, 0, 0, 0);
+	}
 
 	MarkPedAsEnemy(ped);
 }
@@ -632,15 +674,15 @@ void EffectUndeadNightmare::OnActivate()
 	GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
 
 	static Hash skin = GAMEPLAY::GET_HASH_KEY((char*)"A_M_M_ARMCHOLERACORPSE_01");
+	static Hash skin2 = GAMEPLAY::GET_HASH_KEY((char*)"A_M_M_UniCorpse_01");
 
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	Vector3 playerVec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
 
 	static Hash copGroup = GAMEPLAY::GET_HASH_KEY((char*)"COP");
-	static Hash civ1Group = GAMEPLAY::GET_HASH_KEY((char*)"CIVMALE");
-	static Hash civ2Group = GAMEPLAY::GET_HASH_KEY((char*)"CIVFEMALE");
 	static Hash playerGroup = GAMEPLAY::GET_HASH_KEY((char*)"PLAYER");
+
 
 	Hash enemyGroup;
 
@@ -651,15 +693,21 @@ void EffectUndeadNightmare::OnActivate()
 	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, copGroup, enemyGroup);
 	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, copGroup);
 
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, civ1Group, enemyGroup);
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, civ1Group);
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, 2318650831, enemyGroup);
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, 2318650831);
 
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, civ2Group, enemyGroup);
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, civ2Group);
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, 841021282, enemyGroup);
+	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, 841021282);
 
 	for (int32_t i = 0; i < 5; i++)
 	{
-		Ped zombie = SpawnPedAroundPlayer(skin, false);
+		Ped zombie = SpawnPedAroundPlayer(i == 0 ? skin : skin2, false);
+
+		if (i != 0)
+		{
+			/** Set outfit */
+			invoke<Void>(0x77FF8D35EEC6BBC4, zombie, rand() % 187, false);
+		}
 
 		float radius = 10.0f;
 
@@ -739,4 +787,86 @@ void EffectSpawnBearCompanion::OnActivate()
 	Ped ped = SpawnPedAroundPlayer(skinModel);
 
 	MarkPedAsCompanion(ped);
+}
+
+void EffectSpawnAngryCorpse::OnActivate()
+{
+	Effect::OnActivate();
+
+	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"A_M_M_ARMCHOLERACORPSE_01");
+
+	Ped ped = SpawnPedAroundPlayer(skinModel);
+
+	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 300);
+	ENTITY::SET_ENTITY_HEALTH(ped, 300, 0);
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 13, false);
+
+	MarkPedAsEnemy(ped);
+}
+
+void EffectSpawnAngryCaveman::OnActivate()
+{
+	Effect::OnActivate();
+
+	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"A_M_M_UniCorpse_01");
+
+	Ped ped = SpawnPedAroundPlayer(skinModel);
+
+	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 500);
+	ENTITY::SET_ENTITY_HEALTH(ped, 500, 0);
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 44, false);
+
+	MarkPedAsEnemy(ped);
+
+	/** _SET_PED_SCALE */
+	invoke<Void>(0x25ACFC650B65C538, ped, 1.1f);
+}
+
+void EffectSpawnAngryTwin::OnActivate()
+{
+	Effect::OnActivate();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Ped ped = PED::CLONE_PED(playerPed, ENTITY::GET_ENTITY_HEADING(playerPed), true, false);
+
+	if (ENTITY::DOES_ENTITY_EXIST(ped))
+	{
+		ChaosMod::pedsSet.insert(ped);
+	}
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, false))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		PED::SET_PED_INTO_VEHICLE(ped, veh, -2);
+	}
+	else if (PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		Ped mount = PED::GET_MOUNT(playerPed);
+
+		bool bIsMountSeatFree = invoke<bool>(0xAAB0FE202E9FC9F0, mount, 0);
+	
+		if (bIsMountSeatFree)
+		{
+			SetPedOnMount(ped, mount, 0);
+		}
+	}
+
+	ENTITY::SET_ENTITY_INVINCIBLE(ped, false);
+	ENTITY::SET_ENTITY_PROOFS(ped, false, false);
+
+	static Hash unarmed = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_UNARMED");
+	Hash weaponHash = 0;
+
+	if (WEAPON::GET_CURRENT_PED_WEAPON(playerPed, &weaponHash, 0, 0, 0) && weaponHash != unarmed)
+	{
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 100, 1, 0x2cd419dc);
+		WEAPON::SET_PED_AMMO(ped, weaponHash, 100);
+		WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, 1, 0, 0, 0);
+	}
+
+	MarkPedAsEnemy(ped);
 }
