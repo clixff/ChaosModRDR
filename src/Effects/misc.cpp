@@ -3,6 +3,35 @@
 #include "peds.h"
 #include "../script.h"
 
+
+Entity SpawnObject(Hash model)
+{
+	LoadModel(model);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Vector3 vec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+	Entity object = OBJECT::CREATE_OBJECT(model, vec.x, vec.y, vec.z, 1, 1, 0, 0, 1);
+
+	ENTITY::SET_ENTITY_VISIBLE(object, true);
+	ENTITY::SET_ENTITY_ALPHA(object, 255, true);
+
+	ENTITY::SET_ENTITY_AS_MISSION_ENTITY(object, false, false);
+	Entity objCopy = object;
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&objCopy);
+
+	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+
+	if (ENTITY::DOES_ENTITY_EXIST(object))
+	{
+		ChaosMod::propsSet.insert(object);
+	}
+
+	return object;
+}
+
+
 void EffectSpawnHotchkissCannon::OnActivate()
 {
 	Effect::OnActivate();
@@ -14,13 +43,23 @@ void EffectSpawnHotchkissCannon::OnActivate()
 
 	LoadModel(model);
 
-	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, rand() % 360, false, false, false, false);
+	float playerHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+
+	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, playerHeading, false, false, false, false);
+
+	Vehicle vehCopy = veh;
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 
 	if (ENTITY::DOES_ENTITY_EXIST(veh))
 	{
 		ChaosMod::vehsSet.insert(veh);
+	}
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, true) && !PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		PED::SET_PED_INTO_VEHICLE(playerPed, veh, -1);
 	}
 }
 
@@ -693,6 +732,33 @@ std::vector<Entity> GetNearbyProps(int32_t Max)
 	return propsOut;
 }
 
+void PlayAmbientSpeech(const char* voiceDict, const char* voiceSpeech, Ped ped, uint32_t speechID, bool bSetEntity)
+{
+	struct
+	{
+		const char* speechName = "";
+		const char* voiceName = "";
+		alignas(8) int v3 = 0;
+		alignas(8) Hash speechParamHash = GAMEPLAY::GET_HASH_KEY((char*)"speech_params_force");
+		alignas(8) Entity entity;
+		alignas(8) BOOL v6 = true;
+		alignas(8) int v7 = 1;
+		alignas(8) int v8 = 1;
+	} speechData;
+
+	speechData.v3 = speechID;
+
+	speechData.speechName = voiceSpeech;
+	speechData.voiceName = voiceDict;
+
+	if (bSetEntity)
+	{
+		speechData.entity = ped;
+	}
+
+	AUDIO::_PLAY_AMBIENT_SPEECH1(ped, (char*)&speechData);
+}
+
 void EffectLightningEnemy::OnActivate()
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
@@ -811,5 +877,75 @@ void EffectGhostTown::OnTick()
 			entities.insert(entity);
 			ENTITY::SET_ENTITY_VISIBLE(entity, false);
 		}
+	}
+}
+
+void EffectSpawnUFO::OnActivate()
+{
+	SpawnObject(0xC92962E3);
+}
+
+void EffectGravityField::OnActivate()
+{
+	Effect::OnActivate();
+
+	entities.clear();
+}
+
+void EffectGravityField::OnTick()
+{
+	Effect::OnTick();
+
+	if (GetTickCount() % 1000)
+	{
+		entities.clear();
+
+		auto peds = GetNearbyPeds(30);
+		auto vehs = GetNearbyVehs(30);
+
+		for (auto ped : peds)
+		{
+			PED::SET_PED_TO_RAGDOLL(ped, 2000, 2000, 0, true, true, false);
+			entities.insert(ped);
+		}
+
+		for (auto veh : vehs)
+		{
+			entities.insert(veh);
+		}
+	}
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Vector3 vec1 = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+	vec1.z += 1.0f;
+
+	for (auto entity : entities)
+	{
+		if (!ENTITY::DOES_ENTITY_EXIST(entity))
+		{
+			continue;
+		}
+
+		Vector3 vec2 = ENTITY::GET_ENTITY_COORDS(entity, true, 0);
+
+		Vector3 diff = vec1;
+		diff.x -= vec2.x;
+		diff.y -= vec2.y;
+		diff.z -= vec2.z;
+
+		const float squareSum = (diff.x * diff.x) + (diff.y * diff.y) + (diff.z * diff.z);
+		const float length = sqrt(squareSum);
+		diff.x /= length;
+		diff.y /= length;
+		diff.z /= length;
+
+		const float gravityForce = 70.0f;
+
+		diff.x *= gravityForce;
+		diff.y *= gravityForce;
+		diff.z *= gravityForce;
+
+		ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entity, 0, diff.x, diff.y, diff.z, false, false, true, false);
 	}
 }

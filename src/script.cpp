@@ -14,6 +14,7 @@ HMODULE ChaosMod::hInstance = 0;
 
 std::set<Ped> ChaosMod::pedsSet = std::set<Ped>();
 std::set<Vehicle> ChaosMod::vehsSet = std::set<Vehicle>();
+std::set<Entity> ChaosMod::propsSet = std::set<Entity>();
 
 
 ChaosMod::ChaosMod()
@@ -88,12 +89,9 @@ void ChaosMod::ToggleModStatus()
 
 	bEnabled = !bEnabled;
 
-
 	if (bEnabled)
 	{
 		ResetEffectsTimeout();
-
-		ModUITextString = "~COLOR_GREEN~Chaos Mod enabled\n\n~q~Loaded ~COLOR_GOLD~" + std::to_string(AllEffects.size()) + "~q~ effects";
 
 		if (wsServer)
 		{
@@ -102,18 +100,14 @@ void ChaosMod::ToggleModStatus()
 
 		std::string effectsNumStr = "~q~Loaded ~COLOR_GOLD~" + std::to_string(AllEffects.size()) + "~q~ effects";
 
-
-		//ShowNotification("~COLOR_GREEN~Chaos Mod Enabled", effectsNumStr.c_str(), "scoretimer_textures", "scoretimer_generic_tick", 2000, "COLOR_GREEN");
-
 		ChaosMod::pedsSet.clear();
 		ChaosMod::vehsSet.clear();
+		ChaosMod::propsSet.clear();
 
 		ShowNotification2("~COLOR_GREEN~Chaos Mod Enabled", effectsNumStr.c_str(), 3500, "scoretimer_textures", "scoretimer_generic_tick", LinearColor(77, 170, 104, 255));
 	}
 	else
 	{
-		ModUITextString = "~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod disabled";
-
 		for (auto* effect : activeEffects)
 		{
 			effect->OnDeactivate();
@@ -126,10 +120,7 @@ void ChaosMod::ToggleModStatus()
 			wsServer->SendMessageToClient("mod_disabled");
 		}
 
-		//ShowNotification("~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod Disabled", "", "scoretimer_textures", "scoretimer_generic_cross", 2000, "COLOR_PLAYER_STATUS_NEGATIVE");
-
 		ShowNotification2("~COLOR_PLAYER_STATUS_NEGATIVE~Chaos Mod Disabled", "", 3500, "scoretimer_textures", "scoretimer_generic_cross", LinearColor(204, 0, 0, 255));
-
 
 		for (auto ped : ChaosMod::pedsSet)
 		{
@@ -149,11 +140,19 @@ void ChaosMod::ToggleModStatus()
 			}
 		}
 
+		for (auto prop : ChaosMod::propsSet)
+		{
+			if (ENTITY::DOES_ENTITY_EXIST(prop))
+			{
+				ENTITY::SET_ENTITY_AS_MISSION_ENTITY(prop, false, false);
+				OBJECT::DELETE_OBJECT(&prop);
+			}
+		}
+
 		ChaosMod::pedsSet.clear();
 		ChaosMod::vehsSet.clear();
+		ChaosMod::propsSet.clear();
 	}
-
-	//ModUITextEndTime = GetTickCount() + 3000;
 
 	ChaosMod::globalMutex.unlock();
 }
@@ -204,7 +203,6 @@ void ChaosMod::StartNodeProcess()
 	std::wstring exePath = chaosDir;
 
 	exePath += L"\\ChaosModRDRTwitch.exe";
-
 
 	LPWSTR exePath_c = const_cast<wchar_t*>(exePath.c_str());
 	LPWSTR chaosDir_c = const_cast<wchar_t*>(chaosDir.c_str());
@@ -303,12 +301,6 @@ void ChaosMod::Main()
 
 void ChaosMod::Update()
 {
-	/** Draw mod UI text */
-	if (GetTickCount() < ModUITextEndTime)
-	{
-		ChaosMod::DrawText((char*)ModUITextString.c_str(), Vector2(0.5f, 0.5f), Vector2(0.55f, 0.55f), LinearColor(255, 255, 255, 255), true, 5, LinearColor(0, 0, 0, 255));
-	}
-
 	if (GetTickCount() < notification2Data.hideTime)
 	{
 		RenderNotification2();
@@ -385,12 +377,12 @@ void ChaosMod::Update()
 
 				ChaosMod::globalMutex.unlock();
 			}
-			//ActivateRandomEffect();
 		}
 	}
 
 	ChaosMod::globalMutex.lock();
 
+	/** If received new intervals from websocket server */
 	if (intervalsData.intervalTime)
 	{
 		this->effectsInterval = intervalsData.intervalTime;
@@ -402,6 +394,7 @@ void ChaosMod::Update()
 		intervalsData.votingTime = 0;
 	}
 
+	/** If received new effecct to activate from websocket server */
 	if (!effectToActivate.id.empty())
 	{
 		auto* effect = this->EffectsMap[effectToActivate.id];
@@ -423,7 +416,6 @@ void ChaosMod::Update()
 	}
 
 	ChaosMod::globalMutex.unlock();
-
 
 	DrawUI();
 }
@@ -640,7 +632,7 @@ void ChaosMod::InitEffects()
 		new EffectEveryoneIsInvincible(),
 		new EffectTeleportToVanHorn(),
 		new EffectEveryoneExitsVehs(),
-		new EffectSetPlayerIntroRandomVeh(),
+		new EffectSetPlayerIntoRandomVeh(),
 		new Effect120FOV(),
 		new EffectSpawnRobot(),
 		new EffectSpawnHotAirBalloon(),
@@ -693,7 +685,9 @@ void ChaosMod::InitEffects()
 		new EffectFastPlayersWagon(),
 		new EffectSpawnAngryCaveman(),
 		new EffectSpawnAngryTwin(),
-		new EffectMostWanted()
+		new EffectMostWanted(),
+		new EffectSpawnUFO(),
+		new EffectGravityField()
 	};
 
 	EffectsMap.clear();

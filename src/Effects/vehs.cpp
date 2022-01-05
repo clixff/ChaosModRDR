@@ -1,6 +1,9 @@
 #include "vehs.h"
 #include "peds.h"
 #include "../script.h"
+#include <algorithm>
+#include <random>
+
 
 std::vector<Vehicle> GetNearbyVehs(int32_t Max)
 {
@@ -51,7 +54,11 @@ void EffectSpawnWagon::OnActivate()
 
 	LoadModel(model);
 
-	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, rand() % 360, false, false, false, false);
+	float playerHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, playerHeading, false, false, false, false);
+
+	Vehicle vehCopy = veh;
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 
@@ -152,6 +159,9 @@ void EffectMinecartRain::OnTick()
 
 	Vehicle veh = VEHICLE::CREATE_VEHICLE(cartHash, playerLocation.x, playerLocation.y, playerLocation.z + 35.0f, rand() % 360, false, false, false, false);
 
+	Vehicle vehCopy = veh;
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
+
 	ENTITY::SET_ENTITY_VELOCITY(veh, 0.0f, 0.0f, -150.0f);
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(cartHash);
@@ -228,6 +238,17 @@ void EffectFullAcceleration::OnTick()
 		if (ENTITY::DOES_ENTITY_EXIST(veh))
 		{
 			VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 100.0f);
+
+			Hash vehModel = ENTITY::GET_ENTITY_MODEL(veh);
+
+			bool bModelIsTrain = invoke<bool>(0xFC08C8F8C1EDF174, vehModel);
+
+			if (bModelIsTrain)
+			{
+				VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 1000.0f);
+				VEHICLE::SET_TRAIN_SPEED(veh, 1000.0f);
+				VEHICLE::SET_TRAIN_CRUISE_SPEED(veh, 1000.0f);
+			}
 		}
 	}
 }
@@ -255,7 +276,7 @@ void EffectEveryoneExitsVehs::OnActivate()
 	}
 }
 
-void EffectSetPlayerIntroRandomVeh::OnActivate()
+void EffectSetPlayerIntoRandomVeh::OnActivate()
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
@@ -284,17 +305,53 @@ void EffectSetPlayerIntroRandomVeh::OnActivate()
 		return;
 	}
 
-	Entity entityToUse = entities[rand() % entities.size()];
-	int32_t seatIndex = rand() % 2 ? -1 : -2;
+	auto randomEngine = std::default_random_engine{};
+	std::shuffle(std::begin(entities), std::end(entities), randomEngine);
 
-	if (ENTITY::IS_ENTITY_A_PED(entityToUse))
+	for (auto entity : entities)
 	{
-		/** __SET_PED_ON_MOUNT */
-		invoke<Void>(0x028F76B6E78246EB, playerPed, entityToUse, seatIndex, true);
-	}
-	else
-	{
-		PED::SET_PED_INTO_VEHICLE(playerPed, entityToUse, seatIndex);
+		if (ENTITY::IS_ENTITY_A_PED(entity))
+		{
+			std::vector<int32_t> seatIndices = { -1, 0 };
+
+			for (auto index : seatIndices)
+			{
+				bool bIsMountSeatFree = invoke<bool>(0xAAB0FE202E9FC9F0, entity, index);
+
+				if (bIsMountSeatFree)
+				{
+					/** __SET_PED_ON_MOUNT */
+					invoke<Void>(0x028F76B6E78246EB, playerPed, entity, index, true);
+					return;
+				}
+			}
+
+		}
+		else
+		{
+			bool bSeatFree = VEHICLE::IS_VEHICLE_SEAT_FREE(entity, -1);
+
+			if (bSeatFree)
+			{
+				PED::SET_PED_INTO_VEHICLE(playerPed, entity, -1);
+				return;
+			}
+
+			auto hash = ENTITY::GET_ENTITY_MODEL(entity);
+
+			int32_t seatsNum = VEHICLE::GET_VEHICLE_MODEL_NUMBER_OF_SEATS(hash) - 1;
+
+			for (int32_t i = 0; i < seatsNum; i++)
+			{
+				bSeatFree = VEHICLE::IS_VEHICLE_SEAT_FREE(entity, i);
+				
+				if (bSeatFree)
+				{
+					PED::SET_PED_INTO_VEHICLE(playerPed, entity, i);
+					return;
+				}
+			}
+		}
 	}
 }
 
@@ -310,6 +367,9 @@ void EffectSpawnHotAirBalloon::OnActivate()
 	LoadModel(model);
 
 	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, rand() % 360, false, false, false, false);
+
+	Vehicle vehCopy = veh;
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 
@@ -366,6 +426,9 @@ void EffectSpawnCanoe::OnActivate()
 	LoadModel(model);
 
 	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, rand() % 360, false, false, false, false);
+
+	Vehicle vehCopy = veh;
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 
@@ -537,7 +600,7 @@ void EffectSetPedsIntoPlayerVehicle::OnActivate()
 
 void EffectFastPlayersWagon::OnTick()
 {
-	const float maxSpeed = 25.0f;
+	float maxSpeed = 25.0f;
 
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
@@ -549,11 +612,28 @@ void EffectFastPlayersWagon::OnTick()
 
 		float newSpeed = speed * 2.0f;
 
+
+		Hash vehModel = ENTITY::GET_ENTITY_MODEL(veh);
+
+		bool bModelIsTrain = invoke<bool>(0xFC08C8F8C1EDF174, vehModel);
+
+		if (bModelIsTrain)
+		{
+			maxSpeed = 1000.0f;
+		}
+
 		if (newSpeed > maxSpeed)
 		{
 			newSpeed = maxSpeed;
 		}
 
 		VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, newSpeed);
+
+
+		if (bModelIsTrain)
+		{
+			VEHICLE::SET_TRAIN_SPEED(veh, newSpeed);
+			VEHICLE::SET_TRAIN_CRUISE_SPEED(veh, newSpeed);
+		}
 	}
 }

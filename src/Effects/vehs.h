@@ -84,10 +84,10 @@ public:
 	virtual void OnActivate() override;
 };
 
-class EffectSetPlayerIntroRandomVeh : public Effect
+class EffectSetPlayerIntoRandomVeh : public Effect
 {
 public:
-	EffectSetPlayerIntroRandomVeh()
+	EffectSetPlayerIntoRandomVeh()
 	{
 		ID = "set_to_random_veh";
 		name = "Set Player Into Random Vehicle";

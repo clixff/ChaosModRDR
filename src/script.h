@@ -149,6 +149,8 @@ public:
 	static std::set<Ped> pedsSet;
 	/** Set of vehs created by mod */
 	static std::set<Vehicle> vehsSet;
+	/** Set of objects created by mod */
+	static std::set<Entity> propsSet;
 private:
 	void Main();
 	void Update();

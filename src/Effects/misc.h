@@ -3,6 +3,8 @@
 #include "effect.h"
 #include <set>
 
+Entity SpawnObject(Hash model);
+
 class EffectSpawnHotchkissCannon : public Effect
 {
 public:
@@ -433,5 +435,38 @@ private:
 };
 
 
+class EffectSpawnUFO : public Effect
+{
+public:
+	EffectSpawnUFO()
+	{
+		ID = "spawn_ufo";
+		name = "Spawn UFO";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectGravityField : public Effect
+{
+public:
+	EffectGravityField()
+	{
+		ID = "gravity_field";
+		name = "Gravity Field";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnActivate() override;
+
+	virtual void OnTick() override;
+
+private:
+	std::set<Entity> entities;
+};
 
 std::vector<Entity> GetNearbyProps(int32_t Max);
+
+void PlayAmbientSpeech(const char* voiceDict, const char* voiceSpeech, Ped ped, uint32_t speechID = 0, bool bSetEntity = false);

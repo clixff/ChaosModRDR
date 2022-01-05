@@ -1,5 +1,6 @@
 #include "peds.h"
 #include "../script.h"
+#include "misc.h"
 
 void SetPedOnMount(Ped ped, Ped mount, int seat)
 {
@@ -53,6 +54,8 @@ Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle)
 			}
 		}
 	}
+
+	ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
 
 	return ped;
 }
@@ -203,7 +206,10 @@ void EffectKidnapping::OnActivate()
 	static Hash wagonModel = GAMEPLAY::GET_HASH_KEY((char*)"WAGONPRISON01X");
 	LoadModel(wagonModel);
 
-	vehicle = VEHICLE::CREATE_VEHICLE(wagonModel, playerCoord.x, playerCoord.y, playerCoord.z, rand() % 360, 0, 0, 0, 0);
+	float playerHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+	vehicle = VEHICLE::CREATE_VEHICLE(wagonModel, playerCoord.x, playerCoord.y, playerCoord.z, playerHeading, 0, 0, 0, 0);
+	Vehicle vehCopy = vehicle;
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
 	PED::SET_PED_INTO_VEHICLE(ped, vehicle, -1);
 	PED::SET_PED_INTO_VEHICLE(sister, vehicle, 0);
 	PED::SET_PED_INTO_VEHICLE(playerPed, vehicle, 1);
@@ -586,7 +592,12 @@ void EffectSkyrimIntro::OnActivate()
 
 	LoadModel(wagonModel);
 
-	Vehicle vehicle = VEHICLE::CREATE_VEHICLE(wagonModel, playerCoord.x, playerCoord.y, playerCoord.z, rand() % 360, 0, 0, 0, 0);
+	float playerHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+	Vehicle vehicle = VEHICLE::CREATE_VEHICLE(wagonModel, playerCoord.x, playerCoord.y, playerCoord.z, playerHeading, 0, 0, 0, 0);
+
+	Vehicle vehCopy = vehicle;
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
+
 	PED::SET_PED_INTO_VEHICLE(cop, vehicle, -1);
 	PED::SET_PED_INTO_VEHICLE(playerPed, vehicle, 1);
 	PED::SET_PED_INTO_VEHICLE(prisoner1, vehicle, 2);
@@ -605,22 +616,7 @@ void EffectSkyrimIntro::OnActivate()
 	AI::TASK_VEHICLE_DRIVE_WANDER(cop, vehicle, 10000.0f, 411);
 	PED::SET_PED_KEEP_TASK(cop, true);
 
-	struct
-	{
-		const char* speechName = "CALLOUT_CAMP_WAKE_UP";
-		const char* voiceName = "0132_G_M_M_UNICRIMINALS_01_BLACK_01";
-		alignas(8) int v3 = 0;
-		alignas(8) Hash speechParamHash = GAMEPLAY::GET_HASH_KEY((char*)"speech_params_force");
-		alignas(8) Entity entity;
-		alignas(8) BOOL v6 = true;
-		alignas(8) int v7 = 1;
-		alignas(8) int v8 = 1;
-	} speechData;
-
-	//speechData.entity = prisoner1;
-
-
-	AUDIO::_PLAY_AMBIENT_SPEECH1(playerPed, (char*)&speechData);
+	PlayAmbientSpeech("0132_G_M_M_UNICRIMINALS_01_BLACK_01", "CALLOUT_CAMP_WAKE_UP", playerPed, 0, false);
 }
 
 void EffectSpawnParrotCompanion::OnActivate()
@@ -742,6 +738,9 @@ void EffectUndeadNightmare::OnActivate()
 
 		AI::TASK_COMBAT_PED(zombie, PLAYER::PLAYER_PED_ID(), 0, 16);
 	}
+
+	PlayAmbientSpeech("RCMP", "RCMP_DEAD", playerPed, 0, false);
+
 }
 
 void EffectSpawnDogCompanion::OnActivate()
