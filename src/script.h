@@ -127,8 +127,6 @@ public:
 
 	void ActivateEffect(Effect* effect);
 
-	void ActivateRandomEffect();
-
 	WebSocketServer* wsServer = nullptr;
 
 	std::thread wsThread;

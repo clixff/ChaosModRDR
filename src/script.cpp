@@ -181,18 +181,6 @@ void ChaosMod::ActivateEffect(Effect* effect)
 	this->activeEffects.push_back(effect);
 }
 
-void ChaosMod::ActivateRandomEffect()
-{
-	if (AllEffects.size() == 0)
-	{
-		return;
-	}
-
-	int effectID = rand() % AllEffects.size();
-
-	ActivateEffect(AllEffects[effectID]);
-}
-
 void ChaosMod::StartNodeProcess()
 {
 	ZeroMemory(&this->NodeStartupInfo, sizeof(this->NodeStartupInfo));
@@ -204,7 +192,7 @@ void ChaosMod::StartNodeProcess()
 
 	std::wstring chaosDir = gameDir;
 
-	chaosDir += +L"\\ChaosMod";
+	chaosDir += L"\\ChaosMod";
 
 	std::wstring exePath = chaosDir;
 
