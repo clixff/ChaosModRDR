@@ -7,6 +7,8 @@ This mod for **Red Dead Redemption 2** activates random game effects sometimes. 
 
 You can enable **Twitch integration** and your viewers will be able choose these effects.
 
+You can find a list of effects **[here](https://docs.google.com/spreadsheets/d/1Z7dflg-n9VaXPnsqlzortFaUpkuy7XWrB9BGvJ8ilQk)**.
+
 ## Installation
 ### Install ScriptHook
 Install **[Script Hook RDR2](http://www.dev-c.com/rdr2/scripthookrdr2/)** (extract **dinput8.dll** and **ScriptHookRDR2.dll** to game directory). Mod is tested on version **v1.0.1436.25**.

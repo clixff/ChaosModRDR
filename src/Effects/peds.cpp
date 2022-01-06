@@ -62,7 +62,8 @@ Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle, bool bSpawnHorseFor
 		{
 			static Hash mountModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Horse_Morgan_Bay");
 
-			Ped mount = SpawnPedAroundPlayer(mountModel, false);
+			Ped mount = SpawnPedAroundPlayer(mountModel, false, false);
+
 			SetPedOnMount(ped, mount, -1);
 		}
 	}
