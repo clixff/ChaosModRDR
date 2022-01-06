@@ -56,6 +56,7 @@ void EffectSpawnWagon::OnActivate()
 
 	float playerHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
 	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, playerHeading, false, false, false, false);
+	DECORATOR::DECOR_SET_BOOL(veh, (char*)"wagon_block_honor", true);
 
 	Vehicle vehCopy = veh;
 	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);

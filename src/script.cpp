@@ -696,7 +696,8 @@ void ChaosMod::InitEffects()
 		new EffectMostWanted(),
 		new EffectSpawnUFO(),
 		new EffectGravityField(),
-		new EffectPigWeapons()
+		new EffectPigWeapons(),
+		new EffectSpawnAngryCowboy()
 	};
 
 	EffectsMap.clear();

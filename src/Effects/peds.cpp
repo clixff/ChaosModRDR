@@ -8,7 +8,7 @@ void SetPedOnMount(Ped ped, Ped mount, int seat)
 	invoke<Void>(0x028F76B6E78246EB, ped, mount, seat, true);
 }
 
-Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle)
+Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle, bool bSpawnHorseForPed)
 {
 	LoadModel(skinModel);
 
@@ -26,6 +26,7 @@ Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle)
 	}
 
 	Ped ped = PED::CREATE_PED(skinModel, playerLocation.x, playerLocation.y, playerLocation.z, 0.0f, 1, 0, 0, 0);
+	DECORATOR::DECOR_SET_INT(ped, (char*)"honor_override", 0);
 	PED::SET_PED_VISIBLE(ped, true);
 	PED::SET_PED_HEARING_RANGE(ped, 10000.0f);
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(skinModel);
@@ -52,6 +53,17 @@ Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle)
 			{
 				SetPedOnMount(ped, mount, 0);
 			}
+		}
+	}
+
+	if (bSpawnHorseForPed && !bModelIsHorse)
+	{
+		if (PED::IS_PED_ON_MOUNT(playerPed) || bPlayerInVehicle)
+		{
+			static Hash mountModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Horse_Morgan_Bay");
+
+			Ped mount = SpawnPedAroundPlayer(mountModel, false);
+			SetPedOnMount(ped, mount, -1);
 		}
 	}
 
@@ -133,7 +145,7 @@ void EffectSpawnDrunkardJon::OnActivate()
 
 	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"CS_GrizzledJon");
 
-	Ped ped = SpawnPedAroundPlayer(skinModel);
+	Ped ped = SpawnPedAroundPlayer(skinModel, false, true);
 
 	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 1000);
 	ENTITY::SET_ENTITY_HEALTH(ped, 1000, 0);
@@ -146,8 +158,17 @@ void EffectSpawnLenny::OnActivate()
 	Effect::OnActivate();
 
 	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"CS_lenny");
+	static Hash salonModel = GAMEPLAY::GET_HASH_KEY((char*)"CS_lenny");
 
-	Ped ped = SpawnPedAroundPlayer(skinModel);
+	static std::vector<Hash> skins = {
+		GAMEPLAY::GET_HASH_KEY((char*)"CS_lenny"),
+		GAMEPLAY::GET_HASH_KEY((char*)"MSP_SALOON1_MALES_01"),
+		GAMEPLAY::GET_HASH_KEY((char*)"MSP_SALOON1_FEMALES_01")
+	};
+
+	int32_t skinID = rand() % skins.size();
+
+	Ped ped = SpawnPedAroundPlayer(skins[skinID]);
 
 	MarkPedAsCompanion(ped);
 
@@ -157,7 +178,38 @@ void EffectSpawnLenny::OnActivate()
 	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 9999, true, 0x2cd419dc);
 	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, true, 0, 0, 0);
 
-	invoke<Void>(0x77FF8D35EEC6BBC4, ped, rand() % 13, false);
+	int32_t outfitID = 0;
+
+	switch (skinID)
+	{
+	case 0:
+		outfitID = rand() % 13;
+		invoke<Void>(0x77FF8D35EEC6BBC4, ped, rand() % 13, false);
+		break;
+	case 1:
+		{
+			static std::vector<int32_t> outfits = {
+				0, 2, 5, 7, 9, 11, 13, 15, 17, 21, 23,
+				25, 27, 29, 31, 33, 35, 37, 39, 41, 43
+			};
+
+			outfitID = outfits[rand() % outfits.size()];
+
+			break;
+		}
+	case 2:
+		{
+		static std::vector<int32_t> outfits = {
+			2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+		};
+
+		outfitID = outfits[rand() % outfits.size()];
+			break;
+		}
+	}
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, outfitID, false);
+
 }
 
 void EffectSpawnChicken::OnActivate()
@@ -208,6 +260,7 @@ void EffectKidnapping::OnActivate()
 
 	float playerHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
 	vehicle = VEHICLE::CREATE_VEHICLE(wagonModel, playerCoord.x, playerCoord.y, playerCoord.z, playerHeading, 0, 0, 0, 0);
+	DECORATOR::DECOR_SET_BOOL(vehicle, (char*)"wagon_block_honor", true);
 	Vehicle vehCopy = vehicle;
 	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
 	PED::SET_PED_INTO_VEHICLE(ped, vehicle, -1);
@@ -536,13 +589,15 @@ void EffectSpawnLassoGuy::OnActivate()
 
 	static Hash pedModel = GAMEPLAY::GET_HASH_KEY((char*)"CS_EXOTICCOLLECTOR");
 
-	Ped ped = SpawnPedAroundPlayer(pedModel);
+	Ped ped = SpawnPedAroundPlayer(pedModel, false, true);
 
 	MarkPedAsEnemy(ped);
 
 	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_LASSO");
 	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 100, 1, 0x2cd419dc);
 	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, 1, 0, 0, 0);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	/** TASK_LASSO_PED */
 	invoke<Void>(0xC716EB2BD16370A3, ped, PLAYER::PLAYER_PED_ID());
@@ -868,4 +923,28 @@ void EffectSpawnAngryTwin::OnActivate()
 	}
 
 	MarkPedAsEnemy(ped);
+}
+
+void EffectSpawnAngryCowboy::OnActivate()
+{
+	Effect::OnActivate();
+
+	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"S_M_M_ValCowpoke_01");
+
+	Ped ped = SpawnPedAroundPlayer(skinModel, false, true);
+
+	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 500);
+	ENTITY::SET_ENTITY_HEALTH(ped, 500, 0);
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, rand() % 22, false);
+
+	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_REVOLVER_SCHOFIELD");
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 200, 1, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(ped, weaponHash, 200);
+	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, 1, 0, 0, 0);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	MarkPedAsEnemy(ped);
+
 }

@@ -840,6 +840,8 @@ void EffectGhostTown::OnDeactivate()
 {
 	Effect::OnDeactivate();
 
+	entities.insert(PLAYER::PLAYER_PED_ID());
+
 	for (auto entity : entities)
 	{
 		if (ENTITY::DOES_ENTITY_EXIST(entity))

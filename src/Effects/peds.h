@@ -4,7 +4,7 @@
 #include <vector>
 #include <set>
 
-Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle = true);
+Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle = true, bool bSpawnHorseForPed = false);
 
 class EffectSpawnSoldier : public Effect
 {
@@ -379,6 +379,19 @@ public:
 	{
 		ID = "spawn_angry_twin";
 		name = "Spawn Angry Twin";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnAngryCowboy : public Effect
+{
+public:
+	EffectSpawnAngryCowboy()
+	{
+		ID = "spawn_angry_cowboy";
+		name = "Spawn Angry Cowboy";
 		bTimed = false;
 	}
 
