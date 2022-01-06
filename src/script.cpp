@@ -16,6 +16,8 @@ std::set<Ped> ChaosMod::pedsSet = std::set<Ped>();
 std::set<Vehicle> ChaosMod::vehsSet = std::set<Vehicle>();
 std::set<Entity> ChaosMod::propsSet = std::set<Entity>();
 
+Hash ChaosMod::PlayerSkin1 = 0;
+Hash ChaosMod::PlayerSkin2 = 0;
 
 ChaosMod::ChaosMod()
 {
@@ -152,7 +154,11 @@ void ChaosMod::ToggleModStatus()
 		ChaosMod::pedsSet.clear();
 		ChaosMod::vehsSet.clear();
 		ChaosMod::propsSet.clear();
+
+		ChaosMod::ResetPlayerSkin();
 	}
+
+	AUDIO::PLAY_SOUND_FRONTEND((char*)"SELECT", (char*)"HUD_SHOP_SOUNDSET", true, 0);
 
 	ChaosMod::globalMutex.unlock();
 }
@@ -278,6 +284,8 @@ void ChaosMod::Main()
 	ChaosMod::globalMutex.unlock();
 
 	ChaosMod::ThreadID = GetCurrentThreadId();
+
+	ChaosMod::UpdatePlayerSkinHash();
 
 	wsServer = new WebSocketServer();
 	wsServer->Init(9149);
@@ -687,7 +695,8 @@ void ChaosMod::InitEffects()
 		new EffectSpawnAngryTwin(),
 		new EffectMostWanted(),
 		new EffectSpawnUFO(),
-		new EffectGravityField()
+		new EffectGravityField(),
+		new EffectPigWeapons()
 	};
 
 	EffectsMap.clear();
@@ -895,4 +904,27 @@ void ChaosMod::RenderNotification2()
 
 		UI::DRAW_TEXT((char*)subtitle, 0.44f, 0.5f + yOffset);
 	}
+}
+
+void ChaosMod::UpdatePlayerSkinHash()
+{
+	static Hash playerSkinArthur = GAMEPLAY::GET_HASH_KEY((char*)"Player_Zero");
+	static Hash playerSkinJohn = GAMEPLAY::GET_HASH_KEY((char*)"Player_Three");
+
+	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
+	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
+
+	if (*ptr1 == playerSkinArthur || *ptr1 == playerSkinJohn)
+	{
+		ChaosMod::PlayerSkin1 = *ptr1;
+		ChaosMod::PlayerSkin2 = *ptr2;
+	}
+}
+
+void ChaosMod::ResetPlayerSkin()
+{
+	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
+	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
+	*ptr1 = ChaosMod::PlayerSkin1;
+	*ptr2 = ChaosMod::PlayerSkin2;
 }

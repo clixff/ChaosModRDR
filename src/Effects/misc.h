@@ -2,6 +2,7 @@
 
 #include "effect.h"
 #include <set>
+#include <map>
 
 Entity SpawnObject(Hash model);
 
@@ -465,6 +466,38 @@ public:
 
 private:
 	std::set<Entity> entities;
+};
+
+
+struct EntityVelocity
+{
+	Entity entity;
+	Vector3 velocity;
+	uint32_t maxTick = 0;
+};
+
+class EffectPigWeapons : public Effect
+{
+public:
+	EffectPigWeapons()
+	{
+		ID = "pig_weapons";
+		name = "Pig Weapons";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+
+	virtual void OnTick() override;
+
+private:
+	std::set<Ped> peds;
+
+	std::set<Ped> pigs;
+
+	std::vector<EntityVelocity> pigsVelocity;
 };
 
 std::vector<Entity> GetNearbyProps(int32_t Max);

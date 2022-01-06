@@ -949,3 +949,138 @@ void EffectGravityField::OnTick()
 		ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entity, 0, diff.x, diff.y, diff.z, false, false, true, false);
 	}
 }
+
+void EffectPigWeapons::OnActivate()
+{
+	Effect::OnActivate();
+
+	peds.clear();
+	pigs.clear();
+	pigsVelocity.clear();
+}
+
+void EffectPigWeapons::OnDeactivate()
+{
+	Effect::OnDeactivate();
+
+	for (auto ped : pigs)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			ChaosMod::pedsSet.erase(ped);
+			PED::DELETE_PED(&ped);
+		}
+	}
+
+	pigs.clear();
+	peds.clear();
+}
+
+void EffectPigWeapons::OnTick()
+{
+	Effect::OnTick();
+
+	if (GetTickCount() % 2000 == 0)
+	{
+		peds.clear();
+		auto nearbyPeds = GetNearbyPeds(20);
+
+		Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+		nearbyPeds.push_back(playerPed);
+
+		for (auto ped : nearbyPeds)
+		{
+			peds.insert(ped);
+		}
+	}
+
+
+	static Hash unarmed = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_UNARMED");
+	static Hash pigSkin = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Pig_01");
+	LoadModel(pigSkin);
+
+	uint32_t timeNow = GetTickCount();
+
+	for (uint32_t i = 0; i < pigsVelocity.size(); i++)
+	{
+		auto pig = pigsVelocity[i];
+		if (timeNow > pig.maxTick)
+		{
+
+			pigsVelocity.erase(pigsVelocity.begin() + i);
+			i--;
+			continue;
+		}
+		PED::SET_PED_TO_RAGDOLL(pig.entity, 1000, 1000, 0, true, true, false);
+		ENTITY::SET_ENTITY_VELOCITY(pig.entity, pig.velocity.x, pig.velocity.y, pig.velocity.z);
+	}
+
+	for (auto ped : peds)
+	{
+		Hash weaponHash = 0;
+
+		if (WEAPON::GET_CURRENT_PED_WEAPON(ped, &weaponHash, 0, 0, 0) && weaponHash == unarmed)
+		{
+			continue;
+		}
+
+		Vector3 newVec;
+
+		bool bFoundVec = WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(ped, &newVec);
+
+		if (!PED::IS_PED_SHOOTING(ped) || !bFoundVec)
+		{
+			continue;
+		}
+
+		Vector3 pedCoord = ENTITY::GET_ENTITY_COORDS(ped, true, 0);
+		pedCoord.z += 0.25f;
+
+		Vector3 forwardVec = ENTITY::GET_ENTITY_FORWARD_VECTOR(ped);
+
+		pedCoord.x += (forwardVec.x * 0.5f);
+		pedCoord.y += (forwardVec.y * 0.5f);
+
+		Vector3 diff = newVec;
+
+		diff.x -= pedCoord.x;
+		diff.y -= pedCoord.y;
+		diff.z -= pedCoord.z;
+
+		const float squareSum = (diff.x * diff.x) + (diff.y * diff.y) + (diff.z * diff.z);
+		const float length = sqrt(squareSum);
+		diff.x /= length;
+		diff.y /= length;
+		diff.z /= length;
+
+		const float velocity = 50.0f;
+
+		diff.x *= velocity;
+		diff.y *= velocity;
+		diff.z *= velocity;
+
+		Ped pig = PED::CREATE_PED(pigSkin, pedCoord.x, pedCoord.y, pedCoord.z, ENTITY::GET_ENTITY_HEADING(ped), true, 0, 0, 0);
+		PED::SET_PED_VISIBLE(pig, true);
+		ENTITY::SET_ENTITY_INVINCIBLE(pig, true);
+		PED::SET_PED_CAN_RAGDOLL(pig, true);
+		invoke<Void>(0x77FF8D35EEC6BBC4, pig, rand() % 4, false);
+
+		/** _SET_PED_SCALE */
+		invoke<Void>(0x25ACFC650B65C538, pig, 0.4f);
+
+		if (ENTITY::DOES_ENTITY_EXIST(pig))
+		{
+			pigs.insert(pig);
+			ChaosMod::pedsSet.insert(pig);
+			EntityVelocity pedStruct;
+			pedStruct.entity = pig;
+			pedStruct.velocity = diff;
+			pedStruct.maxTick = timeNow + 500;
+			pigsVelocity.push_back(pedStruct);
+		}
+
+	}
+
+	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(pigSkin);
+}

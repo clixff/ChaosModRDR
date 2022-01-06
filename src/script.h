@@ -151,6 +151,13 @@ public:
 	static std::set<Vehicle> vehsSet;
 	/** Set of objects created by mod */
 	static std::set<Entity> propsSet;
+
+
+	static Hash PlayerSkin1;
+	static Hash PlayerSkin2;
+
+	static void UpdatePlayerSkinHash();
+	static void ResetPlayerSkin();
 private:
 	void Main();
 	void Update();

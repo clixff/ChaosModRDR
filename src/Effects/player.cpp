@@ -1,5 +1,6 @@
 #include "player.h"
 #include "peds.h"
+#include "../script.h"
 
 void EffectLaunchPlayerUp::OnActivate()
 {
@@ -331,6 +332,8 @@ void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val)
 
 	LoadModel(hash);
 
+	ChaosMod::UpdatePlayerSkinHash();
+
 	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
 	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
 	*ptr1_val = *ptr1;
@@ -346,10 +349,11 @@ void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val)
 
 void ResetPlayerModel(uint64_t ptr1_val, uint64_t ptr2_val)
 {
-	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
-	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
-	*ptr1 = ptr1_val;
-	*ptr2 = ptr2_val;
+	ChaosMod::ResetPlayerSkin();
+	//uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
+	//uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
+	//*ptr1 = ptr1_val;
+	//*ptr2 = ptr2_val;
 
 	//WAIT(1000);
 
@@ -414,6 +418,18 @@ void IEffectSkinChange::OnActivate()
 
 void IEffectSkinChange::OnDeactivate()
 {
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		Ped mount = PED::GET_MOUNT(playerPed);
+
+		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(mount, true, true);
+
+		/** _REMOVE_PED_FROM_MOUNT */
+		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
+	}
+
 	ResetPlayerModel(oldSkin1, oldSkin2);
 }
 
@@ -751,4 +767,11 @@ void EffectMostWanted::OnActivate()
 	invoke<Void>(0xF60386770878A98F, player, GAMEPLAY::GET_HASH_KEY((char*)"CRIME_ASSAULT_LAW"), 0, 0, 1);
 	int priceOnHead = PURSUIT::GET_PLAYER_PRICE_ON_A_HEAD(player);
 	PURSUIT::SET_PLAYER_PRICE_ON_A_HEAD(player, priceOnHead + 50 * 100);
+}
+
+void EffectPigSkin::OnActivate()
+{
+	IEffectSkinChange::OnActivate();
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, PLAYER::PLAYER_PED_ID(), rand() % 4, false);
 }

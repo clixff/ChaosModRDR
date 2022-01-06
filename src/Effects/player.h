@@ -474,6 +474,8 @@ public:
 		name = "Player Is a Pig";
 		skinToSet = "A_C_Pig_01";
 	}
+
+	virtual void OnActivate() override;
 };
 
 class EffectRatSkin : public IEffectSkinChange
