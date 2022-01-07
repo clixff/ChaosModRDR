@@ -398,7 +398,36 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectSpawnUndeadBoss : public Effect
+{
+public:
+	EffectSpawnUndeadBoss()
+	{
+		ID = "spawn_undead_boss";
+		name = "Spawn Undead Boss";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnGrieferMicah : public Effect
+{
+public:
+	EffectSpawnGrieferMicah()
+	{
+		ID = "spawn_greifer_micah";
+		name = "Spawn Griefer Micah";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
 
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 
 void RemoveAllPedWeapons(Ped ped);
+
+void MarkPedAsCompanion(Hash ped);
+void MarkPedAsEnemy(Hash ped);

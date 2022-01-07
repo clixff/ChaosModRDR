@@ -775,3 +775,78 @@ void EffectPigSkin::OnActivate()
 
 	invoke<Void>(0x77FF8D35EEC6BBC4, PLAYER::PLAYER_PED_ID(), rand() % 4, false);
 }
+
+void EffectTeleportToLake::OnActivate()
+{
+	Vector3 vec;
+	vec.x = -1.0f;
+	vec.y = -1009.0f;
+	vec.z = 41.0f;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z, false, false, false, false);
+
+	static Hash model = GAMEPLAY::GET_HASH_KEY((char*)"SKIFF");
+
+	LoadModel(model);
+
+	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, vec.x, vec.y, vec.z, 5.0f, false, false, false, false);
+
+	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+
+	if (ENTITY::DOES_ENTITY_EXIST(veh))
+	{
+		ChaosMod::vehsSet.insert(veh);
+	}
+
+	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"A_M_M_UniCorpse_01");
+
+	Ped ped = SpawnPedAroundPlayer(skinModel, false, false);
+
+	MarkPedAsCompanion(ped);
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 56, false);
+
+	PED::SET_PED_INTO_VEHICLE(ped, veh, -1);
+	PED::SET_PED_INTO_VEHICLE(playerPed, veh, 4);
+
+	AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, 40.3f, -701.4f, 40.8f, 1000.0f, 1, model, 16777216, 1.0f, 1.0f);
+
+	/** BF_CanLeaveVehicle */
+	PED::SET_PED_COMBAT_ATTRIBUTES(ped, 3, false);
+
+	PED::SET_PED_KEEP_TASK(ped, true);
+
+	static Hash parrotModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Parrot_01");
+	Ped parrot = SpawnPedAroundPlayer(parrotModel, false, false);
+	MarkPedAsCompanion(parrot);
+
+	ENTITY::SET_ENTITY_COORDS(parrot, vec.x, vec.y, vec.z + 2.0f, false, false, false, false);
+
+	PED::SET_PED_CAN_RAGDOLL(parrot, false);
+
+	AI::TASK_FOLLOW_TO_OFFSET_OF_ENTITY(parrot, playerPed, 0.0f, 0.0f, 2.0f, 2.5f, -1.0f, -1.0f, 0, 0, 0, 0, 0);
+
+	Vehicle vehCopy = veh;
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
+}
+
+void EffectSetWinterOutfit::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Hash playerSkin = ENTITY::GET_ENTITY_MODEL(playerPed);
+
+	static Hash skinArthur = GAMEPLAY::GET_HASH_KEY((char*)"PLAYER_ZERO");
+	static Hash skinJohn = GAMEPLAY::GET_HASH_KEY((char*)"PLAYER_THREE");
+
+	if (playerSkin == skinArthur)
+	{
+		invoke<Void>(0x77FF8D35EEC6BBC4, playerPed, 1, false);
+	}
+	else if (playerSkin == skinJohn)
+	{
+		invoke<Void>(0x77FF8D35EEC6BBC4, playerPed, 25, false);
+	}
+}

@@ -707,3 +707,30 @@ public:
 
 	virtual void OnActivate() override;
 };
+
+class EffectTeleportToLake : public Effect
+{
+public:
+	EffectTeleportToLake()
+	{
+		ID = "tp_to_lake";
+		name = "Teleport To The Lake";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectSetWinterOutfit : public Effect
+{
+public:
+	EffectSetWinterOutfit()
+	{
+		ID = "winter_outfit";
+		name = "Set Winter Outfit";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};

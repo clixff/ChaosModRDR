@@ -685,7 +685,11 @@ void ChaosMod::InitEffects()
 		new EffectSpawnUFO(),
 		new EffectGravityField(),
 		new EffectPigWeapons(),
-		new EffectSpawnAngryCowboy()
+		new EffectSpawnAngryCowboy(),
+		new EffectSpawnUndeadBoss(),
+		new EffectSpawnGrieferMicah(),
+		new EffectTeleportToLake(),
+		new EffectSetWinterOutfit()
 	};
 
 	EffectsMap.clear();
@@ -713,6 +717,7 @@ void ChaosMod::ChangeSelectedEffect(int value)
 	if (debugSelectedEffectIndex == 0 && value == -1)
 	{
 		debugSelectedEffectIndex = AllEffects.size() - 1;
+		AUDIO::PLAY_SOUND_FRONTEND((char*)"NAV_LEFT", (char*)"Ledger_Sounds", true, 0);
 	}
 	else
 	{
@@ -722,6 +727,9 @@ void ChaosMod::ChangeSelectedEffect(int value)
 		{
 			debugSelectedEffectIndex = 0;
 		}
+
+		AUDIO::PLAY_SOUND_FRONTEND((char*)"NAV_RIGHT", (char*)"Ledger_Sounds", true, 0);
+
 	}
 }
 
@@ -737,6 +745,8 @@ void ChaosMod::ActivateSelectedEffect()
 		}
 
 		bEffectSelectionVisible = false;
+
+		AUDIO::PLAY_SOUND_FRONTEND((char*)"INFO", (char*)"HUD_SHOP_SOUNDSET", true, 0);
 	}
 }
 

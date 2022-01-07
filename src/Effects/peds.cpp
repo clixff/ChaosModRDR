@@ -949,3 +949,101 @@ void EffectSpawnAngryCowboy::OnActivate()
 	MarkPedAsEnemy(ped);
 
 }
+
+void EffectSpawnUndeadBoss::OnActivate()
+{
+	Effect::OnActivate();
+
+	TIME::SET_CLOCK_TIME(22, 0, 0);
+
+	static Hash weatherHash = GAMEPLAY::GET_HASH_KEY((char*)"FOG");
+
+	GAMEPLAY::CLEAR_OVERRIDE_WEATHER();
+	GAMEPLAY::SET_WEATHER_TYPE(weatherHash, 0, 1, 0, 0.0, 0);
+	GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+
+	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"A_M_M_UniCorpse_01");
+
+	Ped ped = SpawnPedAroundPlayer(skinModel, false, false);
+
+	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 700);
+	ENTITY::SET_ENTITY_HEALTH(ped, 700, 0);
+
+	/** Set outfit */
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, rand() % 2 ? 68 : 45, false);
+
+	/** _SET_PED_SCALE */
+	invoke<Void>(0x25ACFC650B65C538, ped, 1.6f);
+
+	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_THROWN_TOMAHAWK_ANCIENT");
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 100, true, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(ped, weaponHash, 100);
+	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, true, 0, 0, 0);
+
+	/** SET_ALLOW_ANY_WEAPON_DROP */
+	WEAPON::_0x78030C7867D8B9B6(ped, false);
+
+	Entity weaponEntity = WEAPON::GET_CURRENT_PED_WEAPON_ENTITY_INDEX(ped, 0);
+
+	if (ENTITY::DOES_ENTITY_EXIST(weaponEntity))
+	{
+		/** _SET_WEAPON_SCALE */
+		//WEAPON::_0xC3544AD0522E69B4(weaponEntity, 100.0f);
+		//WEAPON::SET_PED_CURRENT_WEAPON_VISIBLE(ped, true, false, false, false);
+	}
+
+	/** _SET_PED_COMBAT_STYLE_MOD */
+	//PED::_0x8B1E8E35A6E814EA(ped, GAMEPLAY::GET_HASH_KEY((char*)"LowAccuracy"), -1.0f);
+
+	/** Set walking style */
+	invoke<Void>(0x89F5E7ADECCCB49C, ped, "injured_right_leg");
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
+
+	/** PCF_DisableAllMeleeTakedowns */
+	PED::SET_PED_CONFIG_FLAG(ped, 340, true);
+
+	PED::_SET_PED_RAGDOLL_BLOCKING_FLAGS(ped, 1 | 2 | 16 | 128 | 512 | 8192);
+
+	MarkPedAsEnemy(ped);
+}
+
+void EffectSpawnGrieferMicah::OnActivate()
+{
+	Effect::OnActivate();
+
+	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"CS_MicahBell");
+
+	Ped ped = SpawnPedAroundPlayer(skinModel, false, true);
+
+	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 500);
+	ENTITY::SET_ENTITY_HEALTH(ped, 500, 0);
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 10, false);
+
+	static Hash weaponHashDynamite = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_THROWN_DYNAMITE");
+	static Hash weaponHashMolotov = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_THROWN_MOLOTOV");
+
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHashDynamite, 20, 1, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(ped, weaponHashDynamite, 20);
+
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHashMolotov, 20, 1, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(ped, weaponHashMolotov, 20);
+
+	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHashDynamite, 1, 0, 0, 0);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
+
+	if (PED::IS_PED_ON_MOUNT(ped))
+	{
+		static Hash weaponHashRevolver = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_REVOLVER_SCHOFIELD_GOLDEN");
+
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHashRevolver, 100, 1, 0x2cd419dc);
+		WEAPON::SET_PED_AMMO(ped, weaponHashRevolver, 100);
+		WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHashRevolver, 1, 0, 0, 0);
+	}
+
+	MarkPedAsEnemy(ped);
+}
