@@ -47,3 +47,4 @@ You can disable and re-enable effect activation for testing purposes by pressing
 
 ### Known issues
 - If mod crashes after reloading savegame or starting new game, try pressing **F11** in game. After this you can reload your savegame or start new game.
+- If Twitch integration doesn't work, try run game as administrator and authorize Twitch access again.

@@ -446,8 +446,6 @@ void EffectHonorGood::OnActivate()
 
 void EffectHonorBad::OnActivate() 
 {
-	Effect:OnActivate();
-
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	(*getGlobalPtr(0x2BA2)) = 0;
@@ -459,8 +457,6 @@ void EffectHonorBad::OnActivate()
 
 void EffectHonorReset::OnActivate()
 {
-	Effect::OnActivate();
-
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	(*getGlobalPtr(0x2BA2)) = 0;
