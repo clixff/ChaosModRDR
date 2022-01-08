@@ -732,25 +732,6 @@ void EffectUndeadNightmare::OnActivate()
 
 	Vector3 playerVec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
 
-	static Hash copGroup = GAMEPLAY::GET_HASH_KEY((char*)"COP");
-	static Hash playerGroup = GAMEPLAY::GET_HASH_KEY((char*)"PLAYER");
-
-
-	Hash enemyGroup;
-
-	PED::ADD_RELATIONSHIP_GROUP((char*)"_CHAOS_ZOMBIE", &enemyGroup);
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, playerGroup);
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, playerGroup, enemyGroup);
-
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, copGroup, enemyGroup);
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, copGroup);
-
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, 2318650831, enemyGroup);
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, 2318650831);
-
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, 841021282, enemyGroup);
-	PED::SET_RELATIONSHIP_BETWEEN_GROUPS(5, enemyGroup, 841021282);
-
 	for (int32_t i = 0; i < 5; i++)
 	{
 		Ped zombie = SpawnPedAroundPlayer(i == 0 ? skin : skin2, false);
@@ -776,27 +757,11 @@ void EffectUndeadNightmare::OnActivate()
 		/** Set walking style */
 		invoke<Void>(0x89F5E7ADECCCB49C, zombie, "very_drunk");
 
-		static Hash combatMod = GAMEPLAY::GET_HASH_KEY((char*)"MeleeApproach");
-		
-		/** _SET_PED_COMBAT_STYLE_MOD */
-		invoke<Void>(0x8B1E8E35A6E814EA, zombie, combatMod, -1.0f);
+		MarkPedAsEnemy(zombie);
 
-		PED::SET_PED_RELATIONSHIP_GROUP_HASH(zombie, enemyGroup);
-
-		/** BF_CanFightArmedPedsWhenNotArmed */
-		PED::SET_PED_COMBAT_ATTRIBUTES(zombie, 5, true);
-		/** BF_AlwaysFight */
-		PED::SET_PED_COMBAT_ATTRIBUTES(zombie, 46, true);
 		/** BF_CanUseVehicles */
 		PED::SET_PED_COMBAT_ATTRIBUTES(zombie, 1, false);
-		/** BF_CanLeaveVehicle */
-		PED::SET_PED_COMBAT_ATTRIBUTES(zombie, 3, true);
-
-		AI::TASK_COMBAT_PED(zombie, PLAYER::PLAYER_PED_ID(), 0, 16);
 	}
-
-	PlayAmbientSpeech("RCMP", "RCMP_DEAD", playerPed, 0, false);
-
 }
 
 void EffectSpawnDogCompanion::OnActivate()
