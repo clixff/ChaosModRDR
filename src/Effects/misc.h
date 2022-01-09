@@ -500,6 +500,49 @@ private:
 	std::vector<EntityVelocity> pigsVelocity;
 };
 
+class IEffectGamespeed : public Effect
+{
+public:
+
+	IEffectGamespeed()
+	{
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	float timeToSet = 1.0f;
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+};
+
+
+class EffectGamespeedx02 : public IEffectGamespeed
+{
+public:
+
+	EffectGamespeedx02()
+	{
+		ID = "gamespeed_02";
+		name = "x0.2 Gamespeed";
+		timeToSet = 0.2f;
+
+	}
+};
+
+class EffectGamespeedx05 : public IEffectGamespeed
+{
+public:
+
+	EffectGamespeedx05()
+	{
+		ID = "gamespeed_05";
+		name = "x0.5 Gamespeed";
+		timeToSet = 0.5f;
+
+	}
+};
+
 std::vector<Entity> GetNearbyProps(int32_t Max);
 
 void PlayAmbientSpeech(const char* voiceDict, const char* voiceSpeech, Ped ped, uint32_t speechID = 0, bool bSetEntity = false);

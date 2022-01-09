@@ -438,16 +438,52 @@ void ChaosMod::InputTick()
 		if (isKeyPressed(VK_LEFT))
 		{
 			ChangeSelectedEffect(-1);
+
+			if (modMenu.IsVisible())
+			{
+				modMenu.OnKeyPressed(VK_LEFT);
+			}
 		}
 
 		if (isKeyPressed(VK_RIGHT))
 		{
 			ChangeSelectedEffect(1);
+
+			if (modMenu.IsVisible())
+			{
+				modMenu.OnKeyPressed(VK_RIGHT);
+			}
+		}
+
+		if (isKeyPressed(VK_DOWN))
+		{
+			if (modMenu.IsVisible())
+			{
+				modMenu.OnKeyPressed(VK_DOWN);
+			}
+		}
+
+		if (isKeyPressed(VK_UP))
+		{
+			if (modMenu.IsVisible())
+			{
+				modMenu.OnKeyPressed(VK_UP);
+			}
 		}
 
 		if (isKeyPressed(VK_RETURN))
 		{
 			ActivateSelectedEffect();
+			
+			if (modMenu.IsVisible())
+			{
+				modMenu.OnKeyPressed(VK_RETURN);
+			}
+		}
+
+		if (isKeyPressed(VK_F12))
+		{
+			//modMenu.ToggleVisibility();
 		}
 	}
 
@@ -499,6 +535,11 @@ void ChaosMod::DrawUI()
 		varString = invoke<char*>(0xFA925AC00EB830B9, 42, (char*)"COLOR_STRING", 0, varString);
 
 		UI::DRAW_TEXT(varString, 0.5f, 0.5f);
+	}
+
+	if (modMenu.IsVisible())
+	{
+		modMenu.Draw();
 	}
 }
 
@@ -689,7 +730,9 @@ void ChaosMod::InitEffects()
 		new EffectSpawnUndeadBoss(),
 		new EffectSpawnGrieferMicah(),
 		new EffectTeleportToLake(),
-		new EffectSetWinterOutfit()
+		new EffectSetWinterOutfit(),
+		new EffectGamespeedx02(),
+		new EffectGamespeedx05()
 	};
 
 	EffectsMap.clear();

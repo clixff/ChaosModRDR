@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Server">
       <UniqueIdentifier>{c4a50baa-94f5-48b5-b7d1-0ac07fe0d32e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Menu">
+      <UniqueIdentifier>{83dbaf88-4ae5-4447-9d21-f406a3839dce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -47,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="src\server.cpp">
       <Filter>Source Files\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Misc\menu.cpp">
+      <Filter>Source Files\Menu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="src\pch.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\menu.h">
+      <Filter>Source Files\Menu</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

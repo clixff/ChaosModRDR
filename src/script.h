@@ -13,6 +13,7 @@
 #include "server.h"
 #include <thread>
 #include <set>
+#include "Misc/menu.h"
 
 struct Vector2
 {
@@ -232,4 +233,6 @@ private:
 	void ShowNotification2(const char* title, const char* subtitle, uint32_t durationMs, const char* iconDict, const char* iconName, LinearColor iconColor);
 
 	void RenderNotification2();
+private:
+	ModMenu modMenu;
 };

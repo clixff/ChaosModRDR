@@ -1086,3 +1086,13 @@ void EffectPigWeapons::OnTick()
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(pigSkin);
 }
+
+void IEffectGamespeed::OnActivate()
+{
+	GAMEPLAY::SET_TIME_SCALE(this->timeToSet);
+}
+
+void IEffectGamespeed::OnDeactivate()
+{
+	GAMEPLAY::SET_TIME_SCALE(1.0f);
+}
