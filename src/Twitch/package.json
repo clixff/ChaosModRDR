@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc && node build.js",
     "start": "node dist/core/index.js",
-    "pkg": "pkg -t node14-win-x64 package.json --output bin/ChaosModRDRTwitch.exe --C GZip"
+    "pkg": "pkg -t latest-win-x64 package.json --output bin/ChaosModRDRTwitch.exe"
   },
   "author": "",
   "license": "ISC",
