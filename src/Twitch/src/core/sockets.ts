@@ -240,7 +240,7 @@ function setPollFadeOut()
 
 export function startWSServer()
 {
-	overlayServer = new WebSocketServer({ port: 9147 });
+	overlayServer = new WebSocketServer({ port: 9147, host: 'localhost' });
 
     // setVotingActive(true);
     // setRandomPollOptions();
