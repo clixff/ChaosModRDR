@@ -732,7 +732,14 @@ void ChaosMod::InitEffects()
 		new EffectTeleportToLake(),
 		new EffectSetWinterOutfit(),
 		new EffectGamespeedx02(),
-		new EffectGamespeedx05()
+		new EffectGamespeedx05(),
+		new EffectSuperJump(),
+		new EffectDisableLeftRight(),
+		new EffectDisableForwardBackward(),
+		new EffectDisableAllMovements(),
+		new EffectDisableSprintJump(),
+		new EffectDisableAttackButton(),
+		new EffectDisableAiming()
 	};
 
 	EffectsMap.clear();

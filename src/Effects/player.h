@@ -734,3 +734,102 @@ public:
 
 	virtual void OnActivate() override;
 };
+
+class EffectSuperJump : public Effect
+{
+public:
+	EffectSuperJump()
+	{
+		ID = "super_jump";
+		name = "Super Jump";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnTick() override;
+};
+
+class EffectDisableLeftRight : public Effect
+{
+public:
+	EffectDisableLeftRight()
+	{
+		ID = "disable_left_right";
+		name = "Disable Left & Right Movements";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnTick() override;
+};
+
+class EffectDisableForwardBackward : public Effect
+{
+public:
+	EffectDisableForwardBackward()
+	{
+		ID = "disable_forward_backward";
+		name = "Disable Forward & Backward Movements";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnTick() override;
+};
+
+class EffectDisableSprintJump : public Effect
+{
+public:
+	EffectDisableSprintJump()
+	{
+		ID = "disable_sprint_jump";
+		name = "Disable Sprint & Jump";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnTick() override;
+};
+
+class EffectDisableAllMovements : public Effect
+{
+public:
+	EffectDisableAllMovements()
+	{
+		ID = "disable_movements";
+		name = "Disable All Movements";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnTick() override;
+};
+
+
+class EffectDisableAttackButton : public Effect
+{
+public:
+	EffectDisableAttackButton()
+	{
+		ID = "disable_attack";
+		name = "Disable Attack Button";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnTick() override;
+};
+
+class EffectDisableAiming : public Effect
+{
+public:
+	EffectDisableAiming()
+	{
+		ID = "disable_aiming";
+		name = "Disable Aiming";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnTick() override;
+};

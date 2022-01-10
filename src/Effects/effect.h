@@ -8,7 +8,9 @@
 #include <vector>
 #include <windows.h>
 
-# define M_PI	3.14159265358979323846
+#define GET_HASH(str) GAMEPLAY::GET_HASH_KEY((char*)str)
+
+#define M_PI	3.14159265358979323846
 
 struct NearbyEntities
 {
