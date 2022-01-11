@@ -953,7 +953,20 @@ void EffectDisableAttackButton::OnTick()
 	CONTROLS::DISABLE_CONTROL_ACTION(0, GET_HASH("INPUT_HORSE_MELEE"), true);
 }
 
+void EffectDisableAiming::OnActivate()
+{
+	/** Should remove reticle */
+	UI::_0x4CC5F2FC1332577F(GET_HASH("HUD_CTX_IN_FAST_TRAVEL_MENU"));
+}
+
+void EffectDisableAiming::OnDeactivate()
+{
+	UI::_0x8BC7C1F929D07BF3(GET_HASH("HUD_CTX_IN_FAST_TRAVEL_MENU"));
+}
+
 void EffectDisableAiming::OnTick()
 {
 	CONTROLS::DISABLE_CONTROL_ACTION(0, GAMEPLAY::GET_HASH_KEY((char*)"INPUT_AIM"), true);
+
+
 }

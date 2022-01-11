@@ -831,5 +831,7 @@ public:
 		EffectDuration = 20;
 	}
 
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
 	virtual void OnTick() override;
 };

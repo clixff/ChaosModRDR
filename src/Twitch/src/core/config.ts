@@ -1,32 +1,13 @@
 import { promises as fsPromises } from 'fs';
-import { createEnabledEffectsList } from './voting';
-
-
-export interface IEffect
-{
-    id: string,
-    name: string,
-    enabled: boolean;
-    duration?: number;
-    chance?: number;
-};
 
 export interface IConfig
 {
-    /** Timer interval in seconds */
-    interval: number,
-    votingDuration: number,
-
     /** Twitch auth token */
-    token: string,
-    effects: Array<IEffect>;
+    token: string
 };
 
 let _config: IConfig = {
-    interval: 90,
-    votingDuration: 45,
     token: "",
-    effects: []
 };
 
 let configPath = 'config.json';
@@ -45,8 +26,6 @@ export async function readConfig(): Promise<void>
         if (fileData)
         {
             _config = JSON.parse(fileData);
-
-            createEnabledEffectsList(_config.effects);
         }
     }
     catch (err)

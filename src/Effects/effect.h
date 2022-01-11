@@ -52,11 +52,3 @@ public:
 	static std::vector<const char*> weatherNames;
 	static std::vector<Hash> weatherHashes;
 };
-
-/** Effect data from nodejs */
-struct EffectToActivate
-{
-	std::string id = "";
-	std::string name = "";
-	int32_t duration = 0;
-};

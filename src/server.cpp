@@ -94,11 +94,7 @@ void WebSocketServer::OnMessage(websocketpp::connection_hdl hdl, _server::messag
 
 	std::string eventType = document["type"].GetString();
 
-	if (eventType == "update-interval")
-	{
-		OnIntervalUpdated(document);
-	}
-	else if (eventType == "activate-effect")
+	if (eventType == "activate-effect")
 	{
 		OnNewEffectActivated(document);
 	}
@@ -136,6 +132,38 @@ void WebSocketServer::SendMessageToClient(const char* msg)
 	}
 }
 
+void WebSocketServer::SendEffectNamesToClient(std::vector<std::string> names)
+{
+	rapidjson::Document document;
+
+	document.SetObject();
+
+	document.AddMember("type", "vote_activate", document.GetAllocator());
+
+	rapidjson::Value namesArray;
+	namesArray.SetArray();
+
+	for (auto str : names)
+	{
+		rapidjson::Value str_;
+		str_.SetString(str.c_str(), document.GetAllocator());
+		namesArray.PushBack(str_, document.GetAllocator());
+	}
+
+	document.AddMember("data", namesArray, document.GetAllocator());
+
+	rapidjson::StringBuffer buffer;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+	document.Accept(writer);
+
+	auto str = buffer.GetString();
+
+	//MessageBox(NULL, str, "Data", MB_OK);
+
+
+	SendMessageToClient(buffer.GetString());
+}
+
 void WebSocketServer::Stop()
 {
 	bStarted = false;
@@ -151,49 +179,18 @@ void WebSocketServer::Stop()
 	}
 }
 
-void WebSocketServer::OnIntervalUpdated(rapidjson::Document &document)
-{
-	int32_t intervalTime = 0;
-	int32_t votingTime = 0;
-
-	try
-	{
-		if (!document.HasMember("interval") || !document.HasMember("voting"))
-		{
-			return;
-		}
-
-		intervalTime = document["interval"].GetInt();
-		votingTime = document["voting"].GetInt();
-
-	}
-	catch (int err)
-	{
-		//
-	}
-
-	ChaosMod::globalMutex.lock();
-
-	ChaosMod::Singleton->intervalsData.intervalTime = intervalTime;
-	ChaosMod::Singleton->intervalsData.votingTime = votingTime;
-
-	ChaosMod::globalMutex.unlock();
-}
-
 void WebSocketServer::OnNewEffectActivated(rapidjson::Document &document)
 {
-	EffectToActivate effect;
+	int32_t winnerID = -1;
 
 	try
 	{
-		if (!document.HasMember("id") || !document.HasMember("name") || !document.HasMember("duration"))
+		if (!document.HasMember("index"))
 		{
 			return;
 		}
 
-		effect.id = document["id"].GetString();
-		effect.name = document["name"].GetString();
-		effect.duration = document["duration"].GetInt();
+		winnerID = document["index"].GetInt();
 	}
 	catch (int err)
 	{
@@ -202,7 +199,7 @@ void WebSocketServer::OnNewEffectActivated(rapidjson::Document &document)
 
 	ChaosMod::globalMutex.lock();
 
-	ChaosMod::Singleton->effectToActivate = effect;
+	ChaosMod::Singleton->twitchWinnerID = winnerID;
 
 	ChaosMod::globalMutex.unlock();
 }

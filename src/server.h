@@ -19,6 +19,7 @@ public:
 	void SendMessageToClient(std::string msg);
 	void SendMessageToClient(const char* msg);
 
+	void SendEffectNamesToClient(std::vector<std::string> names);
 	void Stop();
 
 private:

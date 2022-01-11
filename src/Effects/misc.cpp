@@ -487,6 +487,7 @@ void EffectDoomsday::OnTick()
 
 		/** _FORCE_LIGHTNING_FLASH_AT_COORDS */
 		invoke<Void>(0x67943537D179597C, playerVec.x, playerVec.y, playerVec.z);
+
 		randomDirection.x = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
 		randomDirection.y = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
 		randomDirection.z = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
@@ -497,9 +498,14 @@ void EffectDoomsday::OnTick()
 	{
 		if (ENTITY::DOES_ENTITY_EXIST(entity))
 		{
+			Vector3 direction = randomDirection;
+
+			direction.x *= float((rand() % 51) + 50) / 100.0f;
+			direction.y *= float((rand() % 51) + 50) / 100.0f;
+			direction.z *= float((rand() % 51) + 50) / 100.0f;
 
 			//ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entity, 0, randomDirection.x, randomDirection.y, randomDirection.z, false, false, true, false);
-			ENTITY::SET_ENTITY_VELOCITY(entity, randomDirection.x, randomDirection.y, randomDirection.z);
+			ENTITY::SET_ENTITY_VELOCITY(entity, direction.x, direction.y, direction.z);
 		}
 	}
 }

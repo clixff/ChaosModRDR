@@ -25,6 +25,7 @@
     <ClCompile Include="src\Effects\player.cpp" />
     <ClCompile Include="src\Effects\vehs.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Misc\config.cpp" />
     <ClCompile Include="src\Misc\menu.cpp" />
     <ClCompile Include="src\script.cpp" />
     <ClCompile Include="src\server.cpp" />
@@ -40,6 +41,7 @@
     <ClInclude Include="src\Effects\peds.h" />
     <ClInclude Include="src\Effects\player.h" />
     <ClInclude Include="src\Effects\vehs.h" />
+    <ClInclude Include="src\Misc\config.h" />
     <ClInclude Include="src\Misc\menu.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\script.h" />
@@ -163,7 +165,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>

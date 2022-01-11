@@ -93,11 +93,29 @@ void ChaosMod::ToggleModStatus()
 
 	if (bEnabled)
 	{
+		bool bPrevTwitchStatus = config.bTwitch;
+
+		config.Read();
+
 		ResetEffectsTimeout();
 
-		if (wsServer)
+		if (bPrevTwitchStatus != config.bTwitch)
 		{
-			wsServer->SendMessageToClient("mod_enabled");
+			if (config.bTwitch)
+			{
+				StartWSServer();
+			}
+			else
+			{
+				ChaosMod::StartWSServer();
+			}
+		}
+		else
+		{
+			if (config.bTwitch && wsServer)
+			{
+				wsServer->SendMessageToClient("mod_enabled");
+			}
 		}
 
 		std::string effectsNumStr = "~q~Loaded ~COLOR_GOLD~" + std::to_string(AllEffects.size()) + "~q~ effects";
@@ -117,7 +135,7 @@ void ChaosMod::ToggleModStatus()
 
 		activeEffects = {};
 
-		if (wsServer)
+		if (config.bTwitch && wsServer)
 		{
 			wsServer->SendMessageToClient("mod_disabled");
 		}
@@ -175,6 +193,8 @@ void ChaosMod::ActivateEffect(Effect* effect)
 		effect->ActivationTime = GetTickCount();
 		effect->DeactivationTime = effect->ActivationTime + (effect->EffectDuration * 1000);
 	}
+
+	prevActivatedEffect = effect;
 
 	effect->OnActivate();
 
@@ -275,16 +295,12 @@ void ChaosMod::Main()
 
 	ChaosMod::UpdatePlayerSkinHash();
 
-	wsServer = new WebSocketServer();
-	wsServer->Init(9149);
+	config.Read();
 
-	wsThread = std::thread([this] {  this->wsServer->Run(); });
-
-	wsThread.detach();
-
-	TerminateNodeProcess();
-
-	StartNodeProcess();
+	if (config.bTwitch)
+	{
+		StartWSServer();
+	}
 
 	while (true)
 	{
@@ -335,11 +351,22 @@ void ChaosMod::Update()
 
 	if (timeoutVotingStartTime && !bVotingEnabled && GetTickCount() >= timeoutVotingStartTime)
 	{
-		if (wsServer)
+		if (config.bTwitch && wsServer)
 		{
 			ChaosMod::globalMutex.lock();
 
-			wsServer->SendMessageToClient("vote_activate");
+			pollEffects = GenerateEffectsWithChances(4);
+
+			std::vector<std::string> effectNames;
+
+			for (auto effect : pollEffects)
+			{
+				effectNames.push_back(effect->name);
+			}
+
+			effectNames[effectNames.size() - 1] = "Random Effect";
+
+			wsServer->SendEffectNamesToClient(effectNames);
 
 			ChaosMod::globalMutex.unlock();
 		}
@@ -365,7 +392,7 @@ void ChaosMod::Update()
 
 		if (bEffectsActivatesAfterTimer)
 		{
-			if (wsServer)
+			if (config.bTwitch && wsServer)
 			{
 				ChaosMod::globalMutex.lock();
 
@@ -373,42 +400,33 @@ void ChaosMod::Update()
 
 				ChaosMod::globalMutex.unlock();
 			}
+			else
+			{
+				Effect* effect = GenerateEffectsWithChances(1)[0];
+
+				if (effect)
+				{
+					ActivateEffect(effect);
+					prevActivatedEffect = effect;
+				}
+			}
 		}
 	}
 
 	ChaosMod::globalMutex.lock();
 
-	/** If received new intervals from websocket server */
-	if (intervalsData.intervalTime)
+	if (twitchWinnerID != -1)
 	{
-		this->effectsInterval = intervalsData.intervalTime;
-		this->effectsVoteTime = intervalsData.votingTime;
-
-		ResetEffectsTimeout();
-
-		intervalsData.intervalTime = 0;
-		intervalsData.votingTime = 0;
-	}
-
-	/** If received new effecct to activate from websocket server */
-	if (!effectToActivate.id.empty())
-	{
-		auto* effect = this->EffectsMap[effectToActivate.id];
-
-		if (effect)
+		if (twitchWinnerID < pollEffects.size())
 		{
-			effect->name = effectToActivate.name;
-			if (effectToActivate.duration)
-			{
-				effect->EffectDuration = effectToActivate.duration;
-			}
+			auto* effect = pollEffects[twitchWinnerID];
+			ActivateEffect(effect);
+			prevActivatedEffect = effect;
 
-			this->ActivateEffect(effect);
+			pollEffects.clear();
 		}
 
-		effectToActivate.id = "";
-		effectToActivate.name = "";
-		effectToActivate.duration = 0;
+		twitchWinnerID = -1;
 	}
 
 	ChaosMod::globalMutex.unlock();
@@ -976,4 +994,82 @@ void ChaosMod::ResetPlayerSkin()
 	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
 	*ptr1 = ChaosMod::PlayerSkin1;
 	*ptr2 = ChaosMod::PlayerSkin2;
+}
+
+void ChaosMod::StartWSServer()
+{
+	wsServer = new WebSocketServer();
+	wsServer->Init(9149);
+
+	wsThread = std::thread([this] {  this->wsServer->Run(); });
+
+	wsThread.detach();
+
+	TerminateNodeProcess();
+
+	StartNodeProcess();
+}
+
+std::vector<Effect*> ChaosMod::GenerateEffectsWithChances(uint32_t maxEffects)
+{
+	std::vector<Effect*> effects;
+	std::vector<uint16_t> effectsIndices = {};
+
+	for (uint32_t i = 0; i < config.effects.size(); i++)
+	{
+		ConfigEffect& configEffect = config.effects[i];
+
+		/**
+		 * Skip this effect if it was disabled by user or activated in the previous time 
+		 */
+		if (!configEffect.bEnabled || (prevActivatedEffect && prevActivatedEffect->ID == configEffect.id))
+		{
+			continue;
+		}
+
+		configEffect.chance = configEffect.chance < 1 ? 1 : (configEffect.chance > 10 ? 10 : configEffect.chance);
+
+		effectsIndices.insert(effectsIndices.end(), configEffect.chance, i);
+	}
+
+	for (uint32_t i = 0; i < maxEffects; i++)
+	{
+		uint32_t randomIndex = rand() % effectsIndices.size();
+		uint16_t effectIndex = effectsIndices[randomIndex];
+
+		ConfigEffect configEffect = config.effects[effectIndex];
+
+		auto* effect = EffectsMap[configEffect.id];
+
+		if (effect)
+		{
+			effects.push_back(effect);
+		}
+
+		if (maxEffects == 1)
+		{
+			break;
+		}
+
+		/**
+		 * Find a first index of the effect in effectsIndices list, then delete all of this effect's indices
+		 * Effects will not be repeated in the output array if we do this
+		 */
+		uint32_t effectIndexStart = randomIndex;
+
+		while (effectsIndices[effectIndexStart] == effectIndex)
+		{
+			if (effectIndexStart == 0)
+			{
+				break;
+			}
+
+			effectIndexStart--;
+		}
+
+		effectsIndices.erase(effectsIndices.begin() + effectIndexStart, effectsIndices.begin() + (effectIndexStart + configEffect.chance) );
+	}
+
+
+	return effects;
 }

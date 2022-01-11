@@ -25,6 +25,9 @@
     <Filter Include="Source Files\Menu">
       <UniqueIdentifier>{83dbaf88-4ae5-4447-9d21-f406a3839dce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Config">
+      <UniqueIdentifier>{fef49781-6ec8-47e2-95c8-b39ff4d460b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -53,6 +56,9 @@
     </ClCompile>
     <ClCompile Include="src\Misc\menu.cpp">
       <Filter>Source Files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Misc\config.cpp">
+      <Filter>Source Files\Config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="src\Misc\menu.h">
       <Filter>Source Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc\config.h">
+      <Filter>Source Files\Config</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

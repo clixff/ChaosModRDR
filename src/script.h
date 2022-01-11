@@ -14,6 +14,7 @@
 #include <thread>
 #include <set>
 #include "Misc/menu.h"
+#include "Misc/config.h"
 
 struct Vector2
 {
@@ -27,12 +28,6 @@ struct Vector2
 	float Y = 0.0f;
 };
 
-/** Intervals data from nodejs */
-struct IntervalsData
-{
-	int32_t intervalTime = 0;
-	int32_t votingTime = 0;
-};
 
 struct LinearColor
 {
@@ -131,13 +126,11 @@ public:
 	WebSocketServer* wsServer = nullptr;
 
 	std::thread wsThread;
-
-	EffectToActivate effectToActivate;
-	IntervalsData intervalsData;
-
 	static std::mutex globalMutex;
 
 	static void StopServer();
+
+	void StartWSServer();
 
 	static uint32_t LastTick;
 	static uint64_t ThreadID;
@@ -176,13 +169,17 @@ private:
 	NotificationData* notificationData = nullptr;
 
 	void ShowNotification(const char* title, const char* subtitle, const char* iconDict, const char* iconName, int32_t durationMs = 2000, const char* iconColor = "");
-private:
+public:
 	/** Timers and effects */
 
 	/** In seconds */
 	int effectsInterval = 90;
 	int effectsVoteTime = 45;
 
+	std::vector<Effect*> AllEffects;
+	std::map<std::string, Effect*> EffectsMap;
+
+private:
 	uint32_t timeoutStartTime = 0;
 	uint32_t timeoutEndTime = 0;
 	uint32_t timeoutVotingStartTime = 0;
@@ -194,10 +191,6 @@ private:
 	std::vector<Effect*> activeEffects;
 
 	void DrawEffectInUI(Effect* effect, int32_t index);
-
-	std::vector<Effect*> AllEffects;
-
-	std::map<std::string, Effect*> EffectsMap;
 
 	void InitEffects();
 
@@ -235,4 +228,20 @@ private:
 	void RenderNotification2();
 private:
 	ModMenu modMenu;
+private:
+	Config config;
+public:
+	/** This effect was activated in the previous time and will not be activated now */
+	Effect* prevActivatedEffect = nullptr;
+
+	std::vector<Effect*> GenerateEffectsWithChances(uint32_t maxEffects);
+
+	/** Effects available for vote on Twitch chat now */
+	std::vector<Effect*> pollEffects;
+
+public:
+	/**
+	 * Index of winner effect in the Twitch poll
+	 */
+	int32_t twitchWinnerID = -1;
 };

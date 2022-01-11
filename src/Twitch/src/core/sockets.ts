@@ -2,7 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { getConfig, readConfig } from './config';
 import { randomInteger } from './index';
 import { getTwitchUser, startListeningChat } from './twitch';
-import { disabledEffects, effectsList, getPollNames, getVotesArray, getWInnerData, getWinnerEffect, getWinnerIDByVotes, IsVotingEnabled, reactivateDisabledEffects, resetPoll, setRandomPollOptions, setVotingActive, tempDisableEffect } from './voting';
+import { getPollNames, getVotesArray, getWInnerIndex, IsVotingEnabled, resetPoll, setVotingActive, updateEffectNamesFromGame } from './voting';
 
 let gameWebSocketClient: WebSocket | null = null;
 let clientReconnectInterval: NodeJS.Timer | null = null;
@@ -14,18 +14,11 @@ async function onModEnabled(): Promise<void>
 	{
 		await readConfig();
 
-		const conf_ = getConfig();
-	
 		const login = await getTwitchUser();
 	
 		if (login)
 		{
 			startListeningChat(login);
-		}
-	
-		if (gameWebSocketClient && conf_.interval && conf_.votingDuration)
-		{
-			gameWebSocketClient.send(JSON.stringify({ type: "update-interval", interval: conf_.interval, voting: conf_.votingDuration  }));
 		}
 	}
 	catch (err)
@@ -90,48 +83,48 @@ export function connectWebsocketClient(): void
 
 						break;	
 					}
-				case 'vote_activate':
-					{
-						setRandomPollOptions();
-						setVotingActive(true);
-						sendVotes(getVotesArray());
-						updatePollOptions(getPollNames());
-						// setPollStarted();
-						setPollVisible(true);
-						break;
-					}
 				case 'vote_ended':
 					{
 						setPollVisible(true);
 						sendVotes(getVotesArray());
 						setVotingActive(false);
-    					const winnerData = getWInnerData();
 
-						updateWinner(winnerData.index);
+						const winner: number = getWInnerIndex();
 
-						const effect = getWinnerEffect(winnerData.id);
+						updateWinner(winner);
 
-						reactivateDisabledEffects();
-
-						console.log(`Winner is ${effect ? effect.id : effect}`);
-
-						if (effect)
-						{
-							tempDisableEffect(effect);
-
-							gameWebSocketClient.send(JSON.stringify({ 
-								type: "activate-effect", 
-								id: effect.id,
-								name: effect.name,
-								duration: effect.duration ? effect.duration : 0 
-						 	}));
-						}
+						gameWebSocketClient.send(JSON.stringify({ 
+							type: "activate-effect", 
+							index: winner,
+						}));
 
 						setPollFadeOut();
-
 						break;
 					}
 				default:
+					{
+						try
+						{
+							const parsedJSON = JSON.parse(msg);
+
+							switch (parsedJSON['type']) {
+								case 'vote_activate':
+									const effectNames = parsedJSON['data'];
+									
+									updateEffectNamesFromGame(effectNames);
+									setVotingActive(true);
+									sendVotes(getVotesArray());
+									updatePollOptions(getPollNames());
+									setPollVisible(true);
+
+									break;
+							}
+						}
+						catch (err)
+						{
+							console.error(err);
+						}
+					}
 					break;
 			}
 		}
