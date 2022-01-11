@@ -967,6 +967,38 @@ void EffectDisableAiming::OnDeactivate()
 void EffectDisableAiming::OnTick()
 {
 	CONTROLS::DISABLE_CONTROL_ACTION(0, GAMEPLAY::GET_HASH_KEY((char*)"INPUT_AIM"), true);
+}
 
+void EffectWaterfall::OnActivate()
+{
+	Vector3 vec;
+	vec.x = 581.1f;
+	vec.y = 1978.0f;
+	vec.z = 210.03f;
 
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	
+	ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z, false, false, false, false);
+
+	static Hash model = GET_HASH("rowboat");
+
+	LoadModel(model);
+
+	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, vec.x, vec.y, vec.z, 170.0f, false, false, false, false);
+
+	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+
+	PED::SET_PED_INTO_VEHICLE(playerPed, veh, -1);
+
+	ENTITY::SET_ENTITY_VELOCITY(veh, 0.0f, -25.0f, 0.0f);
+
+	if (ENTITY::DOES_ENTITY_EXIST(veh))
+	{
+		ChaosMod::vehsSet.insert(veh);
+	}
+}
+
+void EffectRandomHonor::OnActivate()
+{
+	*getGlobalPtr(1347477 + 155 + 1) = (rand() % 51) - 25;
 }

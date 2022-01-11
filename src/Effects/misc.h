@@ -543,6 +543,26 @@ public:
 	}
 };
 
+class EffectRainingPigs : public Effect
+{
+public:
+
+	EffectRainingPigs()
+	{
+		ID = "raining_pigs";
+		name = "It's Raining Pigs";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+	virtual void OnDeactivate() override;
+
+private:
+	std::vector<Ped> pigs;
+};
+
 std::vector<Entity> GetNearbyProps(int32_t Max);
 
 void PlayAmbientSpeech(const char* voiceDict, const char* voiceSpeech, Ped ped, uint32_t speechID = 0, bool bSetEntity = false);

@@ -424,10 +424,41 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectDutchStealsPlayersVeh : public Effect
+{
+public:
+	EffectDutchStealsPlayersVeh()
+	{
+		ID = "dutch_steals_veh";
+		name = "Dutch Steals Player's Veh";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+private:
+	Ped dutch;
+};
+
+class EffectSpawnPredator : public Effect
+{
+public:
+	EffectSpawnPredator()
+	{
+		ID = "spawn_predator";
+		name = "Spawn Predator";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
 
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 
 void RemoveAllPedWeapons(Ped ped);
 
-void MarkPedAsCompanion(Hash ped);
-void MarkPedAsEnemy(Hash ped);
+void MarkPedAsCompanion(Ped ped);
+void MarkPedAsEnemy(Ped ped);

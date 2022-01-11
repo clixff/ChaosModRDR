@@ -757,7 +757,14 @@ void ChaosMod::InitEffects()
 		new EffectDisableAllMovements(),
 		new EffectDisableSprintJump(),
 		new EffectDisableAttackButton(),
-		new EffectDisableAiming()
+		new EffectDisableAiming(),
+		new EffectWaterfall(),
+		new EffectRandomWheelsDetaching(),
+		new EffectRainingPigs(),
+		new EffectRandomHonor(),
+		new EffectDutchStealsPlayersVeh(),
+		new EffectSpawnPredator()
+
 	};
 
 	EffectsMap.clear();

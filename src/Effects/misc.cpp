@@ -1102,3 +1102,65 @@ void IEffectGamespeed::OnDeactivate()
 {
 	GAMEPLAY::SET_TIME_SCALE(1.0f);
 }
+
+void EffectRainingPigs::OnActivate()
+{
+	this->pigs.clear();
+}
+
+void EffectRainingPigs::OnTick()
+{
+	if (GetTickCount() % 1000 != 0)
+	{
+		return;
+	}
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Vector3 vec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+	float radius = float(rand() % 10);
+
+	/** In radians */
+	float angle = float(rand() % 360) * (M_PI / 180.0f);
+
+	vec.x += radius * sin(angle);
+	vec.y += radius * cos(angle);
+
+	static Hash model = GET_HASH("A_C_Pig_01");
+	Ped pig = SpawnPedAroundPlayer(model, false, false);
+
+	ENTITY::SET_ENTITY_COORDS(pig, vec.x, vec.y, vec.z + 35.0f, false, false, false, false);
+
+	ENTITY::SET_ENTITY_INVINCIBLE(pig, true);
+
+	/** _SET_PED_SCALE */
+	invoke<Void>(0x25ACFC650B65C538, pig, float((rand() % 5) + 1));
+
+	/** Set outfit */
+	invoke<Void>(0x77FF8D35EEC6BBC4, pig, rand() % 4, false);
+
+	PED::SET_PED_TO_RAGDOLL(pig, 10000, 10000, 0, true, true, false);
+
+	PED::_SET_PED_RAGDOLL_BLOCKING_FLAGS(pig, 512);
+
+	ENTITY::SET_ENTITY_VELOCITY(pig, 0.0f, 0.0f, -50.0f);
+
+	pigs.push_back(pig);
+
+	invoke<Void>(0x22B0D0E37CCB840D, pig, playerPed, 5000.0f, -1.0f, 0, 3.0f, 0);
+}
+
+void EffectRainingPigs::OnDeactivate()
+{
+	for (auto pig : pigs)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(pig))
+		{
+			ChaosMod::pedsSet.erase(pig);
+			PED::DELETE_PED(&pig);
+		}
+	}
+
+	this->pigs.clear();
+}

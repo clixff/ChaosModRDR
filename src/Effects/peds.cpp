@@ -73,7 +73,7 @@ Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle, bool bSpawnHorseFor
 	return ped;
 }
 
-void MarkPedAsCompanion(Hash ped)
+void MarkPedAsCompanion(Ped ped)
 {
 	Hash playerGroup = GAMEPLAY::GET_HASH_KEY((char*)"PLAYER");
 	Hash companionGroup;
@@ -92,7 +92,7 @@ void MarkPedAsCompanion(Hash ped)
 	PED::SET_PED_COMBAT_ATTRIBUTES(ped, 46, true);
 }
 
-void MarkPedAsEnemy(Hash ped)
+void MarkPedAsEnemy(Ped ped)
 {
 	static std::vector<Hash> groups = {
 		GAMEPLAY::GET_HASH_KEY((char*)"PLAYER"),
@@ -277,7 +277,7 @@ void EffectKidnapping::OnActivate()
 	
 	if (vehicle)
 	{
-		AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, 100000.0f, 262144);
+		AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, 100000.0f, 0x400c0025);
 		PED::SET_PED_KEEP_TASK(ped, true);
 	}
 }
@@ -669,7 +669,7 @@ void EffectSkyrimIntro::OnActivate()
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(wagonModel);
 
-	AI::TASK_VEHICLE_DRIVE_WANDER(cop, vehicle, 10000.0f, 411);
+	AI::TASK_VEHICLE_DRIVE_WANDER(cop, vehicle, 10000.0f, 0x400c0025);
 	PED::SET_PED_KEEP_TASK(cop, true);
 
 	PlayAmbientSpeech("0132_G_M_M_UNICRIMINALS_01_BLACK_01", "CALLOUT_CAMP_WAKE_UP", playerPed, 0, false);
@@ -1009,6 +1009,133 @@ void EffectSpawnGrieferMicah::OnActivate()
 		WEAPON::SET_PED_AMMO(ped, weaponHashRevolver, 100);
 		WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHashRevolver, 1, 0, 0, 0);
 	}
+
+	MarkPedAsEnemy(ped);
+}
+
+void EffectDutchStealsPlayersVeh::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	bool bUsingVehicle = PED::IS_PED_IN_ANY_VEHICLE(playerPed, true);
+	bool bUsingHorse = PED::IS_PED_ON_MOUNT(playerPed);
+
+	if (!bUsingHorse && !bUsingVehicle)
+	{
+		return;
+	}
+
+	static Hash model = GET_HASH("CS_Dutch");
+
+	Ped ped = SpawnPedAroundPlayer(model, false, false);
+
+	MarkPedAsCompanion(ped);
+	
+	if (bUsingHorse)
+	{
+		Ped mount = PED::GET_MOUNT(playerPed);
+
+		bool bIsMountSeatFree = invoke<bool>(0xAAB0FE202E9FC9F0, mount, 0);
+
+		if (bIsMountSeatFree)
+		{
+			SetPedOnMount(playerPed, mount, 0);
+		}
+		else
+		{
+			/** _REMOVE_PED_FROM_MOUNT */
+			invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
+		}
+
+		SetPedOnMount(ped, mount, -1);
+
+		AI::TASK_WANDER_STANDARD(ped, 100.0f, 10);
+	}
+	else
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		Hash vehModel = ENTITY::GET_ENTITY_MODEL(veh);
+
+		if (!VEHICLE::IS_VEHICLE_SEAT_FREE(veh, -1))
+		{
+			Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(veh, -1);
+
+			int32_t seatsNum = VEHICLE::GET_VEHICLE_MODEL_NUMBER_OF_SEATS(vehModel) - 1;
+
+			bool bFoundNewSeatForDriver = false;
+
+			for (int32_t i = 0; i < seatsNum; i++)
+			{
+				bool bSeatFree = VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i);
+
+				if (bSeatFree)
+				{
+					PED::SET_PED_INTO_VEHICLE(driver, veh, i);
+					bFoundNewSeatForDriver = true;
+					break;
+				}
+			}
+
+			if (!bFoundNewSeatForDriver)
+			{
+				Vector3 vec = ENTITY::GET_ENTITY_COORDS(veh, true, 0);
+
+				ENTITY::SET_ENTITY_COORDS(driver, vec.x, vec.y, vec.z + 1.5f, false, false, false, false);
+			}
+		}
+
+		PED::SET_PED_INTO_VEHICLE(ped, veh, -1);
+
+		AI::TASK_VEHICLE_DRIVE_WANDER(ped, veh, 100000.0f, 0x400c0025);
+	}
+
+	PED::SET_PED_KEEP_TASK(ped, true);
+
+	this->dutch = ped;
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 15, false);
+}
+
+void EffectDutchStealsPlayersVeh::OnDeactivate()
+{
+	if (ENTITY::DOES_ENTITY_EXIST(dutch))
+	{
+		PED::REMOVE_PED_FROM_GROUP(dutch);
+	}
+}
+
+void EffectSpawnPredator::OnActivate()
+{
+	static std::vector<const char*> models =
+	{
+		"A_C_Alligator_01",
+		"A_C_Bear_01", "A_C_Cougar_01",
+		"A_C_LionMangy_01", "A_C_Panther_01",
+		"A_C_Wolf"
+	};
+
+	std::map<const char*, std::set<uint32_t>> disabledOutfits;
+
+	disabledOutfits.emplace("A_C_Bear_01", std::set<uint32_t>({ 9, 10 }));
+
+	auto modelName = models[rand() % models.size()];
+	
+	Ped ped = SpawnPedAroundPlayer(GET_HASH(modelName), false, false);
+
+	uint32_t maxOutfits = PED::_0x10C70A515BC03707(ped);
+
+	uint32_t randOutfit = rand() % maxOutfits;
+
+	if (disabledOutfits.contains(modelName))
+	{
+		if (disabledOutfits[modelName].contains(randOutfit))
+		{
+			randOutfit = 0;
+		}
+	}
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, randOutfit, false);
 
 	MarkPedAsEnemy(ped);
 }

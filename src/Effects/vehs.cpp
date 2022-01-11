@@ -638,3 +638,26 @@ void EffectFastPlayersWagon::OnTick()
 		}
 	}
 }
+
+void EffectRandomWheelsDetaching::OnActivate()
+{
+	auto nearbyVehs = GetNearbyVehs(50);
+
+	auto playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		nearbyVehs.push_back(PED::GET_VEHICLE_PED_IS_IN(playerPed, false));
+	}
+
+	for (auto veh : nearbyVehs)
+	{
+		for (int32_t i = 0; i < 4; i++)
+		{
+			if (rand() % 2)
+			{
+				invoke<Void>(0xd4f5efb55769d272, veh, i);
+			}
+		}
+	}
+}

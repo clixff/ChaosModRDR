@@ -201,3 +201,16 @@ public:
 
 	virtual void OnTick() override;
 };
+
+class EffectRandomWheelsDetaching : public Effect
+{
+public:
+	EffectRandomWheelsDetaching()
+	{
+		ID = "random_wheels_detaching";
+		name = "Random Wheels Detaching";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};

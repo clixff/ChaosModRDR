@@ -835,3 +835,30 @@ public:
 	virtual void OnDeactivate() override;
 	virtual void OnTick() override;
 };
+
+class EffectWaterfall : public Effect
+{
+public:
+	EffectWaterfall()
+	{
+		ID = "waterfall";
+		name = "It Do Go Down";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectRandomHonor : public Effect
+{
+public:
+	EffectRandomHonor()
+	{
+		ID = "random_honor";
+		name = "Random Honor Change";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
