@@ -19,7 +19,9 @@ Extract all files from archive to **game directory**.
 ### Activation
 Press **F7** in game to *enable / disable* mod. Mod is tested on game versions **1.0.1311.23** and **1.0.1436.28**.
 ### Twitch integration
-When game is started, visit **[this link](http://127.0.0.1:9148/login)** and authorize access. Re-enable mod with **F7**. Now your viewers can vote for effects.
+Before starting the game, open **ChaosMod/config.json** file and change param **twitch** from **false** to **true**.
+
+Start the game, and when game is loaded, visit **[this link](http://127.0.0.1:9148/login)** and authorize access. Re-enable mod with **F7**. Now your viewers can vote for effects.
 ### Twitch poll overlay
 In **OBS** add new **Browser source**. Enter these params:
 <hr/>
