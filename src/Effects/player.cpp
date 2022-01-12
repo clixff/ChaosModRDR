@@ -349,16 +349,13 @@ void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val)
 
 void ResetPlayerModel(uint64_t ptr1_val, uint64_t ptr2_val)
 {
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	if (PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		/** _REMOVE_PED_FROM_MOUNT */
+		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
+	}
 	ChaosMod::ResetPlayerSkin();
-	//uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
-	//uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
-	//*ptr1 = ptr1_val;
-	//*ptr2 = ptr2_val;
-
-	//WAIT(1000);
-
-	//Ped playerPed = PLAYER::PLAYER_PED_ID();
-	//PED::SET_PED_VISIBLE(playerPed, 1);
 }
 
 void EffectLightningWeapons::OnActivate()
@@ -1001,4 +998,334 @@ void EffectWaterfall::OnActivate()
 void EffectRandomHonor::OnActivate()
 {
 	*getGlobalPtr(1347477 + 155 + 1) = (rand() % 51) - 25;
+}
+
+void EffectInvertVelocity::OnActivate()
+{
+	Entity entity = PLAYER::PLAYER_PED_ID();
+
+	bool bUsingVehicle = PED::IS_PED_IN_ANY_VEHICLE(entity, true);
+
+	if (bUsingVehicle)
+	{
+		entity = PED::GET_VEHICLE_PED_IS_IN(entity, false);
+	}
+	else if (PED::IS_PED_ON_MOUNT(entity))
+	{
+		entity = PED::GET_MOUNT(entity);
+	}
+
+	float multiplier = -3.0f;
+
+	if (!bUsingVehicle)
+	{
+		PED::SET_PED_TO_RAGDOLL(entity, 1000, 1000, 0, true, true, false);
+	}
+	else
+	{
+		multiplier = -5.0f;
+	}
+
+	Vector3 vel = ENTITY::GET_ENTITY_VELOCITY(entity, 0);
+
+	vel.x *= multiplier;
+	vel.y *= multiplier;
+	vel.z *= multiplier;
+
+	ENTITY::SET_ENTITY_VELOCITY(entity, vel.x, vel.y, vel.z);
+}
+
+void EffectIncreaseVelocity::OnActivate()
+{
+	Entity entity = PLAYER::PLAYER_PED_ID();
+
+	bool bUsingVehicle = PED::IS_PED_IN_ANY_VEHICLE(entity, true);
+
+	if (bUsingVehicle)
+	{
+		entity = PED::GET_VEHICLE_PED_IS_IN(entity, false);
+	}
+	else if (PED::IS_PED_ON_MOUNT(entity))
+	{
+		entity = PED::GET_MOUNT(entity);
+	}
+
+	float multiplier = 3.0f;
+
+	if (!bUsingVehicle)
+	{
+		PED::SET_PED_TO_RAGDOLL(entity, 1000, 1000, 0, true, true, false);
+	}
+
+	Vector3 vel = ENTITY::GET_ENTITY_VELOCITY(entity, 0);
+
+	vel.x *= multiplier;
+	vel.y *= multiplier;
+	vel.z *= multiplier;
+
+	ENTITY::SET_ENTITY_VELOCITY(entity, vel.x, vel.y, vel.z);
+}
+
+void EffectBunnyhop::OnTick()
+{
+	if (GetTickCount() % 500 != 0)
+	{
+		return;
+	}
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		Vector3 vec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+		ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z + 1.5f, false, false, false, false);
+	}
+	else if (PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		/** _REMOVE_PED_FROM_MOUNT */
+		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
+	}
+	else
+	{
+		AI::TASK_JUMP(playerPed, 0);
+	}
+}
+
+void EffectEyeDisorder::OnActivate()
+{
+	GRAPHICS::ANIMPOSTFX_PLAY((char*)"OJDominoBlur");
+}
+
+void EffectEyeDisorder::OnDeactivate()
+{
+	GRAPHICS::ANIMPOSTFX_STOP((char*)"OJDominoBlur");
+}
+
+
+void EffectBirdSkin::OnActivate()
+{
+	static std::vector<const char*> birds = {
+		"A_C_BlueJay_01", "A_C_Cardinal_01",
+		"A_C_CarolinaParakeet_01", "A_C_CedarWaxwing_01",
+		"A_C_Chicken_01", "A_C_Cormorant_01",
+		"A_C_CraneWhooping_01", "A_C_Crow_01",
+		"A_C_Duck_01", "A_C_Eagle_01",
+		"A_C_Egret_01", "A_C_Hawk_01",
+		"A_C_Heron_01", "A_C_Loon_01",
+		"A_C_Owl_01", "A_C_Parrot_01",
+		"A_C_Pelican_01", "A_C_Pheasant_01",
+		"A_C_Pigeon", "A_C_PrairieChicken_01",
+		"A_C_Quail_01", "A_C_Raven_01",
+		"A_C_RedFootedBooby_01", "A_C_Rooster_01",
+		"A_C_RoseateSpoonbill_01", "A_C_Seagull_01",
+		"A_C_TurkeyWild_01", "A_C_Vulture_01",
+		"A_C_Woodpecker_01", "A_C_Woodpecker_02"
+	};
+
+	auto modelName = birds[rand() % birds.size()];
+	this->skinToSet = modelName;
+
+	IEffectSkinChange::OnActivate();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	uint32_t maxOutfits = PED::_0x10C70A515BC03707(playerPed);
+
+	uint32_t randOutfit = rand() % maxOutfits;
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, playerPed, randOutfit, false);
+}
+
+void EffectBirdSkin::OnTick()
+{
+	static Hash controlSet = GET_HASH("OnMount");
+	CONTROLS::_0x2804658EB7D8A50B(2, controlSet);
+}
+
+void EffectBodySwap::OnActivate()
+{
+	pedSkin = 0;
+	clone = 0;
+	auto nearbyPeds = GetNearbyPeds(50);
+
+	std::vector<Ped> validPeds;
+
+	for (auto ped : nearbyPeds)
+	{
+		if (PED::IS_PED_HUMAN(ped) && !ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped))
+		{
+			validPeds.push_back(ped);
+		}
+	}
+
+
+	if (!validPeds.size())
+	{
+		return;
+	}
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Ped ped = validPeds[rand() % validPeds.size()];
+
+	if (!ENTITY::DOES_ENTITY_EXIST(ped))
+	{
+		return;
+	}
+
+	Vector3 playerVec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+	Vector3 pedVec = ENTITY::GET_ENTITY_COORDS(ped, true, 0);
+
+	auto pedHeading = ENTITY::GET_ENTITY_HEADING(ped);
+
+	Vehicle playerVehicle = 0;
+	Ped playerMount = 0;
+	uint32_t playerSeat = -2;
+
+	Vehicle pedVehicle = 0;
+	Ped pedMount = 0;
+	uint32_t pedSeat = -2;
+
+	pedSkin = ENTITY::GET_ENTITY_MODEL(ped);
+
+	ENTITY::SET_ENTITY_COORDS(playerPed, pedVec.x, pedVec.y, pedVec.z, false, false, false, false);
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, true))
+	{
+		playerVehicle = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+
+		playerSeat = PED::_0x4E76CB57222A00E5(playerPed);
+
+		ENTITY::SET_ENTITY_COORDS(playerPed, playerVec.x, playerVec.y, playerVec.z, false, false, false, false);
+	}
+	else if (PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		playerMount = PED::GET_MOUNT(playerPed);
+
+		playerSeat = PED::_0x4E76CB57222A00E5(playerPed);
+
+		/** _REMOVE_PED_FROM_MOUNT */
+		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
+	}
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(ped, true))
+	{
+		pedVehicle = PED::GET_VEHICLE_PED_IS_IN(ped, false);
+
+		pedSeat = PED::_0x4E76CB57222A00E5(ped);
+	}
+	else if (PED::IS_PED_ON_MOUNT(ped))
+	{
+		pedMount = PED::GET_MOUNT(ped);
+
+		pedSeat = PED::_0x4E76CB57222A00E5(ped);
+	}
+	
+	PED::DELETE_PED(&ped);
+
+	clone = PED::CLONE_PED(playerPed, ENTITY::GET_ENTITY_HEADING(playerPed), true, false);
+
+	if (playerVehicle)
+	{
+		PED::SET_PED_INTO_VEHICLE(clone, playerVehicle, playerSeat);
+		AI::TASK_VEHICLE_DRIVE_WANDER(clone, playerVehicle, 100000.0f, 0x400c0025);
+
+	}
+	else if (playerMount)
+	{
+		invoke<Void>(0x028F76B6E78246EB, clone, playerMount, playerSeat, true);
+		AI::TASK_WANDER_STANDARD(clone, 100.0f, 10);
+
+	}
+	else
+	{
+		ENTITY::SET_ENTITY_COORDS(clone, playerVec.x, playerVec.y, playerVec.z, false, false, false, false);
+		AI::TASK_WANDER_STANDARD(clone, 100.0f, 10);
+
+	}
+
+	//MarkPedAsCompanion(clone);
+
+	if (ENTITY::DOES_ENTITY_EXIST(clone))
+	{
+		ChaosMod::pedsSet.insert(clone);
+	}
+
+	LoadModel(pedSkin);
+
+	ChaosMod::UpdatePlayerSkinHash();
+
+	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
+	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
+
+	*ptr1 = *ptr2 = pedSkin;
+
+	WAIT(1000);
+
+	playerPed = PLAYER::PLAYER_PED_ID();
+
+	PED::SET_PED_VISIBLE(playerPed, 1);
+
+	if (pedVehicle)
+	{
+		PED::SET_PED_INTO_VEHICLE(playerPed, pedVehicle, pedSeat);
+	}
+	else if (pedMount)
+	{
+		invoke<Void>(0x028F76B6E78246EB, playerPed, pedMount, pedSeat, true);
+	}
+	else
+	{
+		ENTITY::SET_ENTITY_COORDS(playerPed, pedVec.x, pedVec.y, pedVec.z, false, false, false, false);
+		ENTITY::SET_ENTITY_HEADING(playerPed, pedHeading);
+	}
+}
+
+void EffectBodySwap::OnDeactivate()
+{
+	if (ENTITY::DOES_ENTITY_EXIST(clone))
+	{
+		Ped ped = SpawnPedAroundPlayer(pedSkin, false, false);
+
+		Vector3 vec = ENTITY::GET_ENTITY_COORDS(clone, true, 0);
+
+		ENTITY::SET_ENTITY_COORDS(ped, vec.x, vec.y, vec.z, false, false, false, false);
+
+		AI::TASK_WANDER_STANDARD(ped, 100.0f, 10);
+
+		ChaosMod::pedsSet.erase(clone);
+
+		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(clone, false, false);
+
+		PED::DELETE_PED(&clone);
+	}
+
+	ResetPlayerModel(0, 0);
+
+	pedSkin = 0;
+	clone = 0;
+}
+
+void EffectPlayerSpin::OnActivate()
+{
+	heading = ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID());
+}
+
+void EffectPlayerSpin::OnTick()
+{
+	Entity entity = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(entity, true))
+	{
+		entity = PED::GET_VEHICLE_PED_IS_IN(entity, false);
+	}
+	else if (PED::IS_PED_ON_MOUNT(entity))
+	{
+		entity = PED::GET_MOUNT(entity);
+	}
+
+	heading += 10.0f;
+
+	ENTITY::SET_ENTITY_HEADING(entity, heading);
 }

@@ -563,6 +563,21 @@ private:
 	std::vector<Ped> pigs;
 };
 
+class EffectRainbow : public Effect
+{
+public:
+	EffectRainbow()
+	{
+		ID = "rainbow";
+		name = "Rainbow In The Sky";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+};
+
 std::vector<Entity> GetNearbyProps(int32_t Max);
 
 void PlayAmbientSpeech(const char* voiceDict, const char* voiceSpeech, Ped ped, uint32_t speechID = 0, bool bSetEntity = false);

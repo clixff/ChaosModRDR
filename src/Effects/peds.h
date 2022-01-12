@@ -455,6 +455,82 @@ public:
 };
 
 
+class EffectPedsBhop : public Effect
+{
+public:
+	EffectPedsBhop()
+	{
+		ID = "peds_bhop";
+		name = "Peds Can't Stop Bunny Hopping";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnTick() override;
+};
+
+class EffectPedsSpin : public Effect
+{
+public:
+	EffectPedsSpin()
+	{
+		ID = "peds_spin";
+		name = "Spinning Peds";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+private:
+	std::set<Ped> peds;
+
+	float heading = 0.0f;
+};
+
+class EffectCloneEnemy : public Effect
+{
+public:
+	EffectCloneEnemy()
+	{
+		ID = "clone_enemy";
+		name = "Clone Random Enemy";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectPedsFollowPlayer : public Effect
+{
+public:
+	EffectPedsFollowPlayer()
+	{
+		ID = "peds_follow_player";
+		name = "Peds Follow Player";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+	virtual void OnDeactivate() override;
+private:
+	std::set<Ped> peds;
+};
+
+class EffectPedsFleeing : public Effect
+{
+public:
+	EffectPedsFleeing()
+	{
+		ID = "peds_fleeing";
+		name = "Nearby Peds Are Fleeing";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
 
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 

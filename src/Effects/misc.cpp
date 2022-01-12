@@ -1164,3 +1164,19 @@ void EffectRainingPigs::OnDeactivate()
 
 	this->pigs.clear();
 }
+
+void EffectRainbow::OnActivate()
+{
+	SetWeather(GET_HASH("FOG"));
+
+	TIME::SET_CLOCK_TIME(8, 0, 0);
+
+	GRAPHICS::SET_TIMECYCLE_MODIFIER((char*)"rainBowMod");
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
+}
+
+void EffectRainbow::OnDeactivate()
+{
+	GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
+}

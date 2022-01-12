@@ -763,7 +763,20 @@ void ChaosMod::InitEffects()
 		new EffectRainingPigs(),
 		new EffectRandomHonor(),
 		new EffectDutchStealsPlayersVeh(),
-		new EffectSpawnPredator()
+		new EffectSpawnPredator(),
+		new EffectInvertVelocity(),
+		new EffectIncreaseVelocity(),
+		new EffectBunnyhop(),
+		new EffectEyeDisorder(),
+		new EffectPedsBhop(),
+		new EffectPedsSpin(),
+		new EffectBirdSkin(),
+		new EffectBodySwap(),
+		new EffectCloneEnemy(),
+		new EffectPedsFollowPlayer(),
+		new EffectPedsFleeing(),
+		new EffectPlayerSpin(),
+		new EffectRainbow()
 
 	};
 
@@ -1001,6 +1014,11 @@ void ChaosMod::ResetPlayerSkin()
 	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
 	*ptr1 = ChaosMod::PlayerSkin1;
 	*ptr2 = ChaosMod::PlayerSkin2;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	ENTITY::SET_ENTITY_COLLISION(playerPed, true, true);
+	ENTITY::SET_ENTITY_DYNAMIC(playerPed, true);
 }
 
 void ChaosMod::StartWSServer()

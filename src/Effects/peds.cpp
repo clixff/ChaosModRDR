@@ -441,7 +441,7 @@ void EffectSpawnGiantCop::OnActivate()
 	static Hash copGroup = GAMEPLAY::GET_HASH_KEY((char*)"COP");
 	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"S_M_M_DispatchLeaderPolice_01");
 
-	Ped ped = SpawnPedAroundPlayer(skinModel);
+	Ped ped = SpawnPedAroundPlayer(skinModel, false, false);
 
 	/** _SET_PED_SCALE */
 	invoke<Void>(0x25ACFC650B65C538, ped, 10.0f);
@@ -1138,4 +1138,189 @@ void EffectSpawnPredator::OnActivate()
 	invoke<Void>(0x77FF8D35EEC6BBC4, ped, randOutfit, false);
 
 	MarkPedAsEnemy(ped);
+}
+
+void EffectPedsBhop::OnTick()
+{
+	if (GetTickCount() % 500 != 0)
+	{
+		return;
+	}
+
+	auto nearbyPeds = GetNearbyPeds(50);
+
+	for (auto ped : nearbyPeds)
+	{
+		if (!PED::IS_PED_HUMAN(ped))
+		{
+			continue;
+		}
+
+		if (PED::IS_PED_IN_ANY_VEHICLE(ped, true))
+		{
+			Vector3 vec = ENTITY::GET_ENTITY_COORDS(ped, true, 0);
+
+			ENTITY::SET_ENTITY_COORDS(ped, vec.x, vec.y, vec.z + 1.5f, false, false, false, false);
+		}
+		else if (PED::IS_PED_ON_MOUNT(ped))
+		{
+			/** _REMOVE_PED_FROM_MOUNT */
+			invoke<Void>(0x5337B721C51883A9, ped, 0, 0);
+		}
+		else
+		{
+			AI::TASK_JUMP(ped, 0);
+		}
+	}
+}
+
+void EffectPedsSpin::OnActivate()
+{
+	peds.clear();
+	heading = 0.0f;
+}
+
+void EffectPedsSpin::OnTick()
+{
+	if (GetTickCount() % 500 == 0)
+	{
+		peds.clear();
+
+		auto nearbyPeds = GetNearbyPeds(50);
+
+		for (auto ped : nearbyPeds)
+		{
+			peds.insert(ped);
+		}
+	}
+
+	heading += 10.0f;
+
+	for (auto ped : peds)
+	{
+		if (PED::IS_PED_IN_ANY_VEHICLE(ped, true) || PED::IS_PED_ON_MOUNT(ped))
+		{
+			continue;
+		}
+
+		ENTITY::SET_ENTITY_HEADING(ped, heading);
+	}
+}
+
+void EffectCloneEnemy::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	auto nearbyPeds = GetNearbyPeds(50);
+	std::vector<Ped> validPeds;
+
+	for (auto ped : nearbyPeds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			int relationships = PED::GET_RELATIONSHIP_BETWEEN_PEDS(ped, playerPed);
+
+			if (relationships == 5)
+			{
+				validPeds.push_back(ped);
+			}
+		}
+	}
+
+	if (!validPeds.size())
+	{
+		return;
+	}
+
+	Ped ped = validPeds[rand() % validPeds.size()];
+
+	Ped clone = PED::CLONE_PED(ped, ENTITY::GET_ENTITY_HEADING(ped), false, false);
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(ped, false))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(ped, false);
+
+		if (VEHICLE::ARE_ANY_VEHICLE_SEATS_FREE(veh))
+		{
+			PED::SET_PED_INTO_VEHICLE(clone, veh, -2);
+		}
+	}
+	if (PED::IS_PED_ON_MOUNT(ped))
+	{
+		Ped mount = PED::GET_MOUNT(ped);
+
+		bool bIsMountSeatFree = invoke<bool>(0xAAB0FE202E9FC9F0, mount, 0);
+
+		if (bIsMountSeatFree)
+		{
+			SetPedOnMount(clone, mount, 0);
+		}
+	}
+
+	ENTITY::SET_ENTITY_INVINCIBLE(clone, false);
+	
+	MarkPedAsEnemy(clone);
+
+	if (ENTITY::DOES_ENTITY_EXIST(clone))
+	{
+		ChaosMod::pedsSet.insert(clone);
+	}
+}
+
+void EffectPedsFollowPlayer::OnActivate()
+{
+	peds.clear();
+}
+
+void EffectPedsFollowPlayer::OnTick()
+{
+	if (GetTickCount() % 1000 != 0)
+	{
+		return;
+	}
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	auto nearbyPeds = GetNearbyPeds(50);
+
+	for (auto ped : nearbyPeds)
+	{
+		if (peds.contains(ped) || ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped))
+		{
+			continue;
+		}
+
+		AI::TASK_FOLLOW_TO_OFFSET_OF_ENTITY(ped, playerPed, 0.0f, 0.0f, 0.0f, 4.5f, -1.0f, -1.0f, 0, 0, 0, 0, 0);
+		peds.insert(ped);
+	}
+}
+
+void EffectPedsFollowPlayer::OnDeactivate()
+{
+	for (auto ped : peds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			AI::CLEAR_PED_TASKS_IMMEDIATELY(ped, true, true);
+			AI::TASK_WANDER_STANDARD(ped, 10.0f, 10);
+		}
+	}
+
+	peds.clear();
+}
+
+void EffectPedsFleeing::OnActivate()
+{
+	auto nearbyPeds = GetNearbyPeds(50);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	for (auto ped : nearbyPeds)
+	{
+		if (ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped))
+		{
+			continue;
+		}
+
+		invoke<Void>(0x22B0D0E37CCB840D, ped, playerPed, 70.0f, 10000.0f, 0, 3.0f, 0);
+	}
 }

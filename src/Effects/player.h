@@ -862,3 +862,109 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectInvertVelocity : public Effect
+{
+public:
+	EffectInvertVelocity()
+	{
+		ID = "invert_velocity";
+		name = "Invert And Increase Current Velocity";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectIncreaseVelocity : public Effect
+{
+public:
+	EffectIncreaseVelocity()
+	{
+		ID = "increase_velocity";
+		name = "Increase Current Velocity";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectBunnyhop : public Effect
+{
+public:
+	EffectBunnyhop()
+	{
+		ID = "bunnyhop";
+		name = "Bunny Hop";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnTick() override;
+};
+
+
+class EffectEyeDisorder : public Effect
+{
+public:
+	EffectEyeDisorder()
+	{
+		ID = "eye_disorder";
+		name = "Eye Disorder";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+};
+
+class EffectBirdSkin : public IEffectSkinChange
+{
+public:
+	EffectBirdSkin()
+	{
+		ID = "bird_skin";
+		name = "Player Is a Bird";
+		skinToSet = "A_C_BlueJay_01";
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+};
+
+class EffectBodySwap : public Effect
+{
+public:
+	EffectBodySwap()
+	{
+		ID = "body_swap";
+		name = "Body Swap";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+private:
+	Ped clone = 0;
+	Hash pedSkin = 0;
+};
+
+class EffectPlayerSpin : public Effect
+{
+public:
+	EffectPlayerSpin()
+	{
+		ID = "player_spin";
+		name = "Spin";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+private:
+	float heading = 0.0f;
+};
