@@ -1,4 +1,5 @@
 #include "effect.h"
+#include "../script.h"
 
 std::vector<const char*> Effect::WeaponNames = std::vector<const char*>();
 std::vector<Hash> Effect::WeaponHashes = std::vector<Hash>();
@@ -8,6 +9,7 @@ std::vector<Hash> Effect::weatherHashes = std::vector<Hash>();
 
 Effect::Effect()
 {
+	internalTimer = 0;
 }
 
 Effect::~Effect()
@@ -16,14 +18,29 @@ Effect::~Effect()
 
 void Effect::OnActivate()
 {
+	internalTimer = 0;
 }
 
 void Effect::OnDeactivate()
 {
+	internalTimer = 0;
 }
 
 void Effect::OnTick()
 {
+}
+
+bool Effect::TimerTick(uint32_t maxMs)
+{
+	internalTimer += ChaosMod::GetDeltaTime();
+
+	if (internalTimer >= maxMs)
+	{
+		internalTimer = internalTimer % maxMs;
+		return true;
+	}
+
+	return false;
 }
 
 void LoadModel(Hash model)

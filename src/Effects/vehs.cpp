@@ -3,7 +3,7 @@
 #include "../script.h"
 #include <algorithm>
 #include <random>
-
+#include "misc.h"
 
 std::vector<Vehicle> GetNearbyVehs(int32_t Max)
 {
@@ -138,36 +138,29 @@ void EffectMinecartRain::OnTick()
 {
 	Effect::OnTick();
 
-	if (GetTickCount() % 1000)
+	if (!TimerTick(500))
 	{
 		return;
 	}
-
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	Vector3 playerLocation = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
 
 	static Hash cartHash = GAMEPLAY::GET_HASH_KEY((char*)"mineCart01x");
 
 	LoadModel(cartHash);
 
-	float radius = float(rand() % 20);
+	Vector3 vec = GetRandomCoordAroundPlayer(float(rand() % 20));
 
-	/** In radians */
-	float angle = float(rand() % 360) * (M_PI / 180.0f);
-
-	playerLocation.x += radius * sin(angle);
-	playerLocation.y += radius * cos(angle);
-
-	Vehicle veh = VEHICLE::CREATE_VEHICLE(cartHash, playerLocation.x, playerLocation.y, playerLocation.z + 35.0f, rand() % 360, false, false, false, false);
-
-	Vehicle vehCopy = veh;
-	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
+	Vehicle veh = VEHICLE::CREATE_VEHICLE(cartHash, vec.x, vec.y, vec.z + 35.0f, rand() % 360, false, false, false, false);
 
 	ENTITY::SET_ENTITY_VELOCITY(veh, 0.0f, 0.0f, -150.0f);
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(cartHash);
 
 	vehs.push_back(veh);
+
+	if (ENTITY::DOES_ENTITY_EXIST(veh))
+	{
+		ChaosMod::vehsSet.insert(veh);
+	}
 }
 
 void EffectFullAcceleration::OnActivate()
@@ -193,7 +186,7 @@ void EffectFullAcceleration::OnDeactivate()
 
 void EffectFullAcceleration::OnTick()
 {
-	if (GetTickCount() % 1000 == 0)
+	if (TimerTick(1000))
 	{
 		vehs.clear();
 
@@ -468,13 +461,12 @@ void EffectHorsesRain::OnTick()
 {
 	Effect::OnTick();
 
-	if (GetTickCount() % 1000)
+	if (!TimerTick(1000))
 	{
 		return;
 	}
 
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	Vector3 playerLocation = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
 
 	std::vector<const char*> models = {
 		"A_C_Horse_Morgan_Bay",
@@ -491,16 +483,10 @@ void EffectHorsesRain::OnTick()
 	ENTITY::SET_ENTITY_INVINCIBLE(horse, true);
 	PED::SET_PED_CAN_RAGDOLL(horse, false);
 
-	float radius = float(rand() % 20);
+	Vector3 vec = GetRandomCoordAroundPlayer(float(rand() % 20));
 
-	/** In radians */
-	float angle = float(rand() % 360) * (M_PI / 180.0f);
-
-	playerLocation.x += radius * sin(angle);
-	playerLocation.y += radius * cos(angle);
-
-	ENTITY::SET_ENTITY_COORDS(horse, playerLocation.x, playerLocation.y, playerLocation.z + 35.0f, false, false, false, false);
-	ENTITY::SET_ENTITY_VELOCITY(horse, 0.0f, 0.0f, -60.0f);
+	ENTITY::SET_ENTITY_COORDS(horse, vec.x, vec.y, vec.z + 35.0f, false, false, false, false);
+	ENTITY::SET_ENTITY_VELOCITY(horse, 0.0f, 0.0f, -40.0f);
 
 	horses.push_back(horse);
 }
@@ -517,7 +503,6 @@ void EffectDetachWheels::OnActivate()
 		{
 			invoke<Void>(0xd4f5efb55769d272, veh, i);
 		}
-
 	}
 }
 

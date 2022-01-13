@@ -90,6 +90,16 @@ void MarkPedAsCompanion(Ped ped)
 	PED::SET_PED_COMBAT_ATTRIBUTES(ped, 5, true);
 	/** BF_AlwaysFight */
 	PED::SET_PED_COMBAT_ATTRIBUTES(ped, 46, true);
+
+	static Hash blipHash = GET_HASH("BLIP_STYLE_FRIENDLY");
+
+	/** BLIP_ADD_FOR_ENTITY */
+	Blip blip = RADAR::_0x23F74C2FDA6E7C61(blipHash, ped);
+
+	static Hash blipModifier = GET_HASH("BLIP_MODIFIER_MP_COLOR_1");
+
+	/** BLIP_ADD_MODIFIER */
+	RADAR::_0x662D364ABF16DE2F(blip, blipModifier);
 }
 
 void MarkPedAsEnemy(Ped ped)
@@ -1142,7 +1152,7 @@ void EffectSpawnPredator::OnActivate()
 
 void EffectPedsBhop::OnTick()
 {
-	if (GetTickCount() % 500 != 0)
+	if (!TimerTick(500))
 	{
 		return;
 	}
@@ -1182,7 +1192,7 @@ void EffectPedsSpin::OnActivate()
 
 void EffectPedsSpin::OnTick()
 {
-	if (GetTickCount() % 500 == 0)
+	if (TimerTick(500))
 	{
 		peds.clear();
 
@@ -1194,7 +1204,9 @@ void EffectPedsSpin::OnTick()
 		}
 	}
 
-	heading += 10.0f;
+	heading += 625.0f * ChaosMod::GetDeltaTimeSeconds();
+
+	heading = fmod(heading, 360.0f);
 
 	for (auto ped : peds)
 	{
@@ -1273,7 +1285,7 @@ void EffectPedsFollowPlayer::OnActivate()
 
 void EffectPedsFollowPlayer::OnTick()
 {
-	if (GetTickCount() % 1000 != 0)
+	if (!TimerTick(1000))
 	{
 		return;
 	}

@@ -244,4 +244,19 @@ public:
 	 * Index of winner effect in the Twitch poll
 	 */
 	int32_t twitchWinnerID = -1;
+public:
+	/** Difference between last and this tick in ms */
+	static uint32_t _DeltaTime;
+	/** Difference between last and this tick in seconds */
+	static float _DeltaTimeSeconds;
+	/** Get difference between last and this tick in ms */
+	static inline uint32_t GetDeltaTime()
+	{
+		return ChaosMod::_DeltaTime;
+	}
+	/** Get difference between last and this tick in seconds */
+	static inline float GetDeltaTimeSeconds()
+	{
+		return ChaosMod::_DeltaTimeSeconds;
+	}
 };

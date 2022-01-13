@@ -19,6 +19,9 @@ std::set<Entity> ChaosMod::propsSet = std::set<Entity>();
 Hash ChaosMod::PlayerSkin1 = 0;
 Hash ChaosMod::PlayerSkin2 = 0;
 
+uint32_t ChaosMod::_DeltaTime = 0;
+float ChaosMod::_DeltaTimeSeconds = 0.0f;
+
 ChaosMod::ChaosMod()
 {
 }
@@ -320,7 +323,12 @@ void ChaosMod::Update()
 
 	ChaosMod::globalMutex.lock();
 
-	ChaosMod::LastTick = GetTickCount();
+	uint32_t thisTick = GetTickCount();
+
+	ChaosMod::_DeltaTime = thisTick - ChaosMod::LastTick;
+	ChaosMod::_DeltaTimeSeconds = float(float(ChaosMod::_DeltaTime) / 1000.0f);
+
+	ChaosMod::LastTick = thisTick;
 	ChaosMod::PLAYER_PED = PLAYER::PLAYER_PED_ID();
 
 	ChaosMod::globalMutex.unlock();
@@ -541,7 +549,7 @@ void ChaosMod::DrawUI()
 		auto* Effect = AllEffects[debugSelectedEffectIndex];
 
 		std::string debugText = "<font face='$title'>";
-		debugText += "[DEBUG] Effect to activate: \n" + Effect->name;
+		debugText += "[DEBUG] Effect to activate: \n[" + std::to_string(debugSelectedEffectIndex+1) + "] " + Effect->name;
 		debugText += "</font>";
 
 		UI::SET_TEXT_SCALE(0.0f, 0.5f);
@@ -580,7 +588,19 @@ void ChaosMod::ResetEffectsTimeout()
 
 	timeoutStartTime = GetTickCount();
 	timeoutEndTime = timeoutStartTime + (effectsInterval * 1000);
-	timeoutVotingStartTime = timeoutEndTime - (effectsVoteTime * 1000);
+
+	int _effectsVoteTime = 0;
+
+	if (config.bTwitch)
+	{
+		_effectsVoteTime = effectsVoteTime;
+	}
+	else
+	{
+		_effectsVoteTime = effectsInterval / 2;
+	}
+
+	timeoutVotingStartTime = timeoutEndTime - (_effectsVoteTime * 1000);
 }
 
 void ChaosMod::DrawEffectInUI(Effect* effect, int32_t index)

@@ -51,4 +51,13 @@ public:
 
 	static std::vector<const char*> weatherNames;
 	static std::vector<Hash> weatherHashes;
+
+	/**
+	 * Adds delta time to the current internal timer.
+	 * Returns whether time (maxMs) has expired or not
+	 */
+	bool TimerTick(uint32_t maxMs);
+
+private:
+	uint32_t internalTimer = 0;
 };

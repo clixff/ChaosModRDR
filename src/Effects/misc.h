@@ -581,3 +581,5 @@ public:
 std::vector<Entity> GetNearbyProps(int32_t Max);
 
 void PlayAmbientSpeech(const char* voiceDict, const char* voiceSpeech, Ped ped, uint32_t speechID = 0, bool bSetEntity = false);
+Vector3 GetRandomCoordInRange(Vector3 vec, float distance);
+Vector3 GetRandomCoordAroundPlayer(float distance);

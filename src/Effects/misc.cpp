@@ -32,6 +32,41 @@ Entity SpawnObject(Hash model)
 }
 
 
+Vector3 GetRandomCoordInRange(Vector3 vec, float distance)
+{
+	/** In radians */
+	float angle = float(rand() % 360) * (M_PI / 180.0f);
+
+	vec.x += distance * sin(angle);
+	vec.y += distance * cos(angle);
+
+	return vec;
+}
+
+Vector3 GetRandomCoordAroundPlayer(float distance)
+{
+	Entity entity = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(entity, false))
+	{
+		entity = PED::GET_VEHICLE_PED_IS_IN(entity, false);
+	}
+	else if (PED::IS_PED_ON_MOUNT(entity))
+	{
+		entity = PED::GET_MOUNT(entity);
+	}
+
+	Vector3 vec = ENTITY::GET_ENTITY_COORDS(entity, true, 0);
+
+	Vector3 velocity = ENTITY::GET_ENTITY_VELOCITY(entity, 0);
+
+	vec.x += velocity.x * 2.0f;
+	vec.y += velocity.y * 2.0f;
+	vec.z += velocity.z * 2.0f;
+
+	return GetRandomCoordInRange(vec, distance);
+}
+
 void EffectSpawnHotchkissCannon::OnActivate()
 {
 	Effect::OnActivate();
@@ -214,7 +249,7 @@ void EffectGiantPeds::OnDeactivate()
 
 void EffectGiantPeds::OnTick()
 {
-	if (GetTickCount() % 1000 == 0)
+	if (TimerTick(1000))
 	{
 		SetScale(5.0f);
 	}
@@ -286,7 +321,7 @@ void EffectAllPedsWannaKillPlayer::OnDeactivate()
 
 void EffectAllPedsWannaKillPlayer::OnTick()
 {
-	if (GetTickCount() % 1000)
+	if (!TimerTick(1000))
 	{
 		return;
 	}
@@ -381,7 +416,7 @@ void EffectInvertedGravity::OnTick()
 {
 	Effect::OnTick();
 
-	if (GetTickCount() % 1000 == 0)
+	if (TimerTick(1000))
 	{
 		entities.clear();
 		auto nearbyPeds = GetNearbyPeds(45);
@@ -444,7 +479,7 @@ void EffectDoomsday::OnDeactivate()
 
 void EffectDoomsday::OnTick()
 {
-	if (GetTickCount() % 250 == 0)
+	if (TimerTick(250))
 	{
 		entities.clear();
 		auto nearbyPeds = GetNearbyPeds(45);
@@ -475,18 +510,10 @@ void EffectDoomsday::OnTick()
 		}
 
 
-		Vector3 playerVec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
-
-		float radius = float(rand() % 100);
-
-		/** In radians */
-		float angle = float(rand() % 360) * (M_PI / 180.0f);
-
-		playerVec.x += radius * sin(angle);
-		playerVec.y += radius * cos(angle);
+		Vector3 vec = GetRandomCoordAroundPlayer(rand() % 100);
 
 		/** _FORCE_LIGHTNING_FLASH_AT_COORDS */
-		invoke<Void>(0x67943537D179597C, playerVec.x, playerVec.y, playerVec.z);
+		invoke<Void>(0x67943537D179597C, vec.x, vec.y, vec.z);
 
 		randomDirection.x = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
 		randomDirection.y = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
@@ -566,7 +593,7 @@ void EffectSetRapidWeather::OnDeactivate()
 
 void EffectSetRapidWeather::OnTick()
 {
-	if (GetTickCount() % 1000 == 0)
+	if (TimerTick(500))
 	{
 		Hash weatherHash = Effect::weatherHashes[rand() % Effect::weatherHashes.size()];
 
@@ -576,7 +603,7 @@ void EffectSetRapidWeather::OnTick()
 
 void EffectEarthquake::OnTick()
 {
-	if (GetTickCount() % 500 == 0)
+	if (TimerTick(500))
 	{
 		entities.clear();
 		auto nearbyPeds = GetNearbyPeds(45);
@@ -635,7 +662,7 @@ void EffectEveryoneIsInvincible::OnDeactivate()
 
 void EffectEveryoneIsInvincible::OnTick()
 {
-	if (GetTickCount() % 1000)
+	if (!TimerTick(1000))
 	{
 		return;
 	}
@@ -696,19 +723,10 @@ void EffectIgniteNearbyPeds::OnActivate()
 
 void EffectLightningOnce::OnActivate()
 {
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	Vector3 playerVec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
-
-	float radius = float((rand() % 5) + 5);
-
-	/** In radians */
-	float angle = float(rand() % 360) * (M_PI / 180.0f);
-
-	playerVec.x += radius * sin(angle);
-	playerVec.y += radius * cos(angle);
+	Vector3 vec = GetRandomCoordAroundPlayer(float((rand() % 5) + 5));
 
 	/** _FORCE_LIGHTNING_FLASH_AT_COORDS */
-	invoke<Void>(0x67943537D179597C, playerVec.x, playerVec.y, playerVec.z);
+	invoke<Void>(0x67943537D179597C, vec.x, vec.y, vec.z);
 }
 
 std::vector<Entity> GetNearbyProps(int32_t Max)
@@ -863,7 +881,7 @@ void EffectGhostTown::OnTick()
 {
 	Effect::OnTick();
 
-	if (GetTickCount() % 1000)
+	if (!TimerTick(1000))
 	{
 		return;
 	}
@@ -904,7 +922,7 @@ void EffectGravityField::OnTick()
 {
 	Effect::OnTick();
 
-	if (GetTickCount() % 1000)
+	if (TimerTick(1000))
 	{
 		entities.clear();
 
@@ -988,7 +1006,7 @@ void EffectPigWeapons::OnTick()
 {
 	Effect::OnTick();
 
-	if (GetTickCount() % 2000 == 0)
+	if (TimerTick(2000))
 	{
 		peds.clear();
 		auto nearbyPeds = GetNearbyPeds(20);
@@ -1110,22 +1128,14 @@ void EffectRainingPigs::OnActivate()
 
 void EffectRainingPigs::OnTick()
 {
-	if (GetTickCount() % 1000 != 0)
+	if (!TimerTick(1000))
 	{
 		return;
 	}
 
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	Vector3 vec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
-
-	float radius = float(rand() % 10);
-
-	/** In radians */
-	float angle = float(rand() % 360) * (M_PI / 180.0f);
-
-	vec.x += radius * sin(angle);
-	vec.y += radius * cos(angle);
+	Vector3 vec = GetRandomCoordAroundPlayer(float(rand() % 20));
 
 	static Hash model = GET_HASH("A_C_Pig_01");
 	Ped pig = SpawnPedAroundPlayer(model, false, false);

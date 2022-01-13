@@ -1,6 +1,7 @@
 #include "player.h"
 #include "peds.h"
 #include "../script.h"
+#include "misc.h"
 
 void EffectLaunchPlayerUp::OnActivate()
 {
@@ -211,6 +212,9 @@ void EffectSetDrunk::OnActivate()
 	GRAPHICS::ANIMPOSTFX_PLAY((char*)"PlayerDrunk01");
 
 	invoke<Void>(0x406CCF555B04FAD3, playerPed, true, 1.0f);
+
+	/** Set walking style */
+	invoke<Void>(0x89F5E7ADECCCB49C, playerPed , "very_drunk");
 }
 
 void EffectSetDrunk::OnDeactivate()
@@ -222,13 +226,15 @@ void EffectSetDrunk::OnDeactivate()
 	GRAPHICS::ANIMPOSTFX_STOP((char*)"PlayerDrunk01");
 
 	invoke<Void>(0x406CCF555B04FAD3, playerPed, false, 0.0f);
+	invoke<Void>(0x923583741DC87BCE, playerPed, "arthur_healthy");
+	invoke<Void>(0x89F5E7ADECCCB49C, playerPed, "default");
 }
 
 void EffectSetDrunk::OnTick()
 {
 	Effect::OnTick();
 
-	if (GetTickCount() % 7000 == 0)
+	if (TimerTick(7000))
 	{
 		PED::SET_PED_TO_RAGDOLL(PLAYER::PLAYER_PED_ID(), 1000, 1000, 0, true, true, false);
 	}
@@ -375,9 +381,9 @@ void EffectLightningWeapons::OnTick()
 
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
+	bool bCoordValid = WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
 
-	if (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z)
+	if (!bCoordValid || (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z))
 	{
 		return;
 	}
@@ -564,9 +570,9 @@ void EffectExplosiveWeapons::OnTick()
 
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
+	bool bCoordValid = WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
 
-	if (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z)
+	if (!bCoordValid || (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z))
 	{
 		return;
 	}
@@ -578,7 +584,7 @@ void EffectExplosiveWeapons::OnTick()
 
 void EffectBloodTrails::OnTick()
 {
-	if (GetTickCount() % 5000 == 0)
+	if (TimerTick(5000))
 	{
 		invoke<Void>(0xC349EE1E6EFA494B, PLAYER::PLAYER_PED_ID(), 1.0f, 1.0f, 1.0f);
 	}
@@ -629,9 +635,9 @@ void EffectTeleportWeapons::OnTick()
 
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
+	bool bCoordValid = WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
 
-	if (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z)
+	if (!bCoordValid || (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z))
 	{
 		return;
 	}
@@ -682,16 +688,7 @@ void EffectTeleportFewMeters::OnActivate()
 		entity = PED::GET_MOUNT(entity);
 	}
 
-	Vector3 vec = ENTITY::GET_ENTITY_COORDS(entity, true, 0);
-
-	float radius = 10.0f;
-
-	/** In radians */
-	float angle = float(rand() % 360) * (M_PI / 180.0f);
-
-	vec.x += radius * sin(angle);
-	vec.y += radius * cos(angle);
-
+	Vector3 vec = GetRandomCoordInRange(ENTITY::GET_ENTITY_COORDS(entity, true, 0), 10);
 
 	bool bUpdatedCoords = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(vec.x, vec.y, 100.0, &vec.z, FALSE);
 
@@ -1068,7 +1065,7 @@ void EffectIncreaseVelocity::OnActivate()
 
 void EffectBunnyhop::OnTick()
 {
-	if (GetTickCount() % 500 != 0)
+	if (!TimerTick(500))
 	{
 		return;
 	}
@@ -1325,7 +1322,9 @@ void EffectPlayerSpin::OnTick()
 		entity = PED::GET_MOUNT(entity);
 	}
 
-	heading += 10.0f;
+	heading += 625.0f * ChaosMod::GetDeltaTimeSeconds();
+
+	heading = fmod(heading, 360.0f);
 
 	ENTITY::SET_ENTITY_HEADING(entity, heading);
 }
