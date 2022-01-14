@@ -6,6 +6,8 @@
 
 Entity SpawnObject(Hash model);
 
+float GetDistance3D(Vector3 a, Vector3 b);
+
 class EffectSpawnHotchkissCannon : public Effect
 {
 public:

@@ -532,6 +532,46 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectHealNearbyPeds : public Effect
+{
+public:
+	EffectHealNearbyPeds()
+	{
+		ID = "heal_nearby_peds";
+		name = "Heal Nearby Peds";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectReviveDeadPeds : public Effect
+{
+public:
+	EffectReviveDeadPeds()
+	{
+		ID = "revive_dead_peds";
+		name = "Revive Dead Peds";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectSpawnAngryTommy : public Effect
+{
+public:
+	EffectSpawnAngryTommy()
+	{
+		ID = "spawn_tommy";
+		name = "Spawn Angry Tommy";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 
 void RemoveAllPedWeapons(Ped ped);

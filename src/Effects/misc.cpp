@@ -31,6 +31,11 @@ Entity SpawnObject(Hash model)
 	return object;
 }
 
+float GetDistance3D(Vector3 a, Vector3 b)
+{
+	return sqrt(pow(b.x - a.x, 2) + pow(b.y - a.y, 2) + pow(b.z - a.z, 2));
+}
+
 
 Vector3 GetRandomCoordInRange(Vector3 vec, float distance)
 {
@@ -435,6 +440,8 @@ void EffectInvertedGravity::OnTick()
 
 		for (auto prop : nearbyProps)
 		{
+			ENTITY::SET_ENTITY_DYNAMIC(prop, true);
+			ENTITY::SET_ENTITY_HAS_GRAVITY(prop, true);
 			entities.insert(prop);
 		}
 
@@ -506,6 +513,8 @@ void EffectDoomsday::OnTick()
 
 		for (auto prop : nearbyProps)
 		{
+			ENTITY::SET_ENTITY_DYNAMIC(prop, true);
+			ENTITY::SET_ENTITY_HAS_GRAVITY(prop, true);
 			entities.insert(prop);
 		}
 
@@ -630,6 +639,8 @@ void EffectEarthquake::OnTick()
 
 		for (auto prop : nearbyProps)
 		{
+			ENTITY::SET_ENTITY_DYNAMIC(prop, true);
+			ENTITY::SET_ENTITY_HAS_GRAVITY(prop, true);
 			entities.insert(prop);
 		}
 	}
@@ -740,12 +751,17 @@ std::vector<Entity> GetNearbyProps(int32_t Max)
 
 	int* worldProps = new int[255];
 
-	worldGetAllObjects(worldProps, 255);
+	int found = worldGetAllObjects(worldProps, 255);
+
+	if (found < Max)
+	{
+		Max = found;
+	}
 
 	for (int32_t i = 0; i < Max; i++)
 	{
 		Entity prop = worldProps[i];
-		if (ENTITY::DOES_ENTITY_EXIST(Max))
+		if (ENTITY::DOES_ENTITY_EXIST(prop))
 		{
 			propsOut.push_back(prop);
 		}
@@ -928,6 +944,8 @@ void EffectGravityField::OnTick()
 
 		auto peds = GetNearbyPeds(30);
 		auto vehs = GetNearbyVehs(30);
+		auto props = GetNearbyProps(20);
+
 
 		for (auto ped : peds)
 		{
@@ -938,6 +956,13 @@ void EffectGravityField::OnTick()
 		for (auto veh : vehs)
 		{
 			entities.insert(veh);
+		}
+
+		for (auto prop : props)
+		{
+			ENTITY::SET_ENTITY_DYNAMIC(prop, true);
+			ENTITY::SET_ENTITY_HAS_GRAVITY(prop, true);
+			entities.insert(prop);
 		}
 	}
 

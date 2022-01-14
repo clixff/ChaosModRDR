@@ -796,7 +796,15 @@ void ChaosMod::InitEffects()
 		new EffectPedsFollowPlayer(),
 		new EffectPedsFleeing(),
 		new EffectPlayerSpin(),
-		new EffectRainbow()
+		new EffectRainbow(),
+		new EffectPlayerLosesWeight(),
+		new EffectPlayerGainsWeight(),
+		new EffectSetRandomHat(),
+		new EffectHealNearbyPeds(),
+		new EffectReviveDeadPeds(),
+		new EffectGravityGun(),
+		new EffectSpawnAngryTommy(),
+		new EffectDisableDeadEye()
 
 	};
 

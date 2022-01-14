@@ -2,6 +2,7 @@
 #include "peds.h"
 #include "../script.h"
 #include "misc.h"
+#include "vehs.h"
 
 void EffectLaunchPlayerUp::OnActivate()
 {
@@ -411,6 +412,8 @@ void IEffectSkinChange::OnActivate()
 	else if (PED::IS_PED_ON_MOUNT(playerPed))
 	{
 		Ped mount = PED::GET_MOUNT(playerPed);
+
+		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(mount, true, true);
 
 		/** _REMOVE_PED_FROM_MOUNT */
 		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
@@ -1204,6 +1207,8 @@ void EffectBodySwap::OnActivate()
 
 		/** _REMOVE_PED_FROM_MOUNT */
 		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
+
+		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(playerMount, true, true);
 	}
 
 	if (PED::IS_PED_IN_ANY_VEHICLE(ped, true))
@@ -1327,4 +1332,151 @@ void EffectPlayerSpin::OnTick()
 	heading = fmod(heading, 360.0f);
 
 	ENTITY::SET_ENTITY_HEADING(entity, heading);
+}
+
+void EffectPlayerLosesWeight::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	PED::_0x1902C4CFCC5BE57C(playerPed, 0x63F130D5);
+	PED::_0x1902C4CFCC5BE57C(playerPed, 0x86155956);
+	PED::_0x1902C4CFCC5BE57C(playerPed, 0x652668B6);
+	PED::_0xCC8CA3E88256E58F(playerPed, 0, 1, 1, 1, false);
+}
+void EffectPlayerGainsWeight::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	PED::_0x1902C4CFCC5BE57C(playerPed, 0x63F130D5);
+	PED::_0x1902C4CFCC5BE57C(playerPed, 0x74D74B1C);
+	PED::_0x1902C4CFCC5BE57C(playerPed, 0xBB7091D9);
+	PED::_0xCC8CA3E88256E58F(playerPed, 0, 1, 1, 1, false);
+}
+
+void EffectSetRandomHat::OnActivate()
+{
+	static std::vector<Hash> hats = {
+		0x2514B2B9,
+		0x05A94693,
+		0xB2A7CB98,
+		0x2968E73D,
+		0xAE8ACE4E,
+		0xD16013FC,
+		0x3D9CEC78,
+		0x5F74300A,
+		0x48760F4A
+	};
+
+	Hash hat = hats[rand() % hats.size()];
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	PED::_0x1902C4CFCC5BE57C(playerPed, hat);
+	PED::_0xCC8CA3E88256E58F(playerPed, 0, 1, 1, 1, false);
+}
+
+void EffectGravityGun::OnActivate()
+{
+	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	static Hash unarmed = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_UNARMED");
+	Hash weaponHash = 0;
+
+	if (WEAPON::GET_CURRENT_PED_WEAPON(playerPed, &weaponHash, 0, 0, 0) && weaponHash == unarmed)
+	{
+		static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_PISTOL_MAUSER_DRUNK");
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, weaponHash, 35, 1, 0x2cd419dc);
+		WEAPON::SET_PED_AMMO(playerPed, weaponHash, 35);
+		WEAPON::SET_CURRENT_PED_WEAPON(playerPed, weaponHash, 1, 0, 0, 0);
+	}
+}
+
+void EffectGravityGun::OnDeactivate()
+{
+	lastVec.x = lastVec.y = lastVec.z = 0.0f;
+}
+
+void EffectGravityGun::OnTick()
+{
+	Vector3 vec;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	bool bCoordValid = WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(playerPed, &vec);
+
+	if (!bCoordValid || (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z))
+	{
+		return;
+	}
+
+	lastVec = vec;
+
+	std::vector<Entity> entities = GetNearbyPeds(50);
+
+	auto nearbyVehs = GetNearbyVehs(45);
+
+	for (auto veh : nearbyVehs)
+	{
+		entities.push_back(veh);
+	}
+
+	auto props = GetNearbyProps(45);
+
+	for (auto prop : props)
+	{
+		ENTITY::SET_ENTITY_DYNAMIC(prop, true);
+		ENTITY::SET_ENTITY_HAS_GRAVITY(prop, true);
+		entities.push_back(prop);
+	}
+
+	Vector3 pVec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+	for (auto entity : entities)
+	{
+		Vector3 vec2 = ENTITY::GET_ENTITY_COORDS(entity, true, 0);
+		float dist = GetDistance3D(vec, vec2);
+
+		const float maxDist = 5.0f;
+
+		if (dist >= maxDist)
+		{
+			continue;
+		}
+
+		if (ENTITY::IS_ENTITY_A_PED(entity))
+		{
+			PED::SET_PED_TO_RAGDOLL(entity, 5000, 5000, 0, true, true, false);
+		}
+
+		float scale = 15.0f * (1.0f - (dist / maxDist));
+
+		Vector3 diff = vec2;
+		diff.x -= pVec.x;
+		diff.y -= pVec.y;
+		diff.z -= pVec.z;
+
+		const float squareSum = (diff.x * diff.x) + (diff.y * diff.y) + (diff.z * diff.z);
+		const float length = sqrt(squareSum);
+		diff.x /= length;
+		diff.y /= length;
+		diff.z /= length;
+
+		diff.x *= scale;
+		diff.y *= scale;
+		diff.y *= scale;
+
+		ENTITY::SET_ENTITY_VELOCITY(entity, diff.x, diff.y, diff.z);
+	}
+}
+
+void EffectDisableDeadEye::OnActivate()
+{
+	PLAYER::_0x95EE1DEE1DCD9070(PLAYER::PLAYER_ID(), false);
+}
+
+void EffectDisableDeadEye::OnDeactivate()
+{
+	PLAYER::_0x95EE1DEE1DCD9070(PLAYER::PLAYER_ID(), true);
 }

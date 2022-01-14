@@ -968,3 +968,78 @@ public:
 private:
 	float heading = 0.0f;
 };
+
+class EffectPlayerLosesWeight : public Effect
+{
+public:
+	EffectPlayerLosesWeight()
+	{
+		ID = "lose_weight";
+		name = "Player Loses Weight";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectPlayerGainsWeight : public Effect
+{
+public:
+	EffectPlayerGainsWeight()
+	{
+		ID = "gain_weight";
+		name = "Player Gains Weight";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectSetRandomHat : public Effect
+{
+public:
+	EffectSetRandomHat()
+	{
+		ID = "random_hat";
+		name = "Set Random Hat";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectGravityGun : public Effect
+{
+public:
+	EffectGravityGun()
+	{
+		ID = "gravity_gun";
+		name = "Gravity Gun";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+
+	virtual void OnTick() override;
+private:
+	Vector3 lastVec;
+};
+
+class EffectDisableDeadEye : public Effect
+{
+public:
+	EffectDisableDeadEye()
+	{
+		ID = "disable_dead_eye";
+		name = "Disable Dead Eye";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+};

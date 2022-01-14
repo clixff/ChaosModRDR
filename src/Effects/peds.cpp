@@ -162,6 +162,12 @@ void EffectSpawnDrunkardJon::OnActivate()
 	ENTITY::SET_ENTITY_HEALTH(ped, 1000, 0);
 
 	MarkPedAsEnemy(ped);
+
+	/** Set drunk */
+	invoke<Void>(0x406CCF555B04FAD3, ped, true, 0.75f);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
 
 void EffectSpawnLenny::OnActivate()
@@ -395,6 +401,9 @@ void EffectSpawnSerialKiller::OnActivate()
 	SetPedOnMount(ped, horse, -1);
 
 	MarkPedAsEnemy(ped);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
 
 void EffectSpawnVampire::OnActivate()
@@ -408,8 +417,10 @@ void EffectSpawnVampire::OnActivate()
 	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 1000);
 	ENTITY::SET_ENTITY_HEALTH(ped, 1000, 0);
 
-
 	MarkPedAsEnemy(ped);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
 
 void EffectSpawnGiantDonkey::OnActivate()
@@ -459,6 +470,7 @@ void EffectSpawnGiantCop::OnActivate()
 	PED::SET_PED_RELATIONSHIP_GROUP_HASH(ped, copGroup);
 
 	AI::TASK_LOOK_AT_ENTITY(ped, PLAYER::PLAYER_PED_ID(), -1, 2048, 3, 1);
+	AI::TASK_WANDER_STANDARD(ped, 10.0f, 10);
 }
 
 void EffectSpawnAngrySkeleton::OnActivate()
@@ -506,6 +518,9 @@ void EffectSpawnAngrySkeleton::OnActivate()
 	}
 
 	MarkPedAsEnemy(ped);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
 
 void EffectSpawnAngryDwarf::OnActivate()
@@ -578,6 +593,11 @@ void EffectSpawnFrozenCouple::OnActivate()
 
 	MarkPedAsEnemy(ped);
 	MarkPedAsEnemy(ped2);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped2, 263, true);
 }
 
 void EffectSpawnRobot::OnActivate()
@@ -612,6 +632,9 @@ void EffectSpawnLassoGuy::OnActivate()
 
 	/** TASK_LASSO_PED */
 	invoke<Void>(0xC716EB2BD16370A3, ped, PLAYER::PLAYER_PED_ID());
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
 
 void EffectSkyrimIntro::OnActivate()
@@ -654,7 +677,7 @@ void EffectSkyrimIntro::OnActivate()
 
 	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_REPEATER_WINCHESTER");
 	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(cop, weaponHash, 100, true, 0x2cd419dc);
-	WEAPON::SET_PED_AMMO(playerPed, weaponHash, 100);
+	WEAPON::SET_PED_AMMO(cop, weaponHash, 100);
 
 	LoadModel(wagonModel);
 
@@ -681,8 +704,6 @@ void EffectSkyrimIntro::OnActivate()
 
 	AI::TASK_VEHICLE_DRIVE_WANDER(cop, vehicle, 10000.0f, 0x400c0025);
 	PED::SET_PED_KEEP_TASK(cop, true);
-
-	PlayAmbientSpeech("0132_G_M_M_UNICRIMINALS_01_BLACK_01", "CALLOUT_CAMP_WAKE_UP", playerPed, 0, false);
 }
 
 void EffectSpawnParrotCompanion::OnActivate()
@@ -833,6 +854,9 @@ void EffectSpawnAngryCorpse::OnActivate()
 	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 13, false);
 
 	MarkPedAsEnemy(ped);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
 
 void EffectSpawnAngryCaveman::OnActivate()
@@ -852,6 +876,9 @@ void EffectSpawnAngryCaveman::OnActivate()
 
 	/** _SET_PED_SCALE */
 	invoke<Void>(0x25ACFC650B65C538, ped, 1.1f);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
 
 void EffectSpawnAngryTwin::OnActivate()
@@ -923,6 +950,8 @@ void EffectSpawnAngryCowboy::OnActivate()
 
 	MarkPedAsEnemy(ped);
 
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
 
 void EffectSpawnUndeadBoss::OnActivate()
@@ -959,17 +988,6 @@ void EffectSpawnUndeadBoss::OnActivate()
 	WEAPON::_0x78030C7867D8B9B6(ped, false);
 
 	Entity weaponEntity = WEAPON::GET_CURRENT_PED_WEAPON_ENTITY_INDEX(ped, 0);
-
-	if (ENTITY::DOES_ENTITY_EXIST(weaponEntity))
-	{
-		/** _SET_WEAPON_SCALE */
-		//WEAPON::_0xC3544AD0522E69B4(weaponEntity, 100.0f);
-		//WEAPON::SET_PED_CURRENT_WEAPON_VISIBLE(ped, true, false, false, false);
-	}
-
-	/** _SET_PED_COMBAT_STYLE_MOD */
-	//PED::_0x8B1E8E35A6E814EA(ped, GAMEPLAY::GET_HASH_KEY((char*)"LowAccuracy"), -1.0f);
-
 	/** Set walking style */
 	invoke<Void>(0x89F5E7ADECCCB49C, ped, "injured_right_leg");
 
@@ -982,6 +1000,9 @@ void EffectSpawnUndeadBoss::OnActivate()
 	PED::_SET_PED_RAGDOLL_BLOCKING_FLAGS(ped, 1 | 2 | 16 | 128 | 512 | 8192);
 
 	MarkPedAsEnemy(ped);
+
+	PED::_0x1902C4CFCC5BE57C(ped, 0x48760F4A);
+	PED::_0xCC8CA3E88256E58F(ped, 0, 1, 1, 1, false);
 }
 
 void EffectSpawnGrieferMicah::OnActivate()
@@ -1335,4 +1356,80 @@ void EffectPedsFleeing::OnActivate()
 
 		invoke<Void>(0x22B0D0E37CCB840D, ped, playerPed, 70.0f, 10000.0f, 0, 3.0f, 0);
 	}
+}
+
+void EffectHealNearbyPeds::OnActivate()
+{
+	auto nearbyPeds = GetNearbyPeds(45);
+
+	for (auto ped : nearbyPeds)
+	{
+		int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(ped, 0);
+		ENTITY::SET_ENTITY_HEALTH(ped, maxHealth, 0);
+	}
+}
+
+void EffectReviveDeadPeds::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	int* worldPeds = new int[150];
+
+	int found = worldGetAllPeds(worldPeds, 150);
+
+	for (int32_t i = 0; i < found; i++)
+	{
+		Ped ped = worldPeds[i];
+		if (ENTITY::DOES_ENTITY_EXIST(ped) && ped != playerPed)
+		{
+			if (PED::IS_PED_DEAD_OR_DYING(ped, 1))
+			{
+				int relationships = PED::GET_RELATIONSHIP_BETWEEN_PEDS(ped, playerPed);
+
+				int health = ENTITY::GET_ENTITY_MAX_HEALTH(ped, 0);
+
+				PED::RESURRECT_PED(ped);
+
+				ENTITY::SET_ENTITY_MAX_HEALTH(ped, health);
+				ENTITY::SET_ENTITY_HEALTH(ped, health, 0);
+
+				PED::REVIVE_INJURED_PED(ped);
+
+				AI::CLEAR_PED_TASKS_IMMEDIATELY(ped, 0, true);
+
+				MarkPedAsEnemy(ped);
+
+				PED::SET_PED_TO_RAGDOLL(ped, 500, 500, 0, true, true, false);
+
+			}
+			if (PED::IS_PED_INJURED(ped))
+			{
+				PED::REVIVE_INJURED_PED(ped);
+			}
+		}
+	}
+
+	delete[] worldPeds;
+}
+
+void EffectSpawnAngryTommy::OnActivate()
+{
+	Effect::OnActivate();
+
+	static Hash skinModel = GET_HASH("CS_mud2bigguy");
+
+	Ped ped = SpawnPedAroundPlayer(skinModel, false, true);
+
+	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 1000);
+	ENTITY::SET_ENTITY_HEALTH(ped, 1000, 0);
+
+	MarkPedAsEnemy(ped);
+
+	/** _SET_PED_SCALE */
+	invoke<Void>(0x25ACFC650B65C538, ped, 1.1f);
+
+	/** Set outfit */
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 1, false);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
