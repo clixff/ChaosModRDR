@@ -31,7 +31,7 @@ let reconnectsCount = 0;
 
 export function connectWebsocketClient(): void
 {
-	gameWebSocketClient = new WebSocket('ws://localhost:9149');
+	gameWebSocketClient = new WebSocket('ws://127.0.0.1:9149');
 
 	gameWebSocketClient.on('open', () =>
 	{
@@ -233,7 +233,7 @@ function setPollFadeOut()
 
 export function startWSServer()
 {
-	overlayServer = new WebSocketServer({ port: 9147, host: 'localhost' });
+	overlayServer = new WebSocketServer({ port: 9147, host: '127.0.0.1' });
 
     // setVotingActive(true);
     // setRandomPollOptions();

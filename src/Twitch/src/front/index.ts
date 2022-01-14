@@ -203,7 +203,7 @@ let connectionInterval: NodeJS.Timer | null = null;
 
 function connectWS()
 {
-    const ws = new WebSocket('ws://localhost:9147');
+    const ws = new WebSocket('ws://127.0.0.1:9147');
 
     ws.onclose = (ev) =>
     {
