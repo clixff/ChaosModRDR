@@ -4,6 +4,8 @@
 #include "Effects/misc.h"
 #include "Effects/vehs.h"
 #include <tlhelp32.h>
+#include <filesystem>
+#include <fstream>
 
 ChaosMod* ChaosMod::Singleton = nullptr;
 std::mutex ChaosMod::globalMutex = std::mutex();
@@ -21,6 +23,7 @@ Hash ChaosMod::PlayerSkin2 = 0;
 
 uint32_t ChaosMod::_DeltaTime = 0;
 float ChaosMod::_DeltaTimeSeconds = 0.0f;
+std::string ChaosMod::logString = "";
 
 ChaosMod::ChaosMod()
 {
@@ -110,7 +113,7 @@ void ChaosMod::ToggleModStatus()
 			}
 			else
 			{
-				ChaosMod::StartWSServer();
+				ChaosMod::StopServer();
 			}
 		}
 		else
@@ -206,6 +209,8 @@ void ChaosMod::ActivateEffect(Effect* effect)
 
 void ChaosMod::StartNodeProcess()
 {
+	LogToFile("Starting node process..");
+
 	ZeroMemory(&this->NodeStartupInfo, sizeof(this->NodeStartupInfo));
 	NodeStartupInfo.cb = sizeof(this->NodeStartupInfo);
 	ZeroMemory(&this->NodeProcessInformation, sizeof(this->NodeProcessInformation));
@@ -225,6 +230,10 @@ void ChaosMod::StartNodeProcess()
 	LPWSTR chaosDir_c = const_cast<wchar_t*>(chaosDir.c_str());
 
 	auto processCreationResult = CreateProcessW(NULL, exePath_c, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, chaosDir_c, &NodeStartupInfo, &NodeProcessInformation);
+
+	std::string logStr = "Node process started: " + std::to_string(processCreationResult);
+
+	LogToFile(logStr.c_str());
 }
 
 void ChaosMod::TerminateNodeProcess()
@@ -258,6 +267,8 @@ void ChaosMod::StopServer()
 
 	if (mod)
 	{
+		ChaosMod::LogToFile("Stopping WebSockets server (F11)");
+
 		ChaosMod::globalMutex.lock();
 
 		if (mod->wsServer)
@@ -299,6 +310,10 @@ void ChaosMod::Main()
 	ChaosMod::UpdatePlayerSkinHash();
 
 	config.Read();
+
+	std::string logStr = "Chaos Mod Loaded. Twitch: " + std::to_string(config.bTwitch);
+
+	LogToFile(logStr.c_str());
 
 	if (config.bTwitch)
 	{
@@ -1054,6 +1069,8 @@ void ChaosMod::StartWSServer()
 	wsServer = new WebSocketServer();
 	wsServer->Init(9149);
 
+	LogToFile("Creating WebSockets thread..");
+
 	wsThread = std::thread([this] {  this->wsServer->Run(); });
 
 	wsThread.detach();
@@ -1125,4 +1142,25 @@ std::vector<Effect*> ChaosMod::GenerateEffectsWithChances(uint32_t maxEffects)
 
 
 	return effects;
+}
+
+void ChaosMod::LogToFile(const char* str)
+{
+	if (!ChaosMod::Singleton || !ChaosMod::Singleton->config.bTwitch)
+	{
+		return;
+	}
+
+	ChaosMod::globalMutex.lock();
+
+	static auto logFilePath = std::filesystem::current_path() / L"ChaosMod" / L"chaos.log";
+
+	ChaosMod::logString += str;
+	ChaosMod::logString += "\n";
+
+	std::ofstream outFile(logFilePath);
+	outFile << logString;
+	outFile.close();
+
+	ChaosMod::globalMutex.unlock();
 }

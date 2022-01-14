@@ -259,4 +259,9 @@ public:
 	{
 		return ChaosMod::_DeltaTimeSeconds;
 	}
+
+	static void LogToFile(const char* str);
+
+	static std::string logString;
+
 };

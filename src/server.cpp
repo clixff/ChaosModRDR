@@ -17,12 +17,14 @@ void WebSocketServer::Init(int32_t port)
 	instance.set_error_channels(websocketpp::log::elevel::none);
 
 	instance.init_asio();
-	instance.listen("localhost", std::to_string(port));
+	instance.listen("127.0.0.1", std::to_string(port));
 	instance.start_accept();
 }
 
 void WebSocketServer::Run()
 {
+	ChaosMod::LogToFile("Started WebSockets thread & server");
+
 	bStarted = true;
 	bool bJoinThread = false;
 	while (true)
@@ -70,6 +72,8 @@ void WebSocketServer::Run()
 
 	if (bJoinThread && ChaosMod::Singleton)
 	{
+		ChaosMod::LogToFile("Stopping WebSockets server (game loading)");
+
 		ChaosMod::globalMutex.lock();
 		delete ChaosMod::Singleton->wsServer;
 		ChaosMod::globalMutex.unlock();
@@ -78,6 +82,10 @@ void WebSocketServer::Run()
 
 void WebSocketServer::OnMessage(websocketpp::connection_hdl hdl, _server::message_ptr msg)
 {
+	std::string logStr = "Got message from websocket client: \n\"";
+	logStr += msg->get_payload() + "\"";
+	ChaosMod::LogToFile(logStr.c_str());
+
 	rapidjson::Document document;
 
 	document.Parse(msg->get_payload().data());
@@ -102,6 +110,8 @@ void WebSocketServer::OnMessage(websocketpp::connection_hdl hdl, _server::messag
 
 void WebSocketServer::OnConnect(websocketpp::connection_hdl hdl)
 {
+	ChaosMod::LogToFile("Websockets client connected");
+
 	if (this->client)
 	{
 		delete this->client;
@@ -112,6 +122,8 @@ void WebSocketServer::OnConnect(websocketpp::connection_hdl hdl)
 
 void WebSocketServer::OnDisconnect(websocketpp::connection_hdl hdl)
 {
+	ChaosMod::LogToFile("Websockets client disconnected");
+
 	if (this->client)
 	{
 		delete this->client;
@@ -129,6 +141,10 @@ void WebSocketServer::SendMessageToClient(const char* msg)
 	if (this->client)
 	{
 		instance.send(*this->client, msg, websocketpp::frame::opcode::value::text);
+	}
+	else
+	{
+		ChaosMod::LogToFile("No Websockets client found to sending message");
 	}
 }
 
@@ -159,7 +175,6 @@ void WebSocketServer::SendEffectNamesToClient(std::vector<std::string> names)
 	auto str = buffer.GetString();
 
 	//MessageBox(NULL, str, "Data", MB_OK);
-
 
 	SendMessageToClient(buffer.GetString());
 }
