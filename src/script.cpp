@@ -819,7 +819,8 @@ void ChaosMod::InitEffects()
 		new EffectReviveDeadPeds(),
 		new EffectGravityGun(),
 		new EffectSpawnAngryTommy(),
-		new EffectDisableDeadEye()
+		new EffectDisableDeadEye(),
+		new EffectPartyTime()
 
 	};
 

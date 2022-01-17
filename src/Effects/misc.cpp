@@ -1049,7 +1049,8 @@ void EffectPigWeapons::OnTick()
 
 	static Hash unarmed = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_UNARMED");
 	static Hash pigSkin = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Pig_01");
-	LoadModel(pigSkin);
+
+	bool bModelLoaded = false;
 
 	uint32_t timeNow = GetTickCount();
 
@@ -1111,6 +1112,12 @@ void EffectPigWeapons::OnTick()
 		diff.y *= velocity;
 		diff.z *= velocity;
 
+		if (!bModelLoaded)
+		{
+			LoadModel(pigSkin);
+			bModelLoaded = true;
+		}
+
 		Ped pig = PED::CREATE_PED(pigSkin, pedCoord.x, pedCoord.y, pedCoord.z, ENTITY::GET_ENTITY_HEADING(ped), true, 0, 0, 0);
 		PED::SET_PED_VISIBLE(pig, true);
 		ENTITY::SET_ENTITY_INVINCIBLE(pig, true);
@@ -1133,7 +1140,10 @@ void EffectPigWeapons::OnTick()
 
 	}
 
-	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(pigSkin);
+	if (bModelLoaded)
+	{
+		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(pigSkin);
+	}
 }
 
 void IEffectGamespeed::OnActivate()

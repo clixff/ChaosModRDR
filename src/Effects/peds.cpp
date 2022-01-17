@@ -1,6 +1,7 @@
 #include "peds.h"
 #include "../script.h"
 #include "misc.h"
+#include "player.h"
 
 void SetPedOnMount(Ped ped, Ped mount, int seat)
 {
@@ -342,6 +343,22 @@ std::vector<Ped> GetNearbyPeds(int32_t Max)
 	}
 
 	return pedsOut;
+}
+
+void RemovePedFromVeh(Ped ped)
+{
+	if (PED::IS_PED_IN_ANY_VEHICLE(ped, true))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(ped, false);
+		Vector3 vec = ENTITY::GET_ENTITY_COORDS(veh, true, 0);
+
+		ENTITY::SET_ENTITY_COORDS(ped, vec.x, vec.y, vec.z + 2.0f, 0, 0, 0, 0);
+	}
+	else if (PED::IS_PED_ON_MOUNT(ped))
+	{
+		/** _REMOVE_PED_FROM_MOUNT */
+		invoke<Void>(0x5337B721C51883A9, ped, 0, 0);
+	}
 }
 
 void RemoveAllPedWeapons(Ped ped)
@@ -1433,3 +1450,98 @@ void EffectSpawnAngryTommy::OnActivate()
 	/** PCF_NoCriticalHits */
 	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 }
+
+void EffectPartyTime::OnActivate()
+{
+	peds.clear();
+	pedAnimNames.clear();
+}
+
+void EffectPartyTime::OnTick()
+{	
+	DisableAllMovements();
+
+	if (!TimerTick(1000))
+	{
+		return;
+	}
+
+	static char* animDict = (char*)"script_shows@cancandance@p1";
+	static std::vector <const char*> animNames = {
+		"cancandance_fem0",
+		"cancandance_fem1",
+		"cancandance_fem2",
+		"cancandance_fem3",
+		"cancandance_male"
+	};
+
+	STREAMING::REQUEST_ANIM_DICT(animDict);
+
+	while (!STREAMING::HAS_ANIM_DICT_LOADED(animDict))
+	{
+		WAIT(0);
+	}
+
+	auto nearbyPeds = GetNearbyPeds(50);
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	nearbyPeds.push_back(playerPed);
+
+	for (auto ped : nearbyPeds)
+	{
+		if (!PED::IS_PED_HUMAN(ped))
+		{
+			continue;
+		}
+
+		if (peds.contains(ped) && ENTITY::IS_ENTITY_PLAYING_ANIM(ped, animDict, pedAnimNames[ped], 1))
+		{
+			continue;
+		}
+
+		if (ped != playerPed && ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped))
+		{
+			int relationhips = PED::GET_RELATIONSHIP_BETWEEN_PEDS(ped, playerPed);
+
+			if (relationhips < 4)
+			{
+				continue;
+			}
+		}
+
+		RemovePedFromVeh(ped);
+
+		AI::CLEAR_PED_TASKS_IMMEDIATELY(ped, 0, true);
+
+		char* animName = (char*)(animNames[rand() % animNames.size()]);
+
+		pedAnimNames.emplace(ped, animName);
+
+		AI::TASK_PLAY_ANIM(ped, animDict, animName, 3.0f, -3.0f, -1, 1, 0, false, false, false, (Any*)"", 0);
+		//PED::SET_PED_KEEP_TASK(ped, true);
+		//PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(ped, true);
+
+		peds.insert(ped);
+	}
+
+	STREAMING::REMOVE_ANIM_DICT(animDict);
+}
+
+void EffectPartyTime::OnDeactivate()
+{
+	static char* animDict = (char*)"script_shows@cancandance@p1";
+
+	STREAMING::REMOVE_ANIM_DICT(animDict);
+
+	for (auto ped : peds)
+	{
+		char* animName = pedAnimNames[ped];
+		if (ENTITY::DOES_ENTITY_EXIST(ped) && ENTITY::IS_ENTITY_PLAYING_ANIM(ped, animDict, animName, 1))
+		{
+			AI::STOP_ANIM_TASK(ped, animDict, animName, 0);
+		}
+	}
+
+	peds.clear();
+	pedAnimNames.clear();
+}
+

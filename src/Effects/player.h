@@ -4,6 +4,8 @@
 
 void TeleportPlayerTo(float X, float Y, float Z);
 
+void DisableAllMovements();
+
 class EffectLaunchPlayerUp : public Effect
 {
 public:

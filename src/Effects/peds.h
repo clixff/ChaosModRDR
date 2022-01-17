@@ -3,6 +3,7 @@
 #include "effect.h"
 #include <vector>
 #include <set>
+#include <map>
 
 Ped SpawnPedAroundPlayer(Hash skinModel, bool bSetInVehicle = true, bool bSpawnHorseForPed = false);
 
@@ -571,8 +572,28 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectPartyTime : public Effect
+{
+public:
+	EffectPartyTime()
+	{
+		ID = "party_time";
+		name = "Party Time";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+	virtual void OnDeactivate() override;
+private:
+	std::set<Ped> peds;
+	std::map<Ped, char*> pedAnimNames;
+};
+
 
 std::vector<Ped> GetNearbyPeds(int32_t Max);
+void RemovePedFromVeh(Ped ped);
 
 void RemoveAllPedWeapons(Ped ped);
 
