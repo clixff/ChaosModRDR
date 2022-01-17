@@ -299,6 +299,11 @@ void EffectKidnapping::OnActivate()
 	}
 }
 
+void EffectKidnapping::OnTick()
+{
+	CONTROLS::DISABLE_CONTROL_ACTION(0, GET_HASH("INPUT_VEH_EXIT"), true);
+}
+
 void EffectSpawnHorse::OnActivate()
 {
 	Effect::OnActivate();
@@ -721,6 +726,12 @@ void EffectSkyrimIntro::OnActivate()
 
 	AI::TASK_VEHICLE_DRIVE_WANDER(cop, vehicle, 10000.0f, 0x400c0025);
 	PED::SET_PED_KEEP_TASK(cop, true);
+}
+
+void EffectSkyrimIntro::OnTick()
+{
+	CONTROLS::DISABLE_CONTROL_ACTION(0, GET_HASH("INPUT_VEH_EXIT"), true);
+	CAM::_0x90DA5BA5C2635416();
 }
 
 void EffectSpawnParrotCompanion::OnActivate()
@@ -1545,3 +1556,260 @@ void EffectPartyTime::OnDeactivate()
 	pedAnimNames.clear();
 }
 
+void EffectExplodeNearbyPeds::OnActivate()
+{
+	const static int max = 15;
+
+	auto peds = GetNearbyPeds(50);
+
+	int i = 0;
+
+	for (auto ped : peds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			Hash pedModel = ENTITY::GET_ENTITY_MODEL(ped);
+
+			/** IS_MODEL_A_HORSE */
+			bool bModelIsHorse = invoke<bool>(0x772A1969F649E902, pedModel);
+			if (bModelIsHorse)
+			{
+				continue;
+			}
+
+			Vector3 vec = ENTITY::GET_ENTITY_COORDS(ped, true, 0);
+
+			FIRE::ADD_EXPLOSION(vec.x, vec.y, vec.z, 27, 1.0f, true, false, 1.0f);
+
+			ENTITY::SET_ENTITY_HEALTH(ped, 0, 0);
+
+			i++;
+
+			if (i >= max)
+			{
+				return;
+			}
+		}
+	}
+}
+
+void EffectNearbyPedIsCompanion::OnActivate()
+{
+	auto nearbyPeds = GetNearbyPeds(50);
+
+	std::vector<Ped> peds;
+
+	for (auto ped : nearbyPeds)
+	{
+		Hash pedModel = ENTITY::GET_ENTITY_MODEL(ped);
+
+		/** IS_MODEL_A_HORSE */
+		bool bModelIsHorse = invoke<bool>(0x772A1969F649E902, pedModel);
+		bool bEntityIsBird = invoke<bool>(0xC346A546612C49A9, ped);
+
+		if (!bModelIsHorse && !bEntityIsBird && !ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped))
+		{
+			peds.push_back(ped);
+		}
+	}
+
+	if (!peds.size())
+	{
+		return;
+	}
+
+	Ped ped = peds[rand() % peds.size()];
+
+	AI::CLEAR_PED_TASKS_IMMEDIATELY(ped, 0, true);
+
+	MarkPedAsCompanion(ped);
+
+	//AI::TASK_FOLLOW_TO_OFFSET_OF_ENTITY(ped, PLAYER::PLAYER_PED_ID(), 0.0f, 0.0f, 0.0f, 4.5f, -1.0f, -1.0f, 0, 0, 0, 0, 0);
+
+	if (PED::IS_PED_HUMAN(ped))
+	{
+		static Hash weaponHash = GET_HASH("WEAPON_REPEATER_CARBINE");
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 9999, true, 0x2cd419dc);
+		WEAPON::SET_PED_AMMO(ped, weaponHash, 9999);
+		WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, true, 0, 0, 0);
+	}
+}
+
+void EffectEveryoneRagdollsWhenShot::OnActivate()
+{
+	peds.clear();
+}
+
+void EffectEveryoneRagdollsWhenShot::OnTick()
+{
+	if (TimerTick(500))
+	{
+		peds.clear();
+
+		auto nearbyPeds = GetNearbyPeds(50);
+
+		nearbyPeds.push_back(PLAYER::PLAYER_PED_ID());
+
+		for (auto ped : nearbyPeds)
+		{
+			peds.insert(ped);
+		}
+	}
+
+	for (auto ped : peds)
+	{
+		if (!ENTITY::DOES_ENTITY_EXIST(ped) || ENTITY::IS_ENTITY_DEAD(ped))
+		{
+			continue;
+		}
+
+		Vector3 vec;
+		bool bCoordValid = WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(ped, &vec);
+
+		if (bCoordValid)
+		{
+			PED::SET_PED_TO_RAGDOLL(ped, 5000, 5000, 0, true, true, false);
+		}
+	}
+}
+
+void EffectNearbyPedIsEnemy::OnActivate()
+{
+	auto nearbyPeds = GetNearbyPeds(50);
+
+	std::vector<Ped> peds;
+
+	for (auto ped : nearbyPeds)
+	{
+		if (PED::IS_PED_HUMAN(ped))
+		{
+			peds.push_back(ped);
+		}
+	}
+
+	if (!peds.size())
+	{
+		return;
+	}
+
+	Ped ped = peds[rand() % peds.size()];
+
+	if (PED::IS_PED_HUMAN(ped))
+	{
+		static Hash weaponHash = GET_HASH("WEAPON_REPEATER_CARBINE");
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 9999, true, 0x2cd419dc);
+		WEAPON::SET_PED_AMMO(ped, weaponHash, 9999);
+		WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, true, 0, 0, 0);
+	}
+
+	MarkPedAsEnemy(ped);
+
+	static Hash blipHash = GET_HASH("BLIP_STYLE_ENEMY");
+
+	/** BLIP_ADD_FOR_ENTITY */
+	Blip blip = RADAR::_0x23F74C2FDA6E7C61(blipHash, ped);
+}
+
+void EffectExplosiveCombat::OnActivate()
+{
+	peds.clear();
+}
+
+void EffectExplosiveCombat::OnTick()
+{
+	if (TimerTick(500))
+	{
+		peds.clear();
+
+		auto nearbyPeds = GetNearbyPeds(50);
+
+		nearbyPeds.push_back(PLAYER::PLAYER_PED_ID());
+
+		for (auto ped : nearbyPeds)
+		{
+			peds.insert(ped);
+		}
+	}
+
+	for (auto ped : peds)
+	{
+		if (!ENTITY::DOES_ENTITY_EXIST(ped) || ENTITY::IS_ENTITY_DEAD(ped))
+		{
+			continue;
+		}
+
+		Vector3 vec;
+		bool bCoordValid = WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(ped, &vec);
+
+		static Hash unarmed = GET_HASH("WEAPON_UNARMED");
+		Hash weaponHash = 0;
+
+		if (bCoordValid && WEAPON::GET_CURRENT_PED_WEAPON(ped, &weaponHash, 0, 0, 0) && weaponHash == unarmed)
+		{
+			FIRE::ADD_EXPLOSION(vec.x, vec.y, vec.z, 27, 1.0f, true, false, 1.0f);
+		}
+	}
+}
+
+void EffectODriscolls::OnActivate()
+{
+	static Hash model = GET_HASH("g_m_m_uniduster_01");
+	static Hash horseModel = GET_HASH("A_C_Horse_Arabian_Black");
+
+	Ped ped1 = SpawnPedAroundPlayer(model, false, false);
+	Ped ped2 = SpawnPedAroundPlayer(model, false, false);
+
+	std::vector<Ped> peds = {
+		ped1, ped2
+	};
+
+	Ped mount = SpawnPedAroundPlayer(horseModel, false, false);
+	SetPedOnMount(ped1, mount, -1);
+
+	for (auto ped : peds)
+	{
+		static Hash weaponHash = GET_HASH("WEAPON_REPEATER_CARBINE");
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 9999, true, 0x2cd419dc);
+		WEAPON::SET_PED_AMMO(ped, weaponHash, 9999);
+		WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, true, 0, 0, 0);
+		/** Set outfit */
+		invoke<Void>(0x77FF8D35EEC6BBC4, ped, rand() % 184, false);
+
+		ENTITY::SET_ENTITY_MAX_HEALTH(ped, 300);
+		ENTITY::SET_ENTITY_HEALTH(ped, 300, 0);
+
+		/** PCF_NoCriticalHits */
+		PED::SET_PED_CONFIG_FLAG(ped, 263, true);
+
+		MarkPedAsEnemy(ped);
+
+	}
+}
+
+void EffectBanditoKidnapsPlayer::OnActivate()
+{
+	static Hash pedModel = GAMEPLAY::GET_HASH_KEY((char*)"G_M_M_UNIBANDITOS_01");
+	static Hash donkeyModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Donkey_01");
+
+	Ped donkey = SpawnPedAroundPlayer(donkeyModel, false, false);
+	Ped ped = SpawnPedAroundPlayer(pedModel, false, false);
+
+	SetPedOnMount(ped, donkey, -1);
+
+	MarkPedAsEnemy(ped);
+
+	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_LASSO");
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 100, 1, 0x2cd419dc);
+	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, 1, 0, 0, 0);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	/** TASK_LASSO_PED */
+	invoke<Void>(0xC716EB2BD16370A3, ped, PLAYER::PLAYER_PED_ID());
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
+
+	/** Set outfit */
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 0, false);
+}

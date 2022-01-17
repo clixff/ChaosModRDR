@@ -580,6 +580,52 @@ public:
 	virtual void OnDeactivate() override;
 };
 
+class EffectGiveEveryoneRifle : public Effect
+{
+public:
+	EffectGiveEveryoneRifle()
+	{
+		ID = "give_everyone_rifle";
+		name = "Give Everyone A Rifle";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectTimelapse : public Effect
+{
+public:
+	EffectTimelapse()
+	{
+		ID = "timelapse";
+		name = "Timelapse";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+private:
+	float totalSeconds = 0;
+};
+
+class EffectNoHUD : public Effect
+{
+public:
+	EffectNoHUD()
+	{
+		ID = "no_hud";
+		name = "No HUD";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnTick() override;
+};
+
+/** Meta */
+
 class MetaEffectTotalChaos : public MetaEffect
 {
 public:
@@ -591,6 +637,60 @@ public:
 	}
 };
 
+class EffectInsaneGravity : public Effect
+{
+public:
+	EffectInsaneGravity()
+	{
+		ID = "insane_gravity";
+		name = "Insane Graivty";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+private:
+
+	std::set<Entity> entities;
+};
+
+class EffectUpsideDownCamera : public Effect
+{
+public:
+	EffectUpsideDownCamera()
+	{
+		ID = "upside_down_camera";
+		name = "Upside Down Camera";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+	virtual void OnTick() override;
+private:
+	Camera cam;
+};
+
+
+class EffectOneHitKO : public Effect
+{
+public:
+	EffectOneHitKO()
+	{
+		ID = "one_hit_ko";
+		name = "One Hit KO";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+	virtual void OnDeactivate() override;
+private:
+	std::set<Ped> peds;
+};
 
 std::vector<Entity> GetNearbyProps(int32_t Max);
 

@@ -1532,3 +1532,56 @@ void EffectTeleportToBlackwater::OnActivate()
 {
 	TeleportPlayerTo(-800.0f, -1291.2f, 44.0f);
 }
+
+void EffectFirstPerson::OnTick()
+{
+	CAM::_0x90DA5BA5C2635416();
+}
+
+void EffectTopDownCamera::OnActivate()
+{
+	this->cam = CAM::CREATE_CAM((char*)"DEFAULT_SCRIPTED_CAMERA", 1);
+	CAM::RENDER_SCRIPT_CAMS(true, true, 500, 1, 1, 1);
+
+	/** Should remove reticle */
+	UI::_0x4CC5F2FC1332577F(GET_HASH("HUD_CTX_IN_FAST_TRAVEL_MENU"));
+}
+
+void EffectTopDownCamera::OnTick()
+{
+	CAM::SET_CAM_ACTIVE(this->cam, true);
+
+	Vector3 camCoord = CAM::GET_GAMEPLAY_CAM_COORD();
+	Vector3 camRotation = CAM::GET_GAMEPLAY_CAM_ROT(2);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Vector3 vec = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+
+	vec.z += 10.0f;
+
+	CAM::SET_CAM_ROT(cam, -90.0f, 0.0f, 0.0f, 2);
+	CAM::SET_CAM_COORD(cam, vec.x, vec.y, vec.z);
+	CAM::SET_CAM_AFFECTS_AIMING(cam, false);
+}
+
+void EffectTopDownCamera::OnDeactivate()
+{
+	CAM::SET_CAM_ACTIVE(this->cam, false);
+	CAM::RENDER_SCRIPT_CAMS(false, true, 700, 1, 1, 1);
+	CAM::SET_CAM_AFFECTS_AIMING(cam, true);
+	CAM::DESTROY_CAM(this->cam, true);
+	this->cam = 0;
+	UI::_0x8BC7C1F929D07BF3(GET_HASH("HUD_CTX_IN_FAST_TRAVEL_MENU"));
+}
+
+void EffectAgitateHorse::OnActivate()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (PED::IS_PED_ON_MOUNT(playerPed))
+	{
+		Ped mount = PED::GET_MOUNT(playerPed);
+		PED::_0xBAE08F00021BFFB2(mount, true);
+	}
+}

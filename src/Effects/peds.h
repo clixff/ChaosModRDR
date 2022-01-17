@@ -66,10 +66,12 @@ public:
 	{
 		ID = "kidnapping";
 		name = "Pig Farmers Kidnap Player";
-		bTimed = false;
+		bTimed = true;
+		EffectDuration = 15;
 	}
 
 	virtual void OnActivate() override;
+	virtual void OnTick() override;
 };
 
 class EffectSpawnHorse : public Effect
@@ -262,10 +264,12 @@ public:
 	{
 		ID = "skyrim_intro";
 		name = "You're Finally Awake";
-		bTimed = false;
+		bTimed = true;
+		EffectDuration = 20;
 	}
 
 	virtual void OnActivate() override;
+	virtual void OnTick() override;
 };
 
 class EffectSpawnParrotCompanion : public Effect
@@ -591,6 +595,104 @@ private:
 	std::map<Ped, char*> pedAnimNames;
 };
 
+class EffectExplodeNearbyPeds : public Effect
+{
+public:
+	EffectExplodeNearbyPeds()
+	{
+		ID = "explode_nearby_peds";
+		name = "Explode Nearby Peds";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectNearbyPedIsCompanion : public Effect
+{
+public:
+	EffectNearbyPedIsCompanion()
+	{
+		ID = "nearby_ped_is_companion";
+		name = "Nearby Ped Is Player's Companion";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectEveryoneRagdollsWhenShot : public Effect
+{
+public:
+	EffectEveryoneRagdollsWhenShot()
+	{
+		ID = "everyone_ragdolls_when_shot";
+		name = "Everyone Ragdolls When Shot";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+private:
+	std::set<Ped> peds;
+};
+
+class EffectNearbyPedIsEnemy : public Effect
+{
+public:
+	EffectNearbyPedIsEnemy()
+	{
+		ID = "nearby_ped_is_companion";
+		name = "Nearby Ped Is Player's Enemy";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectExplosiveCombat : public Effect
+{
+public:
+	EffectExplosiveCombat()
+	{
+		ID = "explosive_combat";
+		name = "Explosive Combat";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+private:
+	std::set<Ped> peds;
+};
+
+class EffectODriscolls : public Effect
+{
+public:
+	EffectODriscolls()
+	{
+		ID = "spawn_odriscolls";
+		name = "Spawn O'Driscoll Boys";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectBanditoKidnapsPlayer : public Effect
+{
+public:
+	EffectBanditoKidnapsPlayer()
+	{
+		ID = "bandito_kidnaps";
+		name = "Bandito Kidnaps Player";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
 
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 void RemovePedFromVeh(Ped ped);

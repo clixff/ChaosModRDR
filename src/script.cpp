@@ -923,7 +923,23 @@ void ChaosMod::InitEffects()
 		new EffectSetRandomVelocity(),
 		new EffectTeleportToFortWallace(),
 		new EffectTeleportToFortMercer(),
-		new EffectTeleportToBlackwater()
+		new EffectTeleportToBlackwater(),
+		new EffectExplodeNearbyPeds(),
+		new EffectNearbyPedIsCompanion(),
+		new EffectEveryoneRagdollsWhenShot(),
+		new EffectNearbyPedIsEnemy(),
+		new EffectExplosiveCombat(),
+		new EffectGiveEveryoneRifle(),
+		new EffectTimelapse(),
+		new EffectNoHUD(),
+		new EffectFirstPerson(),
+		new EffectTopDownCamera(),
+		new EffectAgitateHorse(),
+		new EffectODriscolls(),
+		new EffectInsaneGravity(),
+		new EffectUpsideDownCamera(),
+		new EffectOneHitKO(),
+		new EffectBanditoKidnapsPlayer()
 	};
 
 	EffectsMap.clear();

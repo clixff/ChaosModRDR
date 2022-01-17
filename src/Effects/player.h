@@ -1099,3 +1099,50 @@ public:
 
 	virtual void OnActivate() override;
 };
+
+
+class EffectFirstPerson : public Effect
+{
+public:
+	EffectFirstPerson()
+	{
+		ID = "first_person";
+		name = "First Person";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnTick() override;
+};
+
+
+class EffectTopDownCamera : public Effect
+{
+public:
+	EffectTopDownCamera()
+	{
+		ID = "top_down_camera";
+		name = "Top Down Camera";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+	virtual void OnDeactivate() override;
+private:
+	Camera cam;
+};
+
+class EffectAgitateHorse : public Effect
+{
+public:
+	EffectAgitateHorse()
+	{
+		ID = "agitate_horse";
+		name = "Agitate Player's Horse";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};

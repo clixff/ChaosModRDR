@@ -1226,3 +1226,173 @@ void EffectRainbow::OnDeactivate()
 	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
 }
 
+void EffectGiveEveryoneRifle::OnActivate()
+{
+	auto nearbyPeds = GetNearbyPeds(50);
+
+	nearbyPeds.push_back(PLAYER::PLAYER_PED_ID());
+
+	for (auto ped : nearbyPeds)
+	{
+		if (PED::IS_PED_HUMAN(ped))
+		{
+			static Hash weaponHash = GET_HASH("WEAPON_REPEATER_CARBINE");
+			WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 100, true, 0x2cd419dc);
+			WEAPON::SET_PED_AMMO(ped, weaponHash, 100);
+			WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, true, 0, 0, 0);
+		}
+	}
+}
+
+void EffectTimelapse::OnActivate()
+{
+	int hours = TIME::GET_CLOCK_HOURS();
+	int minutes = TIME::GET_CLOCK_MINUTES();
+	int seconds = TIME::GET_CLOCK_SECONDS();
+
+	totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+}
+
+void EffectTimelapse::OnTick()
+{
+	totalSeconds += ChaosMod::GetDeltaTimeSeconds() * 10000.0f;
+
+	static float maxSeconds = float(24 * 60 * 60);
+
+	totalSeconds = fmod(totalSeconds, maxSeconds);
+
+	int totalSecondsInt = int(totalSeconds);
+
+	static int secondsInMinute = 60;
+	static int secondsInHour = 60 * 60;
+
+	int hours = totalSecondsInt / secondsInHour;
+	int minutes = (totalSecondsInt % secondsInHour) / secondsInMinute;
+	int seconds = (totalSecondsInt % secondsInHour) % secondsInMinute;
+
+	TIME::SET_CLOCK_TIME(hours, minutes, seconds);
+}
+
+void EffectNoHUD::OnTick()
+{
+	UI::HIDE_HUD_AND_RADAR_THIS_FRAME();
+}
+
+void EffectInsaneGravity::OnActivate()
+{
+	entities.clear();
+}
+
+void EffectInsaneGravity::OnTick()
+{
+	if (TimerTick(1000))
+	{
+		entities.clear();
+
+		auto peds = GetNearbyPeds(50);
+		Ped playerPed = PLAYER::PLAYER_PED_ID();
+		peds.push_back(playerPed);
+		auto vehs = GetNearbyVehs(20);
+		auto props = GetNearbyProps(20);
+
+		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, false))
+		{
+			vehs.push_back(PED::GET_VEHICLE_PED_IS_IN(playerPed, false));
+		}
+
+		for (auto ped : peds)
+		{
+			PED::SET_PED_GRAVITY(ped, true);
+			PED::SET_PED_TO_RAGDOLL(ped, 5000, 5000, 0, true, true, false);
+			entities.insert(ped);
+		}
+
+		for (auto veh : vehs)
+		{
+			entities.insert(veh);
+		}
+
+		for (auto prop : props)
+		{
+			entities.insert(prop);
+		}
+	}
+
+	for (auto entity : entities)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(entity))
+		{
+			ENTITY::SET_ENTITY_DYNAMIC(entity, true);
+			ENTITY::SET_ENTITY_HAS_GRAVITY(entity, true);
+			ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entity, 0, 0.0f, 0.0f, -200.0f, false, false, true, false);
+		}
+	}
+}
+
+void EffectUpsideDownCamera::OnActivate()
+{
+	this->cam = CAM::CREATE_CAM((char*)"DEFAULT_SCRIPTED_CAMERA", 1);
+	CAM::RENDER_SCRIPT_CAMS(true, true, 500, 1, 1, 1);
+}
+
+void EffectUpsideDownCamera::OnDeactivate()
+{
+	CAM::SET_CAM_ACTIVE(this->cam, false);
+	CAM::RENDER_SCRIPT_CAMS(false, true, 700, 1, 1, 1);
+	CAM::DESTROY_CAM(this->cam, true);
+	this->cam = 0;
+}
+
+void EffectUpsideDownCamera::OnTick()
+{
+	CAM::SET_CAM_ACTIVE(this->cam, true);
+
+	Vector3 camCoord = CAM::GET_GAMEPLAY_CAM_COORD();
+	Vector3 camRotation = CAM::GET_GAMEPLAY_CAM_ROT(2);
+	camRotation.y = 180.0f;
+	camRotation.x = 0.0f;
+	float fov = CAM::GET_GAMEPLAY_CAM_FOV();
+	CAM::SET_CAM_PARAMS(this->cam, camCoord.x, camCoord.y, camCoord.z, camRotation.x, camRotation.y, camRotation.z, fov, 0, 0, 2, 0, 0, 0);
+}
+
+void EffectOneHitKO::OnActivate()
+{
+	peds.clear();
+}
+
+void EffectOneHitKO::OnTick()
+{
+	if (TimerTick(500))
+	{
+		auto nearbyPeds = GetNearbyPeds(50);
+		nearbyPeds.push_back(PLAYER::PLAYER_PED_ID());
+
+		for (auto ped : nearbyPeds)
+		{
+			if (!peds.contains(ped))
+			{
+				peds.insert(ped);
+			}
+
+			if (!PED::IS_PED_DEAD_OR_DYING(ped, 1))
+			{
+				ENTITY::SET_ENTITY_HEALTH(ped, 1, 0);
+			}
+		}
+	}
+}
+
+void EffectOneHitKO::OnDeactivate()
+{
+	for (auto ped : peds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped) && !ENTITY::IS_ENTITY_DEAD(ped))
+		{
+			int maxHP = ENTITY::GET_ENTITY_MAX_HEALTH(ped, 1);
+
+			ENTITY::SET_ENTITY_HEALTH(ped, maxHP, 1);
+		}
+	}
+
+	peds.clear();
+}
