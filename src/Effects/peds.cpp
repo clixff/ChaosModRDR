@@ -1782,7 +1782,6 @@ void EffectODriscolls::OnActivate()
 		PED::SET_PED_CONFIG_FLAG(ped, 263, true);
 
 		MarkPedAsEnemy(ped);
-
 	}
 }
 

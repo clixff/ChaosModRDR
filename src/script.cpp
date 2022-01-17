@@ -437,12 +437,21 @@ void ChaosMod::Update()
 			}
 			else
 			{
-				Effect* effect = GenerateEffectsWithChances(1)[0];
+				int maxEffects = 1;
+				if (activeMeta && activeMeta->ID == "combo_time")
+				{
+					maxEffects = 4;
+				}
 
-				if (effect)
+				auto effects = GenerateEffectsWithChances(maxEffects);
+				for (auto* effect : effects)
 				{
 					ActivateEffect(effect);
-					prevActivatedEffect = effect;
+				}
+
+				if (effects[0])
+				{
+					prevActivatedEffect = effects[0];
 				}
 			}
 		}
@@ -487,6 +496,15 @@ void ChaosMod::Update()
 			prevActivatedEffect = effect;
 
 			pollEffects.clear();
+
+			if (activeMeta && activeMeta->ID == "combo_time")
+			{
+				auto comboEffects = GenerateEffectsWithChances(3);
+				for (auto* effect : comboEffects)
+				{
+					ActivateEffect(effect);
+				}
+			}
 		}
 
 		twitchWinnerID = -1;
@@ -950,7 +968,8 @@ void ChaosMod::InitEffects()
 	}
 
 	AllMetaEffects = {
-		new MetaEffectTotalChaos()
+		new MetaEffectTotalChaos(),
+		new MetaEffectComboTime()
 	};
 
 	MetaEffectsMap.clear();

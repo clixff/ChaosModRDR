@@ -624,19 +624,6 @@ public:
 	virtual void OnTick() override;
 };
 
-/** Meta */
-
-class MetaEffectTotalChaos : public MetaEffect
-{
-public:
-	MetaEffectTotalChaos()
-	{
-		ID = "total_chaos";
-		name = "Total Chaos";
-		EffectDuration = 180;
-	}
-};
-
 class EffectInsaneGravity : public Effect
 {
 public:
@@ -690,6 +677,31 @@ public:
 	virtual void OnDeactivate() override;
 private:
 	std::set<Ped> peds;
+};
+
+/** Meta */
+
+class MetaEffectTotalChaos : public MetaEffect
+{
+public:
+	MetaEffectTotalChaos()
+	{
+		ID = "total_chaos";
+		name = "Total Chaos";
+		EffectDuration = 180;
+	}
+};
+
+
+class MetaEffectComboTime : public MetaEffect
+{
+public:
+	MetaEffectComboTime()
+	{
+		ID = "combo_time";
+		name = "Combo Time";
+		EffectDuration = 180;
+	}
 };
 
 std::vector<Entity> GetNearbyProps(int32_t Max);
