@@ -1484,3 +1484,51 @@ void EffectDisableDeadEye::OnDeactivate()
 {
 	PLAYER::_0x95EE1DEE1DCD9070(PLAYER::PLAYER_ID(), true);
 }
+
+void EffectSetRandomVelocity::OnActivate()
+{
+	Entity entity = PLAYER::PLAYER_PED_ID();
+
+	bool bInVehicle = false;
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(entity, true))
+	{
+		entity = PED::GET_VEHICLE_PED_IS_IN(entity, false);
+		bInVehicle = true;
+	}
+	else if (PED::IS_PED_ON_MOUNT(entity))
+	{
+		entity = PED::GET_MOUNT(entity);
+	}
+
+	if (!bInVehicle)
+	{
+		PED::SET_PED_TO_RAGDOLL(entity, 2000, 2000, 0, true, true, false);
+	}
+
+	Vector3 vel;
+
+	vel.x = float((rand() % 15) + 5);
+	vel.y = float((rand() % 15) + 5);
+	vel.z = float((rand() % 10) + 0);
+
+	vel.x *= rand() % 2 ? -1 : 1;
+	vel.y *= rand() % 2 ? -1 : 1;
+
+	ENTITY::SET_ENTITY_VELOCITY(entity, vel.x, vel.y, vel.y);
+}
+
+void EffectTeleportToFortWallace::OnActivate()
+{
+	TeleportPlayerTo(357.0f, 1490.0f, 180);
+}
+
+void EffectTeleportToFortMercer::OnActivate()
+{
+	TeleportPlayerTo(-4206.0f, -3450.0f, 38.0f);
+}
+
+void EffectTeleportToBlackwater::OnActivate()
+{
+	TeleportPlayerTo(-800.0f, -1291.2f, 44.0f);
+}

@@ -12,6 +12,30 @@
 
 #define M_PI	3.14159265358979323846
 
+struct LinearColor
+{
+	LinearColor() {};
+	LinearColor(uint8_t _R, uint8_t _G, uint8_t _B, uint8_t _A)
+	{
+		R = _R;
+		G = _G;
+		B = _B;
+		A = _A;
+	};
+
+	uint8_t R = 0;
+	uint8_t G = 0;
+	uint8_t B = 0;
+	uint8_t A = 255;
+};
+
+
+template <typename T>
+inline T Lerp(T min, T max, double alpha)
+{
+	return min + (T)(double(max - min) * alpha);
+}
+
 struct NearbyEntities
 {
 	int32_t size;
@@ -58,6 +82,21 @@ public:
 	 */
 	bool TimerTick(uint32_t maxMs);
 
+	bool bIsMeta = false;
+
 private:
 	uint32_t internalTimer = 0;
+};
+
+class MetaEffect : public Effect
+{
+public:
+	MetaEffect()
+	{
+		bIsMeta = true;
+		bTimed = true;
+	}
+
+public:
+	bool bEnabled = true;
 };

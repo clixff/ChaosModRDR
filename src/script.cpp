@@ -105,6 +105,8 @@ void ChaosMod::ToggleModStatus()
 
 		ResetEffectsTimeout();
 
+		ResetMetaTimer();
+
 		if (bPrevTwitchStatus != config.bTwitch)
 		{
 			if (config.bTwitch)
@@ -125,10 +127,6 @@ void ChaosMod::ToggleModStatus()
 		}
 
 		std::string effectsNumStr = "~q~Loaded ~COLOR_GOLD~" + std::to_string(AllEffects.size()) + "~q~ effects";
-
-		ChaosMod::pedsSet.clear();
-		ChaosMod::vehsSet.clear();
-		ChaosMod::propsSet.clear();
 
 		ShowNotification2("~COLOR_GREEN~Chaos Mod Enabled", effectsNumStr.c_str(), 3500, "scoretimer_textures", "scoretimer_generic_tick", LinearColor(77, 170, 104, 255));
 	}
@@ -175,14 +173,16 @@ void ChaosMod::ToggleModStatus()
 			}
 		}
 
-		ChaosMod::pedsSet.clear();
-		ChaosMod::vehsSet.clear();
-		ChaosMod::propsSet.clear();
-
 		ChaosMod::ResetPlayerSkin();
 	}
 
 	AUDIO::PLAY_SOUND_FRONTEND((char*)"SELECT", (char*)"HUD_SHOP_SOUNDSET", true, 0);
+	
+	ChaosMod::pedsSet.clear();
+	ChaosMod::vehsSet.clear();
+	ChaosMod::propsSet.clear();
+
+	activeMeta = nullptr;
 
 	ChaosMod::globalMutex.unlock();
 }
@@ -204,7 +204,14 @@ void ChaosMod::ActivateEffect(Effect* effect)
 
 	effect->OnActivate();
 
-	this->activeEffects.push_back(effect);
+	if (effect->bIsMeta)
+	{
+		this->activeEffects.insert(activeEffects.begin(), effect);
+	}
+	else
+	{
+		this->activeEffects.push_back(effect);
+	}
 }
 
 void ChaosMod::StartNodeProcess()
@@ -364,6 +371,11 @@ void ChaosMod::Update()
 				effect->OnDeactivate();
 				activeEffects.erase(activeEffects.begin() + i);
 				i--;
+
+				if (effect->bIsMeta)
+				{
+					ResetMetaTimer();
+				}
 			}
 			else
 			{
@@ -432,6 +444,34 @@ void ChaosMod::Update()
 					ActivateEffect(effect);
 					prevActivatedEffect = effect;
 				}
+			}
+		}
+	}
+
+	if (MetaActivationTime != 0 && GetTickCount() >= MetaActivationTime)
+	{
+		MetaActivationTime = 0;
+
+		std::vector<MetaEffect*> enabledMetaEffects;
+
+		for (auto* effect : AllMetaEffects)
+		{
+			if (effect->bEnabled)
+			{
+				enabledMetaEffects.push_back(effect);
+			}
+		}
+
+		if (enabledMetaEffects.size() != 0)
+		{
+			MetaEffect* effect = enabledMetaEffects[rand() % enabledMetaEffects.size()];
+
+			ActivateEffect(effect);
+			activeMeta = effect;
+
+			if (effect->ID == "total_chaos" && !bVotingEnabled)
+			{
+				ResetEffectsTimeout();
 			}
 		}
 	}
@@ -551,8 +591,22 @@ void ChaosMod::DrawUI()
 	if (effectTimeoutValue < 0.0f) effectTimeoutValue = 0.0f;
 	else if (effectTimeoutValue > 1.0f) effectTimeoutValue = 1.0f;
 
+	LinearColor color(143, 6, 6, 255);
+
+	if (activeMeta && activeMeta->ID == "total_chaos")
+	{
+		LinearColor startColor(143, 6, 6, 240);
+		LinearColor endColor(249, 200, 4, 240);
+
+		float alpha = ((sin(metaEffectColorSinX) + 1.0f) / 2.0f);
+
+		color.R = Lerp(startColor.R, endColor.R, alpha);
+		color.G = Lerp(startColor.G, endColor.G, alpha);
+		color.B = Lerp(startColor.B, endColor.B, alpha);
+	}
+
 	/** Draw progress bar foreground */
-	GRAPHICS::DRAW_RECT(effectTimeoutValue / 2.0f, ProgressBarHeight / 2.0f, effectTimeoutValue, ProgressBarHeight, 143, 6, 6, 255, 0, 0);
+	GRAPHICS::DRAW_RECT(effectTimeoutValue / 2.0f, ProgressBarHeight / 2.0f, effectTimeoutValue, ProgressBarHeight, color.R, color.G, color.B, color.A, 0, 0);
 
 	for (int32_t i = 0; i < activeEffects.size(); i++)
 	{
@@ -602,7 +656,17 @@ void ChaosMod::ResetEffectsTimeout()
 	bVotingEnabled = false;
 
 	timeoutStartTime = GetTickCount();
-	timeoutEndTime = timeoutStartTime + (effectsInterval * 1000);
+
+	int _effectsInterval = effectsInterval;
+
+	bool bTotalChaos = activeMeta && activeMeta->ID == "total_chaos";
+
+	if (bTotalChaos)
+	{
+		_effectsInterval = 15;
+	}
+
+	timeoutEndTime = timeoutStartTime + (_effectsInterval * 1000);
 
 	int _effectsVoteTime = 0;
 
@@ -612,7 +676,12 @@ void ChaosMod::ResetEffectsTimeout()
 	}
 	else
 	{
-		_effectsVoteTime = effectsInterval / 2;
+		_effectsVoteTime = _effectsInterval / 2;
+	}
+
+	if (bTotalChaos)
+	{
+		_effectsVoteTime = _effectsInterval - 2;
 	}
 
 	timeoutVotingStartTime = timeoutEndTime - (_effectsVoteTime * 1000);
@@ -639,11 +708,41 @@ void ChaosMod::DrawEffectInUI(Effect* effect, int32_t index)
 	}
 
 	UI::SET_TEXT_SCALE(0.0f, 0.35f);
-	UI::SET_TEXT_COLOR_RGBA(255, 255, 255, 240);
+
+	if (effect->bIsMeta)
+	{
+		LinearColor startColor(239, 86, 86, 240);
+
+		LinearColor endColor(249, 200, 4, 240);
+
+		metaEffectColorSinX += ChaosMod::GetDeltaTimeSeconds() * 5.0f;
+
+		float alpha = ((sin(metaEffectColorSinX) + 1.0f) / 2.0f);
+
+		LinearColor color;
+		
+		color.R = Lerp(startColor.R, endColor.R, alpha);
+		color.G = Lerp(startColor.G, endColor.G, alpha);
+		color.B = Lerp(startColor.B, endColor.B, alpha);
+		
+		UI::SET_TEXT_COLOR_RGBA(color.R, color.G, color.B, 240);
+	}
+	else
+	{
+		UI::SET_TEXT_COLOR_RGBA(255, 255, 255, 240);
+	}
+
 	UI::SET_TEXT_CENTRE(1);
 	UI::SET_TEXT_DROPSHADOW(1, 0, 0, 0, 255);
 
-	std::string effectName = "<font face='$title'>" + effect->name + "</font>";
+	std::string effectName = "<font face='$title'>";
+	
+	if (effect->bIsMeta)
+	{
+		effectName += "[META] ";
+	}
+	
+	effectName += effect->name + "</font>";
 		
 	char* varString = GAMEPLAY::CREATE_STRING(10, (char*)"LITERAL_STRING", (char*)effectName.c_str());
 
@@ -820,8 +919,11 @@ void ChaosMod::InitEffects()
 		new EffectGravityGun(),
 		new EffectSpawnAngryTommy(),
 		new EffectDisableDeadEye(),
-		new EffectPartyTime()
-
+		new EffectPartyTime(),
+		new EffectSetRandomVelocity(),
+		new EffectTeleportToFortWallace(),
+		new EffectTeleportToFortMercer(),
+		new EffectTeleportToBlackwater()
 	};
 
 	EffectsMap.clear();
@@ -829,6 +931,17 @@ void ChaosMod::InitEffects()
 	for (auto* effect : AllEffects)
 	{
 		EffectsMap.emplace(effect->ID, effect);
+	}
+
+	AllMetaEffects = {
+		new MetaEffectTotalChaos()
+	};
+
+	MetaEffectsMap.clear();
+
+	for (auto* effect : AllMetaEffects)
+	{
+		MetaEffectsMap.emplace(effect->ID, effect);
 	}
 }
 
@@ -1164,4 +1277,19 @@ void ChaosMod::LogToFile(const char* str)
 	outFile.close();
 
 	ChaosMod::globalMutex.unlock();
+}
+
+void ChaosMod::ResetMetaTimer()
+{
+	if (config.metaInterval == 0)
+	{
+		MetaActivationTime = 0;
+	}
+	else
+	{
+		MetaActivationTime = GetTickCount() + (config.metaInterval * 1000);
+	}
+
+	activeMeta = nullptr;
+	metaEffectColorSinX = 0.0f;
 }

@@ -27,6 +27,7 @@ public:
 
 	uint32_t intervalTime = 60;
 	uint32_t votingTime = 30;
+	uint32_t metaInterval = 900;
 
 	bool bTwitch = false;
 

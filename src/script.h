@@ -28,24 +28,6 @@ struct Vector2
 	float Y = 0.0f;
 };
 
-
-struct LinearColor
-{
-	LinearColor() {};
-	LinearColor(uint8_t _R, uint8_t _G, uint8_t _B, uint8_t _A)
-	{
-		R = _R;
-		G = _G;
-		B = _B;
-		A = _A;
-	};
-
-	uint8_t R = 0;
-	uint8_t G = 0;
-	uint8_t B = 0;
-	uint8_t A = 255;
-};
-
 struct KeyState
 {
 	uint32_t time = 0;
@@ -264,4 +246,14 @@ public:
 
 	static std::string logString;
 
+public:
+	MetaEffect* activeMeta = nullptr;
+	uint32_t MetaActivationTime = 0;
+	std::vector<MetaEffect*> AllMetaEffects;
+
+	std::map<std::string, MetaEffect*> MetaEffectsMap;
+
+	void ResetMetaTimer();
+
+	float metaEffectColorSinX = 0.0f;
 };

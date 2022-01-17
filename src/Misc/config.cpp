@@ -68,6 +68,11 @@ void Config::Read()
 		bTwitch = document["twitch"].GetBool();
 	}
 
+	if (document.HasMember("metaInterval"))
+	{
+		metaInterval = document["metaInterval"].GetUint();
+	}
+
 	if (!document.HasMember("effects"))
 	{
 		return;
@@ -130,8 +135,36 @@ void Config::Read()
 				effect->EffectDuration = configEffect.duration;
 			}
 		}
-		
 	}
+	
+	if (document.HasMember("meta"))
+	{
+		auto metaList = document["meta"].GetArray();
+
+		for (auto& meta : metaList)
+		{
+			ConfigEffect configMetaEffect;
+
+			if (!meta.IsObject() || !meta.HasMember("id"))
+			{
+				continue;
+			}
+
+			configMetaEffect.id = meta["id"].GetString();
+			configMetaEffect.name = meta["name"].GetString();
+			configMetaEffect.bEnabled = meta["enabled"].GetBool();
+			configMetaEffect.duration = meta["duration"].GetUint();
+
+			auto* metaEffect = chaosMod->MetaEffectsMap[configMetaEffect.id];
+			if (metaEffect)
+			{
+				metaEffect->name = configMetaEffect.name;
+				metaEffect->bEnabled = configMetaEffect.bEnabled;
+				metaEffect->EffectDuration = configMetaEffect.duration;
+			}
+		}
+	}
+
 }
 
 std::filesystem::path Config::GetFilePath()

@@ -1045,3 +1045,57 @@ public:
 	virtual void OnActivate() override;
 	virtual void OnDeactivate() override;
 };
+
+class EffectSetRandomVelocity : public Effect
+{
+public:
+	EffectSetRandomVelocity()
+	{
+		ID = "random_velocity";
+		name = "Set Random Velocity";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectTeleportToFortWallace : public Effect
+{
+public:
+	EffectTeleportToFortWallace()
+	{
+		ID = "tp_to_fort_wallace";
+		name = "Teleport To Fort Wallace";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectTeleportToFortMercer : public Effect
+{
+public:
+	EffectTeleportToFortMercer()
+	{
+		ID = "tp_to_fort_mercer";
+		name = "Teleport To Fort Mercer";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+
+class EffectTeleportToBlackwater : public Effect
+{
+public:
+	EffectTeleportToBlackwater()
+	{
+		ID = "tp_to_blackwater";
+		name = "Teleport To Blackwater";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
