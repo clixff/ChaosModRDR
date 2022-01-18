@@ -377,17 +377,15 @@ void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val)
 
 	ChaosMod::UpdatePlayerSkinHash();
 
+	PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), hash, 1);
+
 	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
 	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
-	*ptr1_val = *ptr1;
-	*ptr2_val = *ptr2;
 
-	*ptr1 = *ptr2 = hash;
+	*ptr1 = hash;
+	*ptr2 = hash;
 
-	WAIT(1000);
-
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	PED::SET_PED_VISIBLE(playerPed, 1);
+	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
 }
 
 void ResetPlayerModel(uint64_t ptr1_val, uint64_t ptr2_val)
@@ -452,7 +450,7 @@ void IEffectSkinChange::OnActivate()
 		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(mount, true, true);
 
 		/** _REMOVE_PED_FROM_MOUNT */
-		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
+		invoke<Void>(0x5337B721C51883A9, playerPed, 1, 0);
 	}
 
 	SetPlayerModel(this->skinToSet, &oldSkin1, &oldSkin2);
@@ -1262,16 +1260,14 @@ void EffectBodySwap::OnActivate()
 
 	ChaosMod::UpdatePlayerSkinHash();
 
+	PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), pedSkin, 1);
+
 	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
 	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
 
 	*ptr1 = *ptr2 = pedSkin;
 
-	WAIT(1000);
-
 	playerPed = PLAYER::PLAYER_PED_ID();
-
-	PED::SET_PED_VISIBLE(playerPed, 1);
 
 	if (pedVehicle)
 	{

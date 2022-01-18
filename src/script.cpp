@@ -1225,11 +1225,25 @@ void ChaosMod::UpdatePlayerSkinHash()
 
 void ChaosMod::ResetPlayerSkin()
 {
+	Hash currentSkin = ENTITY::GET_ENTITY_MODEL(PLAYER::PLAYER_PED_ID());
+
+	static Hash playerSkinArthur = GAMEPLAY::GET_HASH_KEY((char*)"Player_Zero");
+	static Hash playerSkinJohn = GAMEPLAY::GET_HASH_KEY((char*)"Player_Three");
+
+	if (currentSkin == playerSkinArthur || currentSkin == playerSkinJohn)
+	{
+		return;
+	}
+
+	LoadModel(ChaosMod::PlayerSkin1);
+
+	PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), ChaosMod::PlayerSkin1, 1);
+
 	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
 	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
+
 	*ptr1 = ChaosMod::PlayerSkin1;
 	*ptr2 = ChaosMod::PlayerSkin2;
-
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	ENTITY::SET_ENTITY_COLLISION(playerPed, true, true);
