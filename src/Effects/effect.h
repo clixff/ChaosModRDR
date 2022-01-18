@@ -84,6 +84,7 @@ public:
 
 	bool bIsMeta = false;
 
+	bool bIsFake = false;
 private:
 	uint32_t internalTimer = 0;
 };

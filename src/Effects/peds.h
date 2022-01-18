@@ -643,7 +643,7 @@ class EffectNearbyPedIsEnemy : public Effect
 public:
 	EffectNearbyPedIsEnemy()
 	{
-		ID = "nearby_ped_is_companion";
+		ID = "nearby_ped_is_enemy";
 		name = "Nearby Ped Is Player's Enemy";
 		bTimed = false;
 	}

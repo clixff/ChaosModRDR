@@ -1585,3 +1585,82 @@ void EffectAgitateHorse::OnActivate()
 		PED::_0xBAE08F00021BFFB2(mount, true);
 	}
 }
+
+void EffectTpRandomLocation::OnActivate()
+{
+	static std::vector<std::vector<float>> coords = {
+		{ -310.0f, 812.3f, 121.0f }, /** Valentine saloon */
+		{ -1303.0f, 395.0f, 96.0f }, /** Wallace station saloon */
+		{ -1790.0f, -372.5f, 160.0f }, /** Strawberry */
+		{ 357.0f, 1490.0f, 180 }, /** Fort Wallace */
+		{ -4206.0f, -3450.0f, 38.0f }, /** Fort Mercer */
+		{ -800.0f, -1291.2f, 44.0f }, /** Blackwater */
+		{ 2432.8f, -1216.0f, 46.0f }, /** Saint Denis */
+		{ -3709.0f, -2602.f, -10.3f }, /** Armadillo */
+		{ -5513.7f, -2915.1f, 1.8f }, /** Tumbleweed */
+		{ -2203.02f, 717.3f, 122.4f }, /** O'Driscolls */
+		{ 830.0f, 1923.7f, 260.0f }, /** Cave with statues */
+		{ 1526.5f, 431.0f, 91.0f }, /** Emerald Station */
+		{ 1264.4f, -1311.0f, 77.0f }, /** Rhoads */
+		{ 3035.75f, 431.968f, 68.7f }, /** Van Horn */
+		{ 2927.0f, 1325.9f, 44.0f }, /** Annesburg */
+		{ 2783.3f, 531.9f, 71.5f } /** House #1 */
+	};
+	
+
+	auto randomCoord = coords[rand() % coords.size()];
+
+	if (randomCoord.size() != 3)
+	{
+		return;
+	}
+
+	TeleportPlayerTo(randomCoord[0], randomCoord[1], randomCoord[2]);
+}
+
+void EffectFakeTeleport::OnActivate()
+{
+	oldName = this->name;
+
+	auto* chaosMod = ChaosMod::Singleton;
+
+	if (chaosMod)
+	{
+		auto* originalEffect = chaosMod->EffectsMap["tp_to_random"];
+
+		if (originalEffect)
+		{
+			this->name = originalEffect->name;
+		}
+	}
+
+	bTeleportedBack = false;
+	Effect::OnActivate();
+	oldCoord = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true, 0);
+	EffectTpRandomLocation::OnActivate();
+}
+
+void EffectFakeTeleport::OnTick()
+{
+	if (TimerTick(10000))
+	{
+		TeleportToOldCoord();
+	}
+}
+
+void EffectFakeTeleport::OnDeactivate()
+{
+	if (!bTeleportedBack)
+	{
+		TeleportToOldCoord();
+	}
+
+	bTeleportedBack = false;
+}
+
+void EffectFakeTeleport::TeleportToOldCoord()
+{
+	TeleportPlayerTo(oldCoord.x, oldCoord.y, oldCoord.z);
+	this->name = oldName;
+	bTeleportedBack = true;
+}

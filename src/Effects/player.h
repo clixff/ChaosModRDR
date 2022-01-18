@@ -1146,3 +1146,40 @@ public:
 
 	virtual void OnActivate() override;
 };
+
+class EffectTpRandomLocation : public Effect
+{
+public:
+	EffectTpRandomLocation()
+	{
+		ID = "tp_to_random";
+		name = "Teleport To Random Location";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectFakeTeleport : public EffectTpRandomLocation
+{
+public:
+	EffectFakeTeleport()
+	{
+		ID = "fake_teleport";
+		name = "Fake Teleport";
+		bTimed = true;
+		EffectDuration = 20;
+		bIsFake = true;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+	virtual void OnDeactivate() override;
+private:
+	Vector3 oldCoord;
+	std::string oldName;
+
+	bool bTeleportedBack = false;
+
+	void TeleportToOldCoord();
+};

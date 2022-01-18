@@ -580,9 +580,20 @@ void ChaosMod::InputTick()
 			}
 		}
 
+		//if (isKeyPressed(VK_F12))
+		//{
+			//modMenu.ToggleVisibility();
+		//}
+
 		if (isKeyPressed(VK_F12))
 		{
-			//modMenu.ToggleVisibility();
+			Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+			if (ENTITY::DOES_ENTITY_EXIST(playerPed))
+			{
+				ENTITY::SET_ENTITY_INVINCIBLE(playerPed, false);
+				ENTITY::SET_ENTITY_HEALTH(playerPed, 0, 0);
+			}
 		}
 	}
 
@@ -717,7 +728,7 @@ void ChaosMod::DrawEffectInUI(Effect* effect, int32_t index)
 	float margin = 52.0f;
 	float Y = (minY + (index * margin)) / 1080.0f;
 
-	if (effect->bTimed)
+	if (effect->bTimed && !effect->bIsFake)
 	{
 		float progressBarValue = 1.0f - (((float)GetTickCount() - (float)effect->ActivationTime) / ((float)effect->DeactivationTime - (float)effect->ActivationTime));
 		float progressBarWidth = (400.0f / 1920.0f);
@@ -957,7 +968,9 @@ void ChaosMod::InitEffects()
 		new EffectInsaneGravity(),
 		new EffectUpsideDownCamera(),
 		new EffectOneHitKO(),
-		new EffectBanditoKidnapsPlayer()
+		new EffectBanditoKidnapsPlayer(),
+		new EffectTpRandomLocation(),
+		new EffectFakeTeleport()
 	};
 
 	EffectsMap.clear();
@@ -1276,19 +1289,15 @@ std::vector<Effect*> ChaosMod::GenerateEffectsWithChances(uint32_t maxEffects)
 		 */
 		uint32_t effectIndexStart = randomIndex;
 
-		while (effectsIndices[effectIndexStart] == effectIndex)
+		for (int i = randomIndex; i >= 0; i--)
 		{
-			if (effectIndexStart == 0)
+			if (effectsIndices[i] == effectIndex)
 			{
-				break;
+				effectIndexStart = i;
 			}
-
-			effectIndexStart--;
 		}
-
 		effectsIndices.erase(effectsIndices.begin() + effectIndexStart, effectsIndices.begin() + (effectIndexStart + configEffect.chance) );
 	}
-
 
 	return effects;
 }
