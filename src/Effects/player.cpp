@@ -378,12 +378,16 @@ void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val)
 	ChaosMod::UpdatePlayerSkinHash();
 
 	PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), hash, 1);
+	*getGlobalPtr(0x23) = PLAYER::PLAYER_PED_ID();
+
 
 	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
 	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
 
 	*ptr1 = hash;
 	*ptr2 = hash;
+	*getGlobalPtr(0x23) = PLAYER::PLAYER_PED_ID();
+
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
 }
@@ -1262,10 +1266,14 @@ void EffectBodySwap::OnActivate()
 
 	PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), pedSkin, 1);
 
+	*getGlobalPtr(0x23) = PLAYER::PLAYER_PED_ID();
+
 	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
 	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
 
 	*ptr1 = *ptr2 = pedSkin;
+
+	*getGlobalPtr(0x23) = PLAYER::PLAYER_PED_ID();
 
 	playerPed = PLAYER::PLAYER_PED_ID();
 

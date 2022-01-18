@@ -1238,6 +1238,7 @@ void ChaosMod::ResetPlayerSkin()
 	LoadModel(ChaosMod::PlayerSkin1);
 
 	PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), ChaosMod::PlayerSkin1, 1);
+	*getGlobalPtr(0x23) = PLAYER::PLAYER_PED_ID();
 
 	uint64_t* ptr1 = getGlobalPtr(0x28) + 0x27;
 	uint64_t* ptr2 = getGlobalPtr(0x1D890E) + 2;
