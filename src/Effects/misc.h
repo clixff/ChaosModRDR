@@ -445,10 +445,17 @@ public:
 	{
 		ID = "spawn_ufo";
 		name = "Spawn UFO";
-		bTimed = false;
+		bTimed = true;
+		EffectDuration = 25;
 	}
 
 	virtual void OnActivate() override;
+	virtual void OnTick() override;
+	virtual void OnDeactivate() override;
+private:
+	Object ufo;
+	float heading = 0.0f;
+	uint32_t movesCount = 0;
 };
 
 class EffectGravityField : public Effect

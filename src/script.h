@@ -256,4 +256,6 @@ public:
 	void ResetMetaTimer();
 
 	float metaEffectColorSinX = 0.0f;
+public:
+	std::vector<Effect*> oldEffects;
 };

@@ -182,6 +182,8 @@ void ChaosMod::ToggleModStatus()
 	ChaosMod::vehsSet.clear();
 	ChaosMod::propsSet.clear();
 
+	oldEffects.clear();
+
 	activeMeta = nullptr;
 
 	ChaosMod::globalMutex.unlock();
@@ -390,6 +392,11 @@ void ChaosMod::Update()
 		{
 			ChaosMod::globalMutex.lock();
 
+			if (oldEffects.size() >= 12)
+			{
+				oldEffects.erase(oldEffects.begin(), oldEffects.begin() + 4);
+			}
+
 			pollEffects = GenerateEffectsWithChances(4);
 
 			std::vector<std::string> effectNames;
@@ -397,6 +404,7 @@ void ChaosMod::Update()
 			for (auto effect : pollEffects)
 			{
 				effectNames.push_back(effect->name);
+				oldEffects.push_back(effect);
 			}
 
 			effectNames[effectNames.size() - 1] = "Random Effect";
@@ -970,7 +978,9 @@ void ChaosMod::InitEffects()
 		new EffectOneHitKO(),
 		new EffectBanditoKidnapsPlayer(),
 		new EffectTpRandomLocation(),
-		new EffectFakeTeleport()
+		new EffectFakeTeleport(),
+		new EffectSpawnRandomVeh(),
+		new EffectHorsesAreDonkeys()
 	};
 
 	EffectsMap.clear();
@@ -1246,6 +1256,12 @@ std::vector<Effect*> ChaosMod::GenerateEffectsWithChances(uint32_t maxEffects)
 {
 	std::vector<Effect*> effects;
 	std::vector<uint16_t> effectsIndices = {};
+	std::set<std::string> oldEffectIDs;
+
+	for (auto oldEffect : oldEffects)
+	{
+		oldEffectIDs.insert(oldEffect->ID);
+	}
 
 	for (uint32_t i = 0; i < config.effects.size(); i++)
 	{
@@ -1254,7 +1270,7 @@ std::vector<Effect*> ChaosMod::GenerateEffectsWithChances(uint32_t maxEffects)
 		/**
 		 * Skip this effect if it was disabled by user or activated in the previous time 
 		 */
-		if (!configEffect.bEnabled || (prevActivatedEffect && prevActivatedEffect->ID == configEffect.id))
+		if (!configEffect.bEnabled || oldEffectIDs.contains(configEffect.id) || (prevActivatedEffect && prevActivatedEffect->ID == configEffect.id))
 		{
 			continue;
 		}

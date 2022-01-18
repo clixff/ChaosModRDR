@@ -924,7 +924,104 @@ void EffectGhostTown::OnTick()
 
 void EffectSpawnUFO::OnActivate()
 {
-	SpawnObject(0xC92962E3);
+	movesCount = 0;
+	this->ufo = SpawnObject(0xC92962E3);
+	ENTITY::SET_ENTITY_DYNAMIC(ufo, true);
+	ENTITY::SET_ENTITY_HAS_GRAVITY(ufo, true);
+	heading = 0.0f;
+
+	Vector3 vec = ENTITY::GET_ENTITY_COORDS(ufo, true, 1);
+
+	vec.z += 2.0f;
+
+	ENTITY::SET_ENTITY_COORDS(ufo, vec.x, vec.y, vec.z, false, false, false, false);
+}
+
+void EffectSpawnUFO::OnTick()
+{
+	if (!ENTITY::DOES_ENTITY_EXIST(ufo))
+	{
+		return;
+	}
+
+	ENTITY::SET_ENTITY_ROTATION(ufo, 0.0f, 0.0f, 0.0f, 2, 0);
+
+	heading += ChaosMod::GetDeltaTimeSeconds() * 2000.0f;
+
+	ENTITY::SET_ENTITY_HEADING(ufo, heading);
+
+	if (TimerTick(500) && ENTITY::DOES_ENTITY_EXIST(ufo))
+	{
+		Vector3 vel;
+		vel.x = 175.0f;
+		vel.y = 175.0f;
+		vel.z = 5.0f;
+
+		vel.x *= rand() % 2 ? 1.0f : -1.0f;
+		vel.y *= rand() % 2 ? 1.0f : -1.0f;
+		vel.z *= rand() % 2 ? 1.0f : -1.0f;
+
+		if (movesCount % 2)
+		{
+			auto nearbyPeds = GetNearbyPeds(50);
+			nearbyPeds.push_back(PLAYER::PLAYER_PED_ID());
+			std::vector<Ped> validPeds;
+
+			for (auto ped : nearbyPeds)
+			{
+				if (ENTITY::DOES_ENTITY_EXIST(ped) && PED::IS_PED_HUMAN(ped))
+				{
+					validPeds.push_back(ped);
+				}
+			}
+
+			if (validPeds.size())
+			{
+				Ped ped = validPeds[rand() % validPeds.size()];
+
+				Vector3 pedCoord = ENTITY::GET_ENTITY_COORDS(ped, true, 1);
+				Vector3 ufoCoord = ENTITY::GET_ENTITY_COORDS(ufo, true, 1);
+
+				Vector3 diff = pedCoord;
+				diff.x -= ufoCoord.x;
+				diff.y -= ufoCoord.y;
+				diff.z -= ufoCoord.z;
+
+				const float squareSum = (diff.x * diff.x) + (diff.y * diff.y) + (diff.z * diff.z);
+				const float length = sqrt(squareSum);
+				diff.x /= length;
+				diff.y /= length;
+				diff.z /= length;
+
+				const float speed = 100.0f;
+
+				diff.x *= speed;
+				diff.y *= speed;
+				diff.z *= speed;
+
+				vel = diff;
+			}
+		}
+
+		movesCount++;
+		ENTITY::SET_ENTITY_VELOCITY(ufo, vel.x, vel.y, vel.z);
+
+	}
+}
+
+void EffectSpawnUFO::OnDeactivate()
+{
+	Vector3 vec = ENTITY::GET_ENTITY_COORDS(ufo, true, 1);
+
+	FIRE::ADD_EXPLOSION(vec.x, vec.y, vec.z, 27, 1.0f, true, false, 1.0f);
+
+	ChaosMod::propsSet.erase(ufo);
+
+	ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ufo, false, false);
+
+	OBJECT::DELETE_OBJECT(&ufo);
+
+	ufo = 0;
 }
 
 void EffectGravityField::OnActivate()

@@ -214,3 +214,29 @@ public:
 
 	virtual void OnActivate() override;
 };
+
+class EffectSpawnRandomVeh : public Effect
+{
+public:
+	EffectSpawnRandomVeh()
+	{
+		ID = "spawn_random_veh";
+		name = "Spawn Random Vehicle";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
+class EffectHorsesAreDonkeys : public Effect
+{
+public:
+	EffectHorsesAreDonkeys()
+	{
+		ID = "horses_are_donkeys";
+		name = "Every Horse Is A Donkey";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};

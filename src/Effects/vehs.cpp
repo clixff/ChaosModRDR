@@ -646,3 +646,88 @@ void EffectRandomWheelsDetaching::OnActivate()
 		}
 	}
 }
+
+void EffectSpawnRandomVeh::OnActivate()
+{
+	static std::vector<const char*> vehs = {
+		"CART01", "CART02", "CART03", "CART04",
+		"CART05", "CART06", "CART07", "CART08",
+		"ARMYSUPPLYWAGON", "BUGGY01", "BUGGY02",
+		"BUGGY03", "CHUCKWAGON000X", "CHUCKWAGON002X",
+		"COACH2", "COACH3", "COACH4", "COACH5", "COACH6",
+		"coal_wagon", "OILWAGON01X", "POLICEWAGON01X", 
+		"WAGON02X", "WAGON04X", "LOGWAGON", "WAGON03X",
+		"WAGON05X", "WAGON06X", "WAGONPRISON01X",
+		"STAGECOACH001X", "STAGECOACH002X", "UTILLIWAG",
+		"GATCHUCK", "GATCHUCK_2", "wagonCircus01x",
+		"wagonDairy01x", "wagonWork01x", "wagonTraveller01x",
+		"KEELBOAT", "CANOE", "CANOETREETRUNK", "SKIFF",
+		"BREACH_CANNON", "trolley01x"
+	};
+
+	Hash model = GET_HASH(vehs[rand() % vehs.size()]);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Vector3 playerLocation = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
+	float playerHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+
+	LoadModel(model);
+
+	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, playerLocation.x, playerLocation.y, playerLocation.z, playerHeading, false, false, false, false);
+
+	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+
+	if (ENTITY::DOES_ENTITY_EXIST(veh))
+	{
+		ChaosMod::vehsSet.insert(veh);
+	}
+
+	PED::SET_PED_INTO_VEHICLE(playerPed, veh, -1);
+}
+
+void EffectHorsesAreDonkeys::OnActivate()
+{
+	auto nearbyPeds = GetNearbyPeds(140);
+
+	static Hash donkeyModel = GET_HASH("A_C_Donkey_01");
+
+	for (auto ped : nearbyPeds)
+	{
+		Hash model = ENTITY::GET_ENTITY_MODEL(ped);
+
+		/** IS_MODEL_A_HORSE */
+		bool bModelIsHorse = invoke<bool>(0x772A1969F649E902, model);
+		if (bModelIsHorse)
+		{
+			Vector3 vec = ENTITY::GET_ENTITY_COORDS(ped, true, 0);
+			Vector3 vel = ENTITY::GET_ENTITY_VELOCITY(ped, 1);
+			float heading = ENTITY::GET_ENTITY_HEADING(ped);
+
+			Ped rider = 0;
+
+			/** _IS_MOUNT_SEAT_FREE */
+			if (!PED::_0xAAB0FE202E9FC9F0(rider, -1))
+			{
+				/** _GET_RIDER_OF_MOUNT */
+				rider = PED::_0xB676EFDA03DADA52(ped, 0);
+				/** _REMOVE_PED_FROM_MOUNT */
+				invoke<Void>(0x5337B721C51883A9, rider, 0, 0);
+			}
+
+			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
+
+			PED::DELETE_PED(&ped);
+
+			Ped donkey = SpawnPedAroundPlayer(donkeyModel, false, false);
+			ENTITY::SET_ENTITY_COORDS(donkey, vec.x, vec.y, vec.z, false, false, false, false);
+			ENTITY::SET_ENTITY_VELOCITY(donkey, vel.x, vel.y, vel.z);
+			ENTITY::SET_ENTITY_HEADING(donkey, heading);
+
+			if (rider)
+			{
+				/** __SET_PED_ON_MOUNT */
+				invoke<Void>(0x028F76B6E78246EB, rider, donkey, -1, true);
+			}
+		}
+	}
+}
