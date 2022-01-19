@@ -1246,6 +1246,7 @@ void ChaosMod::ResetPlayerSkin()
 	*ptr1 = ChaosMod::PlayerSkin1;
 	*ptr2 = ChaosMod::PlayerSkin2;
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	*getGlobalPtr(0x23) = playerPed;
 
 	ENTITY::SET_ENTITY_COLLISION(playerPed, true, true);
 	ENTITY::SET_ENTITY_DYNAMIC(playerPed, true);

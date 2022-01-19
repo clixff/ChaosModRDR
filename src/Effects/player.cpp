@@ -386,10 +386,12 @@ void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val)
 
 	*ptr1 = hash;
 	*ptr2 = hash;
-	*getGlobalPtr(0x23) = PLAYER::PLAYER_PED_ID();
-
+	Ped playerPed = PLAYER::PLAYER_PED_ID();;
+	*getGlobalPtr(0x23) = playerPed;
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(hash);
+	ENTITY::SET_ENTITY_COLLISION(playerPed, true, true);
+	ENTITY::SET_ENTITY_DYNAMIC(playerPed, true);
 }
 
 void ResetPlayerModel(uint64_t ptr1_val, uint64_t ptr2_val)
@@ -1276,6 +1278,9 @@ void EffectBodySwap::OnActivate()
 	*getGlobalPtr(0x23) = PLAYER::PLAYER_PED_ID();
 
 	playerPed = PLAYER::PLAYER_PED_ID();
+
+	ENTITY::SET_ENTITY_COLLISION(playerPed, true, true);
+	ENTITY::SET_ENTITY_DYNAMIC(playerPed, true);
 
 	if (pedVehicle)
 	{
