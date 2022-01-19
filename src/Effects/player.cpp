@@ -540,6 +540,17 @@ void EffectPlayerIsMinion::OnActivate()
 	invoke<Void>(0x25ACFC650B65C538, playerPed, 0.4f);
 }
 
+void EffectPlayerIsMinion::OnTick()
+{
+	if (TimerTick(500))
+	{
+		Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+		/** _SET_PED_SCALE */
+		invoke<Void>(0x25ACFC650B65C538, playerPed, 0.4f);
+	}
+}
+
 void EffectPlayerIsMinion::OnDeactivate()
 {
 	Effect::OnDeactivate();

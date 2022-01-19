@@ -97,6 +97,7 @@ void ChaosMod::ToggleModStatus()
 
 	bEnabled = !bEnabled;
 
+
 	if (bEnabled)
 	{
 		bool bPrevTwitchStatus = config.bTwitch;

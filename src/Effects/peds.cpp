@@ -106,9 +106,16 @@ void MarkPedAsCompanion(Ped ped)
 void MarkPedAsEnemy(Ped ped)
 {
 	static std::vector<Hash> groups = {
-		GAMEPLAY::GET_HASH_KEY((char*)"PLAYER"),
+		GET_HASH("PLAYER"),
 		0x8A33CDCF, // Civ Male
-		0x3220F762 // Civ Female
+		0x3220F762, // Civ Female
+		0x3D714F12,
+		0x915095B1,
+		0x2A318608,
+		0x9BA3F8C6,
+		0xD23F79CC,
+		0xF287AFC3,
+		0x403647E5
 	};
 
 	Hash enemyGroup;
@@ -368,11 +375,17 @@ void RemovePedFromVeh(Ped ped)
 
 void RemoveAllPedWeapons(Ped ped)
 {
-	static Hash unarmed = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_UNARMED");
+	static Hash unarmed = GET_HASH("WEAPON_UNARMED");
 	WEAPON::SET_CURRENT_PED_WEAPON(ped, unarmed, 1, 0, 0, 0);
+	static Hash lasso = GET_HASH("WEAPON_LASSO");
 
 	for (Hash weaponHash : Effect::WeaponHashes)
 	{
+		if (weaponHash == lasso)
+		{
+			continue;
+		}
+
 		WEAPON::REMOVE_WEAPON_FROM_PED(ped, weaponHash, 0, 0);
 	}
 }
@@ -820,6 +833,11 @@ void EffectUndeadNightmare::OnActivate()
 
 		/** BF_CanUseVehicles */
 		PED::SET_PED_COMBAT_ATTRIBUTES(zombie, 1, false);
+
+		static Hash blipHash = GET_HASH("BLIP_STYLE_ENEMY");
+
+		/** BLIP_ADD_FOR_ENTITY */
+		Blip blip = RADAR::_0x23F74C2FDA6E7C61(blipHash, zombie);
 	}
 }
 

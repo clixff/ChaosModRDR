@@ -48,7 +48,7 @@ Vector3 GetRandomCoordInRange(Vector3 vec, float distance)
 	return vec;
 }
 
-Vector3 GetRandomCoordAroundPlayer(float distance)
+Vector3 GetRandomCoordAroundPlayer(float distance, bool bUseVelocity)
 {
 	Entity entity = PLAYER::PLAYER_PED_ID();
 
@@ -63,11 +63,14 @@ Vector3 GetRandomCoordAroundPlayer(float distance)
 
 	Vector3 vec = ENTITY::GET_ENTITY_COORDS(entity, true, 0);
 
-	Vector3 velocity = ENTITY::GET_ENTITY_VELOCITY(entity, 0);
+	if (bUseVelocity)
+	{
+		Vector3 velocity = ENTITY::GET_ENTITY_VELOCITY(entity, 0);
 
-	vec.x += velocity.x * 2.0f;
-	vec.y += velocity.y * 2.0f;
-	vec.z += velocity.z * 2.0f;
+		vec.x += velocity.x * 2.0f;
+		vec.y += velocity.y * 2.0f;
+		vec.z += velocity.z * 2.0f;
+	}
 
 	return GetRandomCoordInRange(vec, distance);
 }
@@ -133,6 +136,11 @@ void EffectTeleportEverything::OnActivate()
 	{
 		//ENTITY::SET_ENTITY_AS_MISSION_ENTITY(entity, true, true);
 		ENTITY::SET_ENTITY_COORDS(entity, playerCoord.x, playerCoord.y, playerCoord.z, 0, 0, 0, 0);
+
+		if (ENTITY::IS_ENTITY_A_PED(entity))
+		{
+			PED::SET_PED_TO_RAGDOLL(entity, 3000, 3000, 0, true, true, false);
+		}
 	}
 
 	props.clear();
@@ -150,6 +158,8 @@ void EffectTeleportEverything::OnActivate()
 		{
 			props.push_back(entity);
 			oldPropsCoords.push_back(ENTITY::GET_ENTITY_COORDS(entity, false, 0));
+			ENTITY::SET_ENTITY_DYNAMIC(entity, true);
+			ENTITY::SET_ENTITY_HAS_GRAVITY(entity, true);
 			ENTITY::SET_ENTITY_COORDS(entity, playerCoord.x, playerCoord.y, playerCoord.z, 0, 0, 0, 0);
 		}
 	}
@@ -166,6 +176,8 @@ void EffectTeleportEverything::OnDeactivate()
 		if (ENTITY::DOES_ENTITY_EXIST(entity))
 		{
 			Vector3 oldCoord = oldPropsCoords[i];
+			ENTITY::SET_ENTITY_DYNAMIC(entity, false);
+			ENTITY::SET_ENTITY_HAS_GRAVITY(entity, false);
 			ENTITY::SET_ENTITY_COORDS(entity, oldCoord.x, oldCoord.y, oldCoord.z, 0, 0, 0, 0);
 		}
 	}
@@ -650,9 +662,14 @@ void EffectEarthquake::OnTick()
 		if (ENTITY::DOES_ENTITY_EXIST(entity))
 		{
 			Vector3 randomDirection;
-			randomDirection.x = float((rand() % 7) + 1) * (rand() % 2 ? -1.0f : 1.0f);
-			randomDirection.y = float((rand() % 7) + 1) * (rand() % 2 ? -1.0f : 1.0f);
-			randomDirection.z = float((rand() % 2) + 1) * (rand() % 2 ? -1.0f : 1.0f);
+			randomDirection.x = float((rand() % 5) + 1);
+			randomDirection.y = float((rand() % 5) + 1);
+			randomDirection.z = float((rand() % 7) + 7);
+
+			randomDirection.x *= rand() % 2 ? -1.0f : 1.0f;
+			randomDirection.y *= rand() % 2 ? -1.0f : 1.0f;
+			randomDirection.z *= rand() % 2 ? -1.0f : 1.0f;
+
 			ENTITY::SET_ENTITY_VELOCITY(entity, randomDirection.x, randomDirection.y, randomDirection.z);
 		}
 	}
@@ -734,7 +751,7 @@ void EffectIgniteNearbyPeds::OnActivate()
 
 void EffectLightningOnce::OnActivate()
 {
-	Vector3 vec = GetRandomCoordAroundPlayer(float((rand() % 5) + 5));
+	Vector3 vec = GetRandomCoordAroundPlayer(float((rand() % 5) + 5), false);
 
 	/** _FORCE_LIGHTNING_FLASH_AT_COORDS */
 	invoke<Void>(0x67943537D179597C, vec.x, vec.y, vec.z);
@@ -829,12 +846,31 @@ void EffectLightningEnemy::OnActivate()
 
 void EffectAltTab::OnActivate()
 {
-	HWND hWnd = FindWindow(NULL, "Red Dead Redemption 2");
+	INPUT inputs[4] = {};
+	ZeroMemory(inputs, sizeof(inputs));
+
+	inputs[0].type = INPUT_KEYBOARD;
+	inputs[0].ki.wVk = VK_MENU;
+
+	inputs[1].type = INPUT_KEYBOARD;
+	inputs[1].ki.wVk = VK_TAB;
+
+	inputs[2].type = INPUT_KEYBOARD;
+	inputs[2].ki.wVk = VK_TAB;
+	inputs[2].ki.dwFlags = KEYEVENTF_KEYUP;
+
+	inputs[3].type = INPUT_KEYBOARD;
+	inputs[3].ki.wVk = VK_MENU;
+	inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
+
+	SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
+
+	/*HWND hWnd = FindWindow(NULL, "Red Dead Redemption 2");
 
 	if (IsWindow(hWnd))
 	{
-		PostMessage(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
-	}
+		SendMessage(hWnd, WM_SYSCOMMAND, SC_NEXTWINDOW, 0);
+	}*/
 }
 
 void EffectRemoveWeaponFromEveryone::OnActivate()
@@ -924,6 +960,14 @@ void EffectGhostTown::OnTick()
 
 void EffectSpawnUFO::OnActivate()
 {
+	TIME::SET_CLOCK_TIME(2, 0, 0);
+
+	static Hash weatherHash = GAMEPLAY::GET_HASH_KEY((char*)"FOG");
+
+	GAMEPLAY::CLEAR_OVERRIDE_WEATHER();
+	GAMEPLAY::SET_WEATHER_TYPE(weatherHash, 0, 1, 0, 0.0, 0);
+	GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+
 	movesCount = 0;
 	this->ufo = SpawnObject(0xC92962E3);
 	ENTITY::SET_ENTITY_DYNAMIC(ufo, true);
@@ -935,6 +979,17 @@ void EffectSpawnUFO::OnActivate()
 	vec.z += 2.0f;
 
 	ENTITY::SET_ENTITY_COORDS(ufo, vec.x, vec.y, vec.z, false, false, false, false);
+
+	static Hash blipHash = GET_HASH("BLIP_STYLE_FRIENDLY");
+
+	/** BLIP_ADD_FOR_ENTITY */
+	Blip blip = RADAR::_0x23F74C2FDA6E7C61(blipHash, ufo);
+
+
+	GRAPHICS::SET_TIMECYCLE_MODIFIER((char*)"PLayerSpottedDark");
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
+
+	AUDIO::_0x6FB1DA3CA9DA7D90((Any*)"Loop_A", ufo, (Any*)"Ufos_Sounds", 0, 0, 0);
 }
 
 void EffectSpawnUFO::OnTick()
@@ -1022,6 +1077,9 @@ void EffectSpawnUFO::OnDeactivate()
 	OBJECT::DELETE_OBJECT(&ufo);
 
 	ufo = 0;
+
+	GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
 }
 
 void EffectGravityField::OnActivate()
@@ -1343,6 +1401,8 @@ void EffectGiveEveryoneRifle::OnActivate()
 
 void EffectTimelapse::OnActivate()
 {
+	SetWeather(GET_HASH("SUNNY"));
+
 	int hours = TIME::GET_CLOCK_HOURS();
 	int minutes = TIME::GET_CLOCK_MINUTES();
 	int seconds = TIME::GET_CLOCK_SECONDS();
@@ -1368,6 +1428,15 @@ void EffectTimelapse::OnTick()
 	int seconds = (totalSecondsInt % secondsInHour) % secondsInMinute;
 
 	TIME::SET_CLOCK_TIME(hours, minutes, seconds);
+
+	GRAPHICS::SET_TIMECYCLE_MODIFIER((char*)"SkyTimelapses01");
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
+}
+
+void EffectTimelapse::OnDeactivate()
+{
+	GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
 }
 
 void EffectNoHUD::OnTick()

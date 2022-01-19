@@ -529,6 +529,7 @@ public:
 	}
 
 	virtual void OnActivate() override;
+	virtual void OnTick() override;
 	virtual void OnDeactivate() override;
 };
 
