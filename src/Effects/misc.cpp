@@ -751,7 +751,7 @@ void EffectIgniteNearbyPeds::OnActivate()
 
 void EffectLightningOnce::OnActivate()
 {
-	Vector3 vec = GetRandomCoordAroundPlayer(float((rand() % 5) + 5), false);
+	Vector3 vec = GetRandomCoordAroundPlayer(float((rand() % 5) + 2), false);
 
 	/** _FORCE_LIGHTNING_FLASH_AT_COORDS */
 	invoke<Void>(0x67943537D179597C, vec.x, vec.y, vec.z);
