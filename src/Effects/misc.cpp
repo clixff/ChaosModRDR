@@ -1567,3 +1567,44 @@ void EffectShadesOfGray::OnDeactivate()
 	GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
 	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
 }
+
+void EffectPotatoMode::OnActivate()
+{
+	peds.clear();
+}
+
+void EffectPotatoMode::OnTick()
+{
+	if (TimerTick(500))
+	{
+		auto nearbyPeds = GetNearbyPeds(75);
+
+		Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+		PED::SET_PED_LOD_MULTIPLIER(playerPed, 0.06f);
+
+		for (auto ped : nearbyPeds)
+		{
+			peds.insert(ped);
+		}
+	}
+
+	for (auto ped : peds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			PED::SET_PED_LOD_MULTIPLIER(ped, 0.07f);
+		}
+	}
+}
+
+void EffectPotatoMode::OnDeactivate()
+{
+	for (auto ped : peds)
+	{
+		PED::SET_PED_LOD_MULTIPLIER(ped, 1.0f);
+	}
+	PED::SET_PED_LOD_MULTIPLIER(PLAYER::PLAYER_PED_ID(), 1.0f);
+
+	peds.clear();
+}

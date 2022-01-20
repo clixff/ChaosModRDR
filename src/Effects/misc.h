@@ -702,6 +702,25 @@ public:
 	virtual void OnDeactivate() override;
 };
 
+class EffectPotatoMode : public Effect
+{
+public:
+	EffectPotatoMode()
+	{
+		ID = "potato_mode";
+		name = "Potato Mode";
+		bTimed = true;
+		EffectDuration = 25;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+	virtual void OnDeactivate() override;
+private:
+	std::set<Ped> peds;
+};
+
+
 
 /** Meta */
 

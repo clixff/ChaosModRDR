@@ -1005,7 +1005,8 @@ void ChaosMod::InitEffects()
 		new EffectHorsesAreDonkeys(),
 		new EffectSpawnTwitchViewer(),
 		new EffectEveryoneIsLenny(),
-		new EffectShadesOfGray()
+		new EffectShadesOfGray(),
+		new EffectPotatoMode()
 	};
 
 	EffectsMap.clear();
