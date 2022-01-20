@@ -1003,7 +1003,9 @@ void ChaosMod::InitEffects()
 		new EffectFakeTeleport(),
 		new EffectSpawnRandomVeh(),
 		new EffectHorsesAreDonkeys(),
-		new EffectSpawnTwitchViewer()
+		new EffectSpawnTwitchViewer(),
+		new EffectEveryoneIsLenny(),
+		new EffectShadesOfGray()
 	};
 
 	EffectsMap.clear();

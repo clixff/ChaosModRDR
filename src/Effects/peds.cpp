@@ -1850,7 +1850,7 @@ void EffectSpawnTwitchViewer::Spawn(std::string name)
 
 	Hash model = GET_HASH(skins[rand() % skins.size()]);
 
-	ped = SpawnPedAroundPlayer(model, true, false);
+	ped = SpawnPedAroundPlayer(model, false, true);
 
 	uint32_t maxOutfits = PED::_0x10C70A515BC03707(ped);
 	uint32_t randOutfit = rand() % maxOutfits;
@@ -1886,36 +1886,178 @@ void EffectSpawnTwitchViewer::Spawn(std::string name)
 
 	PED::_0x4A48B6E03BABB4AC(ped, (Any*)name.c_str());
 
+	Ped pedCopy = ped;
+
+	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&pedCopy);
+
 	/** _SET_PED_SCALE */
 	invoke<Void>(0x25ACFC650B65C538, ped, 0.9f + (float(rand() % 11) / 100.0f));
 
 	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 200);
 	ENTITY::SET_ENTITY_HEALTH(ped, 200, 0);
-
 	/** PCF_NoCriticalHits */
 	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
-
 	/** PCF_AllowInCombatInteractionLockonOnTargetPed */
-	PED::SET_PED_CONFIG_FLAG(ped, 359, true);
+	//PED::SET_PED_CONFIG_FLAG(ped, 359, true);
 
 	bool bEnemy = rand() % 2;
 
+	bEnemy = false;
+
 	if (bEnemy)
 	{
-		MarkPedAsEnemy(ped);
-		static Hash blipHash = GET_HASH("BLIP_STYLE_ENEMY");
+		//MarkPedAsEnemy(ped);
+		//static Hash blipHash = GET_HASH("BLIP_STYLE_ENEMY");
 
-		/** BLIP_ADD_FOR_ENTITY */
-		Blip blip = RADAR::_0x23F74C2FDA6E7C61(blipHash, ped);
+		///** BLIP_ADD_FOR_ENTITY */
+		//Blip blip = RADAR::_0x23F74C2FDA6E7C61(blipHash, ped);
 	}
 	else
 	{
 		MarkPedAsCompanion(ped);
+		//AI::TASK_FOLLOW_TO_OFFSET_OF_ENTITY(ped, PLAYER::PLAYER_PED_ID(), 1.0f, 0.0f, 0.0f, 4.5f, -1.0f, -1.0f, 0, 0, 0, 0, 0);
+		//PED::SET_PED_KEEP_TASK(ped, true);
 	}
-
 
 	std::string str = "Spawned NPC with name " + name;
 
 	ChaosMod::LogToFile(str.c_str());
+}
 
+void EffectEveryoneIsLenny::OnActivate()
+{
+	auto peds = GetNearbyPeds(70);
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	for (auto ped : peds)
+	{
+		Hash model = ENTITY::GET_ENTITY_MODEL(ped);
+
+		/** IS_MODEL_A_HORSE */
+		bool bModelIsHorse = invoke<bool>(0x772A1969F649E902, model);
+
+		if (bModelIsHorse)
+		{
+			continue;
+		}
+
+		int relationships = PED::GET_RELATIONSHIP_BETWEEN_PEDS(ped, playerPed);
+
+		if (ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped) && relationships < 4)
+		{
+			continue;
+		}
+
+		Vector3 vec = ENTITY::GET_ENTITY_COORDS(ped, true, 0);
+		float heading = ENTITY::GET_ENTITY_HEADING(ped);
+
+		Vehicle veh = 0;
+		Ped mount = 0;
+		int32_t seatID = -2;
+
+		if (PED::IS_PED_IN_ANY_VEHICLE(ped, 0))
+		{
+			veh = PED::GET_VEHICLE_PED_IS_IN(ped, 0);
+
+			Hash vehModel = ENTITY::GET_ENTITY_MODEL(veh);
+
+			int32_t seatsNum = VEHICLE::GET_VEHICLE_MODEL_NUMBER_OF_SEATS(vehModel) - 1;
+
+			for (int32_t i = -1; i < seatsNum; i++)
+			{
+				if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(veh, i) == ped)
+				{
+					seatID = i;
+					break;
+				}
+			}
+		}
+		else if (PED::IS_PED_ON_MOUNT(ped))
+		{
+			mount = PED::GET_MOUNT(ped);
+
+			if (PED::_0xB676EFDA03DADA52(mount, 0) == ped)
+			{
+				seatID = -1;
+			}
+			else
+			{
+				seatID = 0;
+			}
+		}
+
+		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ped, 0, 0);
+
+		PED::DELETE_PED(&ped);
+
+		static std::vector<Hash> skins = {
+			GAMEPLAY::GET_HASH_KEY((char*)"CS_lenny"),
+			GAMEPLAY::GET_HASH_KEY((char*)"MSP_SALOON1_MALES_01"),
+			GAMEPLAY::GET_HASH_KEY((char*)"MSP_SALOON1_FEMALES_01")
+		};
+
+		int32_t skinID = rand() % skins.size();
+		Ped lenny = SpawnPedAroundPlayer(skins[skinID]);
+		int32_t outfitID = 0;
+
+		switch (skinID)
+		{
+			case 0:
+				outfitID = rand() % 13;
+				break;
+			case 1:
+			{
+				static std::vector<int32_t> outfits = {
+					0, 2, 5, 7, 9, 11, 13, 15, 17, 21, 23,
+					25, 27, 29, 31, 33, 35, 37, 39, 41, 43
+				};
+
+				outfitID = outfits[rand() % outfits.size()];
+
+				break;
+			}
+			case 2:
+			{
+				static std::vector<int32_t> outfits = {
+					2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+				};
+
+				outfitID = outfits[rand() % outfits.size()];
+				break;
+			}
+		}
+
+		invoke<Void>(0x77FF8D35EEC6BBC4, lenny, outfitID, false);
+
+		ENTITY::SET_ENTITY_COORDS(lenny, vec.x, vec.y, vec.z, 0, 0, 0, 0);
+		ENTITY::SET_ENTITY_HEADING(lenny, heading);
+
+		if (seatID != -2)
+		{		
+			if (veh)
+			{
+				PED::SET_PED_INTO_VEHICLE(lenny, veh, seatID);
+			}
+			else if (mount && seatID == -1)
+			{
+				SetPedOnMount(lenny, mount, seatID);
+				AI::TASK_WANDER_STANDARD(lenny, 10.0f, 10);
+			}
+		}
+		else
+		{
+			AI::TASK_WANDER_STANDARD(lenny, 10.0f, 10);
+			AI::TASK_LOOK_AT_ENTITY(ped, playerPed, -1, 2048, 3, 1);
+		}
+
+		if (relationships > 3)
+		{
+			MarkPedAsEnemy(lenny);
+		}
+
+		ChaosMod::pedsSet.erase(lenny);
+
+		ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&lenny);
+	}
 }

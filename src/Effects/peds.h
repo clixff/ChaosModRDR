@@ -711,6 +711,20 @@ private:
 	Ped ped = 0;
 };
 
+
+class EffectEveryoneIsLenny : public Effect
+{
+public:
+	EffectEveryoneIsLenny()
+	{
+		ID = "everyone_is_lenny";
+		name = "Nearby Peds Are Lenny";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 void RemovePedFromVeh(Ped ped);
 

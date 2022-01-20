@@ -1555,3 +1555,15 @@ void EffectOneHitKO::OnDeactivate()
 
 	peds.clear();
 }
+
+void EffectShadesOfGray::OnTick()
+{
+	GRAPHICS::SET_TIMECYCLE_MODIFIER((char*)"PauseMenuDark");
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
+}
+
+void EffectShadesOfGray::OnDeactivate()
+{
+	GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
+	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
+}

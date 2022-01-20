@@ -687,6 +687,22 @@ private:
 	std::set<Ped> peds;
 };
 
+class EffectShadesOfGray : public Effect
+{
+public:
+	EffectShadesOfGray()
+	{
+		ID = "shades_of_gray";
+		name = "Shades Of Gray";
+		bTimed = true;
+		EffectDuration = 20;
+	}
+
+	virtual void OnTick() override;
+	virtual void OnDeactivate() override;
+};
+
+
 /** Meta */
 
 class MetaEffectTotalChaos : public MetaEffect
@@ -711,6 +727,7 @@ public:
 		EffectDuration = 180;
 	}
 };
+
 
 std::vector<Entity> GetNearbyProps(int32_t Max);
 

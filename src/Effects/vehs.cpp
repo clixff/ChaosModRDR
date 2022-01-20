@@ -706,7 +706,7 @@ void EffectHorsesAreDonkeys::OnActivate()
 			Ped rider = 0;
 
 			/** _IS_MOUNT_SEAT_FREE */
-			if (!PED::_0xAAB0FE202E9FC9F0(rider, -1))
+			if (!PED::_0xAAB0FE202E9FC9F0(ped, -1))
 			{
 				/** _GET_RIDER_OF_MOUNT */
 				rider = PED::_0xB676EFDA03DADA52(ped, 0);
@@ -714,9 +714,12 @@ void EffectHorsesAreDonkeys::OnActivate()
 				invoke<Void>(0x5337B721C51883A9, rider, 0, 0);
 			}
 
-			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
+			if (!ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped))
+			{
+				ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ped, false, false);
 
-			PED::DELETE_PED(&ped);
+				PED::DELETE_PED(&ped);
+			}
 
 			Ped donkey = SpawnPedAroundPlayer(donkeyModel, false, false);
 			ENTITY::SET_ENTITY_COORDS(donkey, vec.x, vec.y, vec.z, false, false, false, false);
