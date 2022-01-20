@@ -26,8 +26,8 @@ private:
 	_server instance;
 	websocketpp::connection_hdl* client = nullptr;
 
-	void OnIntervalUpdated(rapidjson::Document &document);
-	void OnNewEffectActivated(rapidjson::Document &document);
+	void OnNewEffectActivated(rapidjson::Document& document);
+	void OnTwitchViewerSpawned(rapidjson::Document &document);
 
 	std::atomic<bool> bStarted = std::atomic<bool>(false);
 };

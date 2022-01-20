@@ -694,6 +694,23 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectSpawnTwitchViewer : public Effect
+{
+public:
+	EffectSpawnTwitchViewer()
+	{
+		ID = "spawn_twitch_viewer";
+		name = "Spawn Random Twitch Viewer";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+
+	void Spawn(std::string name);
+private:
+	Ped ped = 0;
+};
+
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 void RemovePedFromVeh(Ped ped);
 

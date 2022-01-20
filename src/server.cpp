@@ -106,6 +106,10 @@ void WebSocketServer::OnMessage(websocketpp::connection_hdl hdl, _server::messag
 	{
 		OnNewEffectActivated(document);
 	}
+	else if (eventType == "spawn-twitch-viewer")
+	{
+		OnTwitchViewerSpawned(document);
+	}
 }
 
 void WebSocketServer::OnConnect(websocketpp::connection_hdl hdl)
@@ -215,6 +219,22 @@ void WebSocketServer::OnNewEffectActivated(rapidjson::Document &document)
 	ChaosMod::globalMutex.lock();
 
 	ChaosMod::Singleton->twitchWinnerID = winnerID;
+
+	ChaosMod::globalMutex.unlock();
+}
+
+void WebSocketServer::OnTwitchViewerSpawned(rapidjson::Document& document)
+{
+	if (!document.HasMember("name"))
+	{
+		return;
+	}
+
+	std::string name = document["name"].GetString();
+
+	ChaosMod::globalMutex.lock();
+
+	ChaosMod::Singleton->twitchViewerNameToSpawn = name;
 
 	ChaosMod::globalMutex.unlock();
 }

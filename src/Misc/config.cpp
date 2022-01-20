@@ -95,6 +95,11 @@ void Config::Read()
 		configEffect.name = effect["name"].GetString();
 		configEffect.bEnabled = effect["enabled"].GetBool();
 
+		if (configEffect.id == "spawn_twitch_viewer" && this->bTwitch == false)
+		{
+			configEffect.bEnabled = false;
+		}
+
 		if (effect.HasMember("chance"))
 		{
 			configEffect.chance = effect["chance"].GetUint();

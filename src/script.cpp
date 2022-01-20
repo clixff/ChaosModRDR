@@ -494,6 +494,8 @@ void ChaosMod::Update()
 		}
 	}
 
+	std::string twitchViewerName = "";
+
 	ChaosMod::globalMutex.lock();
 
 	if (twitchWinnerID != -1)
@@ -519,7 +521,26 @@ void ChaosMod::Update()
 		twitchWinnerID = -1;
 	}
 
+
+	if (!twitchViewerNameToSpawn.empty())
+	{
+		twitchViewerName = twitchViewerNameToSpawn;
+		twitchViewerNameToSpawn = "";
+	}
+
 	ChaosMod::globalMutex.unlock();
+
+	if (!twitchViewerName.empty())
+	{
+		for (auto effect : activeEffects)
+		{
+			if (effect->ID == "spawn_twitch_viewer")
+			{
+				((EffectSpawnTwitchViewer*)effect)->Spawn(twitchViewerName);
+				break;
+			}
+		}
+	}
 
 	DrawUI();
 }
@@ -981,7 +1002,8 @@ void ChaosMod::InitEffects()
 		new EffectTpRandomLocation(),
 		new EffectFakeTeleport(),
 		new EffectSpawnRandomVeh(),
-		new EffectHorsesAreDonkeys()
+		new EffectHorsesAreDonkeys(),
+		new EffectSpawnTwitchViewer()
 	};
 
 	EffectsMap.clear();
@@ -1251,6 +1273,9 @@ void ChaosMod::ResetPlayerSkin()
 
 	ENTITY::SET_ENTITY_COLLISION(playerPed, true, true);
 	ENTITY::SET_ENTITY_DYNAMIC(playerPed, true);
+
+	invoke<Void>(0xAE637BB8EF017875, PLAYER::PLAYER_ID(), 0);
+	PLAYER::_0x95EE1DEE1DCD9070(PLAYER::PLAYER_ID(), 1);
 }
 
 void ChaosMod::StartWSServer()
@@ -1369,4 +1394,18 @@ void ChaosMod::ResetMetaTimer()
 
 	activeMeta = nullptr;
 	metaEffectColorSinX = 0.0f;
+}
+
+bool ChaosMod::RequestTwitchViewerNameToSpawn()
+{
+	if (!config.bTwitch || !wsServer)
+	{
+		this->twitchViewerNameToSpawn = "Viewer_Name";
+
+		return false;
+	}
+
+	wsServer->SendMessageToClient("request-twitch-viewer-name");
+
+	return true;
 }

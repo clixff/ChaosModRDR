@@ -2,6 +2,7 @@ import tmi from 'tmi.js';
 import { getConfig } from './config';
 import { newVote } from './voting';
 import axios from 'axios';
+import { randomInteger } from '.';
 
 let client: tmi.Client | null = null;
 
@@ -15,6 +16,8 @@ interface ITwitchProfile
         profile_image_url: string
     }];
 }
+
+export let chatUsernames: Array<string> = [];
 
 
 export async function getTwitchUser(): Promise<string | null>
@@ -104,6 +107,21 @@ export function startListeningChat(login: string): void
             if (isFinite(num) && num >= 1 && num <= 4)
             {
                 newVote(Math.floor(num) -  1, context['user-id']);
+
+                const displayName = context['display-name'] || '';
+                const username = context.username || '';
+
+                const name = username == displayName.toLowerCase() ? displayName : username;
+                
+                if (!chatUsernames.includes(name))
+                {
+                    chatUsernames.push(name);
+
+                    if (chatUsernames.length >= 50)
+                    {
+                        chatUsernames.splice(0, 1);
+                    }
+                }
             }
         }
     });
@@ -111,4 +129,19 @@ export function startListeningChat(login: string): void
     client.on('connected', (addr, port) => {
 		console.log(`[Twitch] Connected to ${addr}:${port}`)
 	});
+}
+
+export function getRandomTwitchNickname(): string
+{
+    if (!chatUsernames.length)
+    {
+        return "";
+    }
+
+    return chatUsernames[randomInteger(0, chatUsernames.length - 1)];
+};
+
+export function clearChatUsernames(): void
+{
+    chatUsernames = [];
 }

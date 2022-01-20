@@ -1,7 +1,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { getConfig, readConfig } from './config';
 import { randomInteger } from './index';
-import { getTwitchUser, startListeningChat } from './twitch';
+import { clearChatUsernames, getRandomTwitchNickname, getTwitchUser, startListeningChat } from './twitch';
 import { getPollNames, getVotesArray, getWInnerIndex, IsVotingEnabled, resetPoll, setVotingActive, updateEffectNamesFromGame } from './voting';
 
 let gameWebSocketClient: WebSocket | null = null;
@@ -74,13 +74,14 @@ export function connectWebsocketClient(): void
 					onModEnabled();
 					resetPollAndSend();
 					setPollVisible(false);
+					clearChatUsernames();
 					break;
 				case 'mod_disabled':
 					{
 						setVotingActive(false);
 						resetPollAndSend();
 						setPollVisible(false);
-
+						clearChatUsernames();
 						break;	
 					}
 				case 'vote_ended':
@@ -99,6 +100,14 @@ export function connectWebsocketClient(): void
 						}));
 
 						setPollFadeOut();
+						break;
+					}
+				case 'request-twitch-viewer-name':
+					{
+						gameWebSocketClient.send(JSON.stringify({ 
+							type: "spawn-twitch-viewer", 
+							name: getRandomTwitchNickname(),
+						}));
 						break;
 					}
 				default:

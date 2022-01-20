@@ -864,13 +864,6 @@ void EffectAltTab::OnActivate()
 	inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
 
 	SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
-
-	/*HWND hWnd = FindWindow(NULL, "Red Dead Redemption 2");
-
-	if (IsWindow(hWnd))
-	{
-		SendMessage(hWnd, WM_SYSCOMMAND, SC_NEXTWINDOW, 0);
-	}*/
 }
 
 void EffectRemoveWeaponFromEveryone::OnActivate()

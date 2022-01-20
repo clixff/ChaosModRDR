@@ -182,9 +182,6 @@ void EffectSpawnLenny::OnActivate()
 {
 	Effect::OnActivate();
 
-	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"CS_lenny");
-	static Hash salonModel = GAMEPLAY::GET_HASH_KEY((char*)"CS_lenny");
-
 	static std::vector<Hash> skins = {
 		GAMEPLAY::GET_HASH_KEY((char*)"CS_lenny"),
 		GAMEPLAY::GET_HASH_KEY((char*)"MSP_SALOON1_MALES_01"),
@@ -1829,4 +1826,96 @@ void EffectBanditoKidnapsPlayer::OnActivate()
 
 	/** Set outfit */
 	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 0, false);
+}
+
+void EffectSpawnTwitchViewer::OnActivate()
+{
+	Effect::OnActivate();
+
+	bool bRequestSent = ChaosMod::Singleton->RequestTwitchViewerNameToSpawn();
+
+	//if (!bRequestSent)
+	//{
+	//	Spawn("Viewer_Name");
+	//}
+}
+
+void EffectSpawnTwitchViewer::Spawn(std::string name)
+{
+	static std::vector<const char*> skins = {
+		"a_m_m_vallaborer_01", "a_m_m_valtownfolk_01",
+		"a_m_m_valtownfolk_02", "a_m_m_tumtownfolk_01",
+		"a_f_m_valtownfolk_01", "a_m_m_asbtownfolk_01"
+	};
+
+	Hash model = GET_HASH(skins[rand() % skins.size()]);
+
+	ped = SpawnPedAroundPlayer(model, true, false);
+
+	uint32_t maxOutfits = PED::_0x10C70A515BC03707(ped);
+	uint32_t randOutfit = rand() % maxOutfits;
+
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, randOutfit, false);
+
+	static std::vector<Hash> faceIndices =
+	{
+		0x84D6, 0x3303, 0x2FF9, 0x4AD1, 0xC04F, 0xB6CE,
+		0x2844, 0xED30, 0x6A0B, 0xABCF, 0x358D, 0x8D0A,
+		0xEBAE, 0x1DF6, 0x3C0F, 0xC3B2, 0xE323, 0x8B2B,
+		0x1B6B, /*0xEE44, 0xD266, 0xA54E, 0xDDFB,*/ 0x6E7F,
+		0x3471, 0x03F5, 0x34B1, 0xF156, 0x561E, 0xF065,
+		0xAA69, 0x7AC3, 0x410D, 0x1A00, 0x91C1, 0xC375,
+		0xBB4D, 0xB0B0, 0x5D16
+	};
+
+	for (auto ind : faceIndices)
+	{
+		float randNum = ((float(rand() % 101) / 100.0f) * 10.0f) - 5.0f;
+		invoke<Void>(0x5653AB26C82938CF, ped, ind, randNum);
+	}
+
+	invoke<Void>(0x5653AB26C82938CF, ped, 0xEE44, ((float(rand() % 101) / 100.0f) * 2.0f) + 1.0f);
+
+	PED::_0xCC8CA3E88256E58F(ped, 0, 1, 1, 1, 0);
+
+	static Hash weaponHash = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_REVOLVER_SCHOFIELD");
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 200, 1, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(ped, weaponHash, 200);
+	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, 1, 0, 0, 0);
+
+
+	PED::_0x4A48B6E03BABB4AC(ped, (Any*)name.c_str());
+
+	/** _SET_PED_SCALE */
+	invoke<Void>(0x25ACFC650B65C538, ped, 0.9f + (float(rand() % 11) / 100.0f));
+
+	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 200);
+	ENTITY::SET_ENTITY_HEALTH(ped, 200, 0);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
+
+	/** PCF_AllowInCombatInteractionLockonOnTargetPed */
+	PED::SET_PED_CONFIG_FLAG(ped, 359, true);
+
+	bool bEnemy = rand() % 2;
+
+	if (bEnemy)
+	{
+		MarkPedAsEnemy(ped);
+		static Hash blipHash = GET_HASH("BLIP_STYLE_ENEMY");
+
+		/** BLIP_ADD_FOR_ENTITY */
+		Blip blip = RADAR::_0x23F74C2FDA6E7C61(blipHash, ped);
+	}
+	else
+	{
+		MarkPedAsCompanion(ped);
+	}
+
+
+	std::string str = "Spawned NPC with name " + name;
+
+	ChaosMod::LogToFile(str.c_str());
+
 }
