@@ -549,19 +549,19 @@ void ChaosMod::Update()
 
 void ChaosMod::InputTick()
 {
-	if (isKeyPressed(VK_F7))
+	if (isKeyPressed(config.controls.activateMod))
 	{
 		ToggleModStatus();
 	}
 
 	if (IsModEnabled())
 	{
-		if (isKeyPressed(VK_F8))
+		if (isKeyPressed(config.controls.toggleEffects))
 		{
 			ToggleDefaultEffectActivation();
 		}
 
-		if (isKeyPressed(VK_F10))
+		if (isKeyPressed(config.controls.testEffect))
 		{
 			ToggleEffectSelection();
 		}
@@ -617,7 +617,7 @@ void ChaosMod::InputTick()
 			//modMenu.ToggleVisibility();
 		//}
 
-		if (isKeyPressed(VK_F12))
+		if (isKeyPressed(config.controls.instaKill))
 		{
 			Ped playerPed = PLAYER::PLAYER_PED_ID();
 

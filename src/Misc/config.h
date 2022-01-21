@@ -5,6 +5,15 @@
 #include <vector>
 #include <filesystem>
 
+struct ConfigControls
+{
+	uint8_t activateMod = VK_F7;
+	uint8_t toggleEffects = VK_F8;
+	uint8_t testEffect = VK_F10;
+	uint8_t disableTwitch = VK_F11;
+	uint8_t instaKill = VK_F12;
+};
+
 struct ConfigEffect
 {
 	std::string id;
@@ -33,7 +42,8 @@ public:
 
 	std::vector<ConfigEffect> effects;
 
-
+	ConfigControls controls;
 public:
 	static std::filesystem::path GetFilePath();
+
 };

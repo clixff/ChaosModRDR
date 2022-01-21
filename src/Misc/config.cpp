@@ -73,6 +73,34 @@ void Config::Read()
 		metaInterval = document["metaInterval"].GetUint();
 	}
 
+	if (document.HasMember("controls"))
+	{
+		auto &controlsObject = document["controls"];
+
+		if (controlsObject.IsObject())
+		{
+			auto parseControl = [&controlsObject](const char* keyName, uint8_t* keyPtr)
+			{
+				if (controlsObject.HasMember(keyName))
+				{
+					int keyValue = controlsObject[keyName].GetUint();
+
+					if (keyValue >= 0 && keyValue <= 0xFF && keyValue != VK_MENU && keyValue != VK_CONTROL && keyValue != VK_SHIFT)
+					{
+						*keyPtr = uint8_t(keyValue);
+					}
+
+				}
+			};
+
+			parseControl("activate", &controls.activateMod);
+			parseControl("toggleEffects", &controls.toggleEffects);
+			parseControl("testEffect", &controls.testEffect);
+			parseControl("disableTwitch", &controls.disableTwitch);
+			parseControl("instakill", &controls.instaKill);
+		}
+	}
+
 	if (!document.HasMember("effects"))
 	{
 		return;
