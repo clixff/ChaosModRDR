@@ -110,31 +110,6 @@ void DisableAllMovements()
 	}
 }
 
-void EffectTeleportToDesert::OnActivate()
-{
-	TeleportPlayerTo(-5400.0f, -3500.0f, -20.0f);
-}
-
-void EffectTeleportToValentine::OnActivate()
-{
-	TeleportPlayerTo(-301.0f, 790.0f, 119.0f);
-}
-
-void EffectTeleportToSaintDenis::OnActivate()
-{
-	TeleportPlayerTo(2432.8f, -1216.0f, 46.0f);
-}
-
-void EffectTeleportToSnowyMountains::OnActivate()
-{
-	TeleportPlayerTo(-1505.4f, 2454.2f, 419.5f);
-}
-
-void EffectTeleportToPrison::OnActivate()
-{
-	TeleportPlayerTo(3327.2f, -664.6f, 58.2f);
-}
-
 void EffectGivePlayerMoney::OnActivate()
 {
 	CASH::PLAYER_ADD_CASH(30000, 0x2CD419DC);
@@ -232,6 +207,20 @@ void EffectGiveRandomWeapon::OnActivate()
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
+	static std::set<Hash> importantWeapons =
+	{
+		GET_HASH("WEAPON_KIT_CAMERA"),
+		GET_HASH("WEAPON_LASSO"),
+		GET_HASH("WEAPON_FISHINGROD"),
+		GET_HASH("WEAPON_MELEE_LANTERN_ELECTRIC")
+	};
+
+	for (auto wHash : importantWeapons)
+	{
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, wHash, 100, 1, 0x2cd419dc);
+		WEAPON::SET_PED_AMMO(playerPed, wHash, 100);
+	}
+
 	int32_t weaponID = rand() % Effect::WeaponHashes.size();
 
 	Hash weaponHash = Effect::WeaponHashes[weaponID];
@@ -303,8 +292,6 @@ void EffectRemoveCurrentVehicle::OnActivate()
 		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(veh, false, false);
 
 		VEHICLE::DELETE_VEHICLE(&veh);
-
-		
 	}
 	else if (PED::IS_PED_ON_MOUNT(playerPed))
 	{
@@ -313,9 +300,12 @@ void EffectRemoveCurrentVehicle::OnActivate()
 		/** _REMOVE_PED_FROM_MOUNT */
 		invoke<Void>(0x5337B721C51883A9, playerPed, 0, 0);
 
-		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(mount, false, false);
+		if (!ENTITY::IS_ENTITY_A_MISSION_ENTITY(mount))
+		{
+			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(mount, false, false);
 
-		PED::DELETE_PED(&mount);
+			PED::DELETE_PED(&mount);
+		}
 	}
 }
 
@@ -327,15 +317,6 @@ void EffectGiveLasso::OnActivate()
 	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, weaponHash, 100, 1, 0x2cd419dc);
 	WEAPON::SET_PED_AMMO(playerPed, weaponHash, 100);
 	WEAPON::SET_CURRENT_PED_WEAPON(playerPed, weaponHash, 1, 0, 0, 0);
-}
-
-void EffectTeleportToVanHorn::OnActivate()
-{
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	TeleportPlayerTo(3035.75f, 431.968f, 68.7f);
-	ENTITY::SET_ENTITY_HEADING(playerPed, 27);
-
-	ENTITY::SET_ENTITY_VELOCITY(playerPed, 0.0f, 0.0f, 0.0f);
 }
 
 void EffectIgnitePlayer::OnActivate()
@@ -371,9 +352,11 @@ void EffectKickflip::OnActivate()
 
 void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val)
 {
-	Hash hash = GAMEPLAY::GET_HASH_KEY((char*)model);
+	Hash hash = GET_HASH(model);
 
 	LoadModel(hash);
+
+	ChaosMod::Singleton->SavePlayerAttributes();
 
 	ChaosMod::UpdatePlayerSkinHash();
 
@@ -820,62 +803,6 @@ void EffectPigSkin::OnActivate()
 	invoke<Void>(0x77FF8D35EEC6BBC4, PLAYER::PLAYER_PED_ID(), rand() % 4, false);
 }
 
-void EffectTeleportToLake::OnActivate()
-{
-	Vector3 vec;
-	vec.x = -1.0f;
-	vec.y = -1009.0f;
-	vec.z = 41.0f;
-
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-	ENTITY::SET_ENTITY_COORDS(playerPed, vec.x, vec.y, vec.z, false, false, false, false);
-
-	static Hash model = GAMEPLAY::GET_HASH_KEY((char*)"SKIFF");
-
-	LoadModel(model);
-
-	Vehicle veh = VEHICLE::CREATE_VEHICLE(model, vec.x, vec.y, vec.z, 5.0f, false, false, false, false);
-
-	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
-
-	if (ENTITY::DOES_ENTITY_EXIST(veh))
-	{
-		ChaosMod::vehsSet.insert(veh);
-	}
-
-	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"A_M_M_UniCorpse_01");
-
-	Ped ped = SpawnPedAroundPlayer(skinModel, false, false);
-
-	MarkPedAsCompanion(ped);
-
-	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 56, false);
-
-	PED::SET_PED_INTO_VEHICLE(ped, veh, -1);
-	PED::SET_PED_INTO_VEHICLE(playerPed, veh, 4);
-
-	AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, 40.3f, -701.4f, 40.8f, 1000.0f, 1, model, 16777216, 1.0f, 1.0f);
-
-	/** BF_CanLeaveVehicle */
-	PED::SET_PED_COMBAT_ATTRIBUTES(ped, 3, false);
-
-	PED::SET_PED_KEEP_TASK(ped, true);
-
-	static Hash parrotModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Parrot_01");
-	Ped parrot = SpawnPedAroundPlayer(parrotModel, false, false);
-	MarkPedAsCompanion(parrot);
-
-	ENTITY::SET_ENTITY_COORDS(parrot, vec.x, vec.y, vec.z + 2.0f, false, false, false, false);
-
-	PED::SET_PED_CAN_RAGDOLL(parrot, false);
-
-	AI::TASK_FOLLOW_TO_OFFSET_OF_ENTITY(parrot, playerPed, 0.0f, 0.0f, 2.0f, 2.5f, -1.0f, -1.0f, 0, 0, 0, 0, 0);
-
-	Vehicle vehCopy = veh;
-	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehCopy);
-}
-
 void EffectSetWinterOutfit::OnActivate()
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
@@ -1275,6 +1202,8 @@ void EffectBodySwap::OnActivate()
 
 	LoadModel(pedSkin);
 
+	ChaosMod::Singleton->SavePlayerAttributes();
+
 	ChaosMod::UpdatePlayerSkinHash();
 
 	PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), pedSkin, 1);
@@ -1538,21 +1467,6 @@ void EffectSetRandomVelocity::OnActivate()
 	ENTITY::SET_ENTITY_VELOCITY(entity, vel.x, vel.y, vel.y);
 }
 
-void EffectTeleportToFortWallace::OnActivate()
-{
-	TeleportPlayerTo(357.0f, 1490.0f, 180);
-}
-
-void EffectTeleportToFortMercer::OnActivate()
-{
-	TeleportPlayerTo(-4206.0f, -3450.0f, 38.0f);
-}
-
-void EffectTeleportToBlackwater::OnActivate()
-{
-	TeleportPlayerTo(-800.0f, -1291.2f, 44.0f);
-}
-
 void EffectFirstPerson::OnTick()
 {
 	CAM::_0x90DA5BA5C2635416();
@@ -1609,25 +1523,16 @@ void EffectAgitateHorse::OnActivate()
 void EffectTpRandomLocation::OnActivate()
 {
 	static std::vector<std::vector<float>> coords = {
-		{ -310.0f, 812.3f, 121.0f }, /** Valentine saloon */
-		{ -1303.0f, 395.0f, 96.0f }, /** Wallace station saloon */
+		{ -301.0f, 790.0f, 119.0f }, /** Valentine */
+		{ -1303.0f, 395.0f, 96.0f }, /** Wallace station */
 		{ -1790.0f, -372.5f, 160.0f }, /** Strawberry */
-		{ 357.0f, 1490.0f, 180 }, /** Fort Wallace */
-		{ -4206.0f, -3450.0f, 38.0f }, /** Fort Mercer */
-		{ -800.0f, -1291.2f, 44.0f }, /** Blackwater */
 		{ 2432.8f, -1216.0f, 46.0f }, /** Saint Denis */
-		{ -3709.0f, -2602.f, -10.3f }, /** Armadillo */
-		{ -5513.7f, -2915.1f, 1.8f }, /** Tumbleweed */
-		{ -2203.02f, 717.3f, 122.4f }, /** O'Driscolls */
-		{ 830.0f, 1923.7f, 260.0f }, /** Cave with statues */
 		{ 1526.5f, 431.0f, 91.0f }, /** Emerald Station */
 		{ 1264.4f, -1311.0f, 77.0f }, /** Rhoads */
-		{ 3035.75f, 431.968f, 68.7f }, /** Van Horn */
-		{ 2927.0f, 1325.9f, 44.0f }, /** Annesburg */
-		{ 2783.3f, 531.9f, 71.5f } /** House #1 */
+		{ 2958.6f, 518.0f, 45.0f }, /** Van Horn */
+		{ 2927.0f, 1325.9f, 44.0f } /** Annesburg */
 	};
 	
-
 	auto randomCoord = coords[rand() % coords.size()];
 
 	if (randomCoord.size() != 3)
@@ -1662,9 +1567,10 @@ void EffectFakeTeleport::OnActivate()
 
 void EffectFakeTeleport::OnTick()
 {
-	if (TimerTick(10000))
+	if (TimerTick(7000) && !bTeleportedBack)
 	{
 		TeleportToOldCoord();
+		bTeleportedBack = true;
 	}
 }
 

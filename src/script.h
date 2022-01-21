@@ -262,4 +262,15 @@ public:
 	std::string twitchViewerNameToSpawn = "";
 
 	bool RequestTwitchViewerNameToSpawn();
+public:
+	void SavePlayerAttributes();
+
+	void RestorePlayerAttributes();
+
+	/** Health, stamina and dead eye ranks */
+	int playerAttributesRanks[3];
+
+	int playerDeadEyeLevel = 1;
+
+	std::set<Hash> playerOldClothes;
 };

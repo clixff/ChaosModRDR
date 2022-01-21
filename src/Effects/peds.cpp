@@ -374,11 +374,20 @@ void RemoveAllPedWeapons(Ped ped)
 {
 	static Hash unarmed = GET_HASH("WEAPON_UNARMED");
 	WEAPON::SET_CURRENT_PED_WEAPON(ped, unarmed, 1, 0, 0, 0);
-	static Hash lasso = GET_HASH("WEAPON_LASSO");
+
+	/** This weapons can't be received without mods, so don't remove it */
+	static std::set<Hash> importantWeapons = 
+	{
+		GET_HASH("WEAPON_BOW"),
+		GET_HASH("WEAPON_KIT_CAMERA"),
+		GET_HASH("WEAPON_LASSO"),
+		GET_HASH("WEAPON_FISHINGROD"),
+		GET_HASH("WEAPON_MELEE_LANTERN_ELECTRIC")
+	};
 
 	for (Hash weaponHash : Effect::WeaponHashes)
 	{
-		if (weaponHash == lasso)
+		if (importantWeapons.contains(weaponHash))
 		{
 			continue;
 		}
@@ -2051,7 +2060,7 @@ void EffectEveryoneIsLenny::OnActivate()
 			AI::TASK_LOOK_AT_ENTITY(ped, playerPed, -1, 2048, 3, 1);
 		}
 
-		if (relationships > 3)
+		if (relationships == 5)
 		{
 			MarkPedAsEnemy(lenny);
 		}

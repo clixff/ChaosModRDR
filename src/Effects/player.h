@@ -32,74 +32,6 @@ public:
 	virtual void OnActivate() override;
 };
 
-
-class EffectTeleportToDesert : public Effect
-{
-public:
-	EffectTeleportToDesert()
-	{
-		ID = "tp_to_desert";
-		name = "Teleport To the Desert";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
-
-class EffectTeleportToValentine : public Effect
-{
-public:
-	EffectTeleportToValentine()
-	{
-		ID = "tp_to_valentine";
-		name = "Teleport To Valentine";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
-
-class EffectTeleportToSaintDenis : public Effect
-{
-public:
-	EffectTeleportToSaintDenis()
-	{
-		ID = "tp_to_saint_denis";
-		name = "Teleport To Saint Denis";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
-class EffectTeleportToSnowyMountains : public Effect
-{
-public:
-	EffectTeleportToSnowyMountains()
-	{
-		ID = "tp_to_snowy_mountains";
-		name = "Teleport To the Snowy Mountains";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
-class EffectTeleportToPrison : public Effect
-{
-public:
-	EffectTeleportToPrison()
-	{
-		ID = "tp_to_prison";
-		name = "Teleport To the Prison";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
 class EffectGivePlayerMoney : public Effect
 {
 public:
@@ -368,18 +300,6 @@ public:
 	virtual void OnActivate() override;
 };
 
-class EffectTeleportToVanHorn : public Effect
-{
-public:
-	EffectTeleportToVanHorn()
-	{
-		ID = "tp_to_van_horn";
-		name = "Teleport To Van Horn";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
 
 class EffectIgnitePlayer : public Effect
 {
@@ -710,20 +630,6 @@ public:
 
 	virtual void OnActivate() override;
 };
-
-class EffectTeleportToLake : public Effect
-{
-public:
-	EffectTeleportToLake()
-	{
-		ID = "tp_to_lake";
-		name = "Teleport To The Lake";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
 
 class EffectSetWinterOutfit : public Effect
 {
@@ -1059,48 +965,6 @@ public:
 
 	virtual void OnActivate() override;
 };
-
-class EffectTeleportToFortWallace : public Effect
-{
-public:
-	EffectTeleportToFortWallace()
-	{
-		ID = "tp_to_fort_wallace";
-		name = "Teleport To Fort Wallace";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
-
-class EffectTeleportToFortMercer : public Effect
-{
-public:
-	EffectTeleportToFortMercer()
-	{
-		ID = "tp_to_fort_mercer";
-		name = "Teleport To Fort Mercer";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
-
-class EffectTeleportToBlackwater : public Effect
-{
-public:
-	EffectTeleportToBlackwater()
-	{
-		ID = "tp_to_blackwater";
-		name = "Teleport To Blackwater";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
 
 class EffectFirstPerson : public Effect
 {

@@ -27,6 +27,7 @@ std::string ChaosMod::logString = "";
 
 ChaosMod::ChaosMod()
 {
+	playerAttributesRanks[0] = playerAttributesRanks[1] = playerAttributesRanks[2] = 5;
 }
 
 ChaosMod::~ChaosMod()
@@ -317,6 +318,7 @@ void ChaosMod::Main()
 
 	ChaosMod::ThreadID = GetCurrentThreadId();
 
+	ChaosMod::Singleton->SavePlayerAttributes();
 	ChaosMod::UpdatePlayerSkinHash();
 
 	config.Read();
@@ -449,7 +451,7 @@ void ChaosMod::Update()
 				int maxEffects = 1;
 				if (activeMeta && activeMeta->ID == "combo_time")
 				{
-					maxEffects = 4;
+					maxEffects = 3;
 				}
 
 				auto effects = GenerateEffectsWithChances(maxEffects);
@@ -510,7 +512,7 @@ void ChaosMod::Update()
 
 			if (activeMeta && activeMeta->ID == "combo_time")
 			{
-				auto comboEffects = GenerateEffectsWithChances(3);
+				auto comboEffects = GenerateEffectsWithChances(2);
 				for (auto* effect : comboEffects)
 				{
 					ActivateEffect(effect);
@@ -829,11 +831,6 @@ void ChaosMod::InitEffects()
 		new EffectToTheStars(),
 		new EffectSnowstorm(),
 		new EffectThunderstorm(),
-		new EffectTeleportToDesert(),
-		new EffectTeleportToValentine(),
-		new EffectTeleportToSaintDenis(),
-		new EffectTeleportToSnowyMountains(),
-		new EffectTeleportToPrison(),
 		new EffectGivePlayerMoney(),
 		new EffectBankruptcy(),
 		new EffectSpawnVampire(),
@@ -878,7 +875,6 @@ void ChaosMod::InitEffects()
 		new EffectGiveLasso(),
 		new EffectFullAcceleration(),
 		new EffectEveryoneIsInvincible(),
-		new EffectTeleportToVanHorn(),
 		new EffectEveryoneExitsVehs(),
 		new EffectSetPlayerIntoRandomVeh(),
 		new Effect120FOV(),
@@ -940,7 +936,6 @@ void ChaosMod::InitEffects()
 		new EffectSpawnAngryCowboy(),
 		new EffectSpawnUndeadBoss(),
 		new EffectSpawnGrieferMicah(),
-		new EffectTeleportToLake(),
 		new EffectSetWinterOutfit(),
 		new EffectGamespeedx02(),
 		new EffectGamespeedx05(),
@@ -980,9 +975,6 @@ void ChaosMod::InitEffects()
 		new EffectDisableDeadEye(),
 		new EffectPartyTime(),
 		new EffectSetRandomVelocity(),
-		new EffectTeleportToFortWallace(),
-		new EffectTeleportToFortMercer(),
-		new EffectTeleportToBlackwater(),
 		new EffectExplodeNearbyPeds(),
 		new EffectNearbyPedIsCompanion(),
 		new EffectEveryoneRagdollsWhenShot(),
@@ -1277,8 +1269,7 @@ void ChaosMod::ResetPlayerSkin()
 	ENTITY::SET_ENTITY_COLLISION(playerPed, true, true);
 	ENTITY::SET_ENTITY_DYNAMIC(playerPed, true);
 
-	invoke<Void>(0xAE637BB8EF017875, PLAYER::PLAYER_ID(), 0);
-	PLAYER::_0x95EE1DEE1DCD9070(PLAYER::PLAYER_ID(), 1);
+	Singleton->RestorePlayerAttributes();
 }
 
 void ChaosMod::StartWSServer()
@@ -1411,4 +1402,89 @@ bool ChaosMod::RequestTwitchViewerNameToSpawn()
 	wsServer->SendMessageToClient("request-twitch-viewer-name");
 
 	return true;
+}
+
+void ChaosMod::SavePlayerAttributes()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Player player = PLAYER::PLAYER_ID();
+
+	static Hash playerSkinArthur = GAMEPLAY::GET_HASH_KEY((char*)"Player_Zero");
+	static Hash playerSkinJohn = GAMEPLAY::GET_HASH_KEY((char*)"Player_Three");
+	
+	Hash skin = ENTITY::GET_ENTITY_MODEL(playerPed);
+
+	if (skin != playerSkinArthur && skin != playerSkinJohn)
+	{
+		return;
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		playerAttributesRanks[i] = ATTRIBUTE::_0x147149F2E909323C(playerPed, i);
+	}
+
+	playerDeadEyeLevel = PLAYER::_0xCCE7C695C164C35F(player);
+
+
+	playerOldClothes.clear();
+
+	int32_t maxCategories = PED::_0xA622E66EEE92A08D(PLAYER::PLAYER_PED_ID());
+
+	struct ComponentsStruct
+	{
+		alignas(32) uint8_t param1 = 0;
+	};
+
+	for (int32_t i = 0; i < maxCategories; i++)
+	{
+		ComponentsStruct st1;
+		ComponentsStruct st2;
+		Hash componentHash = PED::_0x77BA37622E22023B(PLAYER::PLAYER_PED_ID(), i, true, (Any*)&st1, (Any*)&st2);
+
+		if (componentHash != 0)
+		{
+			playerOldClothes.insert(componentHash);
+		}
+	}
+}
+
+void ChaosMod::RestorePlayerAttributes()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Player player = PLAYER::PLAYER_ID();
+
+	for (int i = 0; i < 3; i++)
+	{
+		/** Reset attribute rank */
+		ATTRIBUTE::_0x5DA12E025D47D4E5(playerPed, i, playerAttributesRanks[i]);
+
+		/** Set core values */
+		ATTRIBUTE::_0xC6258F41D86676E0(playerPed, i, 100);
+	}
+
+	ENTITY::SET_ENTITY_HEALTH(playerPed, ENTITY::GET_ENTITY_MAX_HEALTH(playerPed, 0), 0);
+
+	PLAYER::RESTORE_PLAYER_STAMINA(player, 1.0f);
+	PLAYER::RESTORE_SPECIAL_ABILITY(player, -1, 1);
+
+	/** Special abilites */
+	PLAYER::_0xAE637BB8EF017875(player, 0);
+	PLAYER::_0x95EE1DEE1DCD9070(player, 1);
+	PLAYER::_0x64FF4BF9AF59E139(player, 0);
+	PLAYER::_0xA63FCAD3A6FEC6D2(player, 1);
+
+	/** _SET_DEADEYE_ABILITY_LEVEL */
+	PLAYER::_0xF0FE8E790BFEB5BB(player, playerDeadEyeLevel);
+
+	while (!PED::_0xA0BC8FAED8CFEB3C(playerPed))
+	{
+		WAIT(100);
+	}
+
+	for (auto hash : playerOldClothes)
+	{
+		PED::_0xD3A7B003ED343FD9(playerPed, hash, 1, 0, 1);
+	}
+
 }

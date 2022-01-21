@@ -1549,9 +1549,12 @@ void EffectOneHitKO::OnDeactivate()
 		{
 			int maxHP = ENTITY::GET_ENTITY_MAX_HEALTH(ped, 1);
 
-			ENTITY::SET_ENTITY_HEALTH(ped, maxHP, 1);
+			ENTITY::SET_ENTITY_HEALTH(ped, maxHP, 0);
 		}
 	}
+
+	/** Remove hunger */
+	ATTRIBUTE::_0xC6258F41D86676E0(PLAYER::PLAYER_PED_ID(), 0, 100);
 
 	peds.clear();
 }
