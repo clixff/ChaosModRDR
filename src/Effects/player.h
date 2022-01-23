@@ -745,19 +745,6 @@ public:
 	virtual void OnTick() override;
 };
 
-class EffectWaterfall : public Effect
-{
-public:
-	EffectWaterfall()
-	{
-		ID = "waterfall";
-		name = "It Do Go Down";
-		bTimed = false;
-	}
-
-	virtual void OnActivate() override;
-};
-
 class EffectRandomHonor : public Effect
 {
 public:

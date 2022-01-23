@@ -946,7 +946,6 @@ void ChaosMod::InitEffects()
 		new EffectDisableSprintJump(),
 		new EffectDisableAttackButton(),
 		new EffectDisableAiming(),
-		new EffectWaterfall(),
 		new EffectRandomWheelsDetaching(),
 		new EffectRainingPigs(),
 		new EffectRandomHonor(),

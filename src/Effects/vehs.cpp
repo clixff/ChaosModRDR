@@ -356,6 +356,8 @@ void EffectSpawnHotAirBalloon::OnActivate()
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	Vector3 playerLocation = ENTITY::GET_ENTITY_COORDS(playerPed, true, 0);
 
+	playerLocation.z += 2.0f;
+
 	static Hash model = GAMEPLAY::GET_HASH_KEY((char*)"hotAirBalloon01");
 
 	LoadModel(model);
