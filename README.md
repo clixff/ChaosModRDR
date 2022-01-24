@@ -49,6 +49,8 @@ Don't forget to press **F7** in game when you have made changes.
 
 **F10** — test any effect. **Arrows** to navigate, **Enter** to activate.
 
+**F12** — instakill player character (useful when the game breaks)
+
 ## Suggestions and bug reports
 You can suggest an effect for this mod or send a bug report on the **[Issues page](https://github.com/clixff/ChaosModRDR/issues/new/choose)**.
 
