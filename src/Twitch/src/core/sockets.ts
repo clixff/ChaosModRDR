@@ -28,9 +28,21 @@ async function onModEnabled(): Promise<void>
 }
 
 let reconnectsCount = 0;
+/** 
+ * False - send 1-4 options
+ * True - send 5-8 options
+ */
+let bPrevOptionsType = false;
 
 export function connectWebsocketClient(): void
 {
+	const _config = getConfig();
+	let maxOptions = _config.max_options;
+	if (maxOptions != 4 && maxOptions != 8)
+	{
+		maxOptions = 4;
+	}
+
 	gameWebSocketClient = new WebSocket('ws://127.0.0.1:9149');
 
 	gameWebSocketClient.on('open', () =>
@@ -75,6 +87,7 @@ export function connectWebsocketClient(): void
 					resetPollAndSend();
 					setPollVisible(false);
 					clearChatUsernames();
+					bPrevOptionsType = false;
 					break;
 				case 'mod_disabled':
 					{
@@ -125,7 +138,12 @@ export function connectWebsocketClient(): void
 									sendVotes(getVotesArray());
 									updatePollOptions(getPollNames());
 									setPollVisible(true);
+									if (maxOptions != 4)
+									{
+										setPollOptionsNumber(bPrevOptionsType);
 
+										bPrevOptionsType = !bPrevOptionsType;
+									}
 									break;
 							}
 						}
@@ -240,9 +258,21 @@ function setPollFadeOut()
 	}
 }
 
-export function startWSServer()
+function setPollOptionsNumber(bMoreOptions: boolean)
 {
-	overlayServer = new WebSocketServer({ port: 9147, host: '127.0.0.1' });
+	if (overlayServer)
+	{
+		for (let ws of overlayServer.clients)
+		{
+			ws.send(JSON.stringify({ type: 'set-poll-options-number', data: bMoreOptions }));
+		}
+	}
+}
+
+export function startWSServer(bLocalIP: boolean = true)
+{
+    const ip = bLocalIP ? '127.0.0.1' : '0.0.0.0';
+	overlayServer = new WebSocketServer({ port: 9147, host: ip });
 
     // setVotingActive(true);
     // setRandomPollOptions();

@@ -199,11 +199,29 @@ function setPollFadeOut()
     }, 10000);
 }
 
+/** 
+ * @param bMoreOptions If true, options = 1-4, else options = 5-8
+ */
+function setPollHasMoreOptions(bMoreOptions: boolean): void
+{
+    for (let i = 0; i < data.options.length; i++)
+    {
+        if (data.options[i] && data.options[i][1])
+        {
+            const wrapper = data.options[i][1];
+            const optionNum = bMoreOptions ? i + 5 : i + 1;
+            (wrapper.children[1].children[0] as HTMLDivElement).innerText = `${optionNum}`;
+        }
+    }
+
+    data.votes = 0;
+}
+
 let connectionInterval: NodeJS.Timer | null = null;
 
 function connectWS()
 {
-    const ws = new WebSocket('ws://127.0.0.1:9147');
+    const ws = new WebSocket(`ws://${window && window.location && window.location.host ? window.location.hostname : `127.0.0.1`}:9147`);
 
     ws.onclose = (ev) =>
     {
@@ -250,6 +268,9 @@ function connectWS()
                         break;
                     case 'set-poll-fade-out':
                         setPollFadeOut();
+                        break;
+                    case 'set-poll-options-number':
+                        setPollHasMoreOptions(msg.data);
                         break;
                 }
             }

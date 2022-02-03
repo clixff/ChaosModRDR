@@ -102,10 +102,15 @@ export function startListeningChat(login: string): void
 
         if (context['message-type'] === 'chat' && context['user-id'])
         {
-            const num = Number(msg);
+            let num = Number(msg);
 
-            if (isFinite(num) && num >= 1 && num <= 4)
+            if (isFinite(num) && num >= 1 && num <= 8)
             {
+                if (num >= 5)
+                {
+                    num -= 4;
+                }
+
                 newVote(Math.floor(num) -  1, context['user-id']);
 
                 const displayName = context['display-name'] || '';

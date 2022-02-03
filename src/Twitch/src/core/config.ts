@@ -3,11 +3,16 @@ import { promises as fsPromises } from 'fs';
 export interface IConfig
 {
     /** Twitch auth token */
-    token: string
+    token: string;
+    /** Use 127.0.0.1 for internal resources when true.  */
+    local_ip: boolean;
+    max_options: 4 | 8;
 };
 
 let _config: IConfig = {
     token: "",
+    local_ip: true,
+    max_options: 4
 };
 
 let configPath = 'config.json';
@@ -26,6 +31,11 @@ export async function readConfig(): Promise<void>
         if (fileData)
         {
             _config = JSON.parse(fileData);
+            
+            if (_config.max_options != 4 && _config.max_options != 8)
+            {
+                _config.max_options = 4;
+            }
         }
     }
     catch (err)

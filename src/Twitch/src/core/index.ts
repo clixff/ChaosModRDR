@@ -12,8 +12,10 @@ export function randomInteger(min: number, max: number): number
 async function Init(): Promise<void>
 {
     await readConfig();
-    startHTTPServer();
-    startWSServer();
+    const _conf = getConfig();
+    const bUseLocalHost = _conf.local_ip != undefined ? _conf.local_ip : true;
+    startHTTPServer(bUseLocalHost);
+    startWSServer(bUseLocalHost);
 
     const login = await getTwitchUser();
 

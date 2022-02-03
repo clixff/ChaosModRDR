@@ -54,9 +54,10 @@ fastify.post('/token-update', (req, reply) =>
     }
 });
 
-export function startHTTPServer(): void
+export function startHTTPServer(bLocalIP: boolean = true): void
 {
-    fastify.listen({ port: 9148, host: '127.0.0.1' }, (err, addr) =>
+    const ip = bLocalIP ? '127.0.0.1' : '0.0.0.0';
+    fastify.listen({ port: 9148, host: ip }, (err, addr) =>
     {
         if (err) throw err;
 
