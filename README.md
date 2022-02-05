@@ -51,12 +51,45 @@ Don't forget to press **F7** in game when you have made changes.
 
 **F12** — instakill player character (useful when the game breaks)
 
+
+
+
+## FAQ
+**Q**: **How to change the time between activation of effects?**
+
+**A**: Change the **interval** parameter in the config file.
+
+**Q**: **My Twitch viewers can't vote for effects**
+
+**A**: Check if the **token** parameter in the config file is not empty. If it's empty, restart the game as administrator and repeat steps in the **Twitch integration** guide.
+
+**Q**: **The game crashes when I load a savegame or start a new game with Twitch enabled**
+
+**A**: Press **F11**, the Twitch module will be temporarily disabled, and then reload your savegame or start new game after this.
+
+**Q**: **The game is softlocked or broken**
+
+**A**: Press **F12**, this hotkey will kill your character and it helps sometimes when the game is broken.
+
+**Q**: **Characters are not spawning in the game**
+
+**A**: The game has character limit of **150**. When you press **F7** to disable the mod, old spawned characters will be destroyed. Or leave a big town.
+
+**Q**: **I stream on my separate PC, how do I get the OBS poll overlay to work there?**
+
+**A**: Download the **[latest version](https://github.com/clixff/ChaosModRDR/releases/latest)** of mod (at least **1.2.1**). Set the **local_ip** parameter in the config file to **false**. Find your **private IP**, for example in the Windows Network Settings. Then replace *127.0.0.1* with your **private IP** in the OBS browser source. It may look like **192.168.0.64:9148**.
+
+**Q**: **My viewers are receiving the warning message "Your message was not sent because it is identical to the previous one you sent"**
+
+**A**: Download the **[latest version](https://github.com/clixff/ChaosModRDR/releases/latest)** of mod (at least **1.2.1**). Set the **max_options** parameter in the config file to **8**. Now the options in the poll will be **1-4** and **5-8**.
+
+**Q**: **I need additional help**
+
+**A**: Add me on Discord (*zoidman#6344*) if you need help with the mod
+
+
 ## Suggestions and bug reports
 You can suggest an effect for this mod or send a bug report on the **[Issues page](https://github.com/clixff/ChaosModRDR/issues/new/choose)**.
 
 ## Mirrors
 **[NexusMods](https://www.nexusmods.com/reddeadredemption2/mods/1269)**
-
-## Known issues
-- If mod crashes after reloading savegame or starting a new game, try pressing **F11** in game. After this you can reload your savegame or start new game.
-- If Twitch integration doesn't work, try run game as administrator and authorize Twitch access again.
