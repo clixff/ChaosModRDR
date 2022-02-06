@@ -736,3 +736,60 @@ void EffectHorsesAreDonkeys::OnActivate()
 		}
 	}
 }
+
+void EffectOilWagonsRain::OnActivate()
+{
+	vehs.clear();
+	notExplodedVehs.clear();
+}
+
+void EffectOilWagonsRain::OnDeactivate()
+{
+	for (auto veh : vehs)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(veh))
+		{
+			VEHICLE::DELETE_VEHICLE(&veh);
+		}
+	}
+
+	vehs.clear();
+	notExplodedVehs.clear();
+}
+
+void EffectOilWagonsRain::OnTick()
+{
+	if (TimerTick(2500))
+	{
+		static Hash model = GET_HASH("OilWagon01X");
+		LoadModel(model);
+
+		Ped playerPed = PLAYER::PLAYER_PED_ID();
+		Vector3 vec = GetRandomCoordAroundPlayer(float(rand() % 50));
+		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, vec.x, vec.y, vec.z + 175.0f, 0.0f, 0, 0, true, 0);
+
+		ENTITY::SET_ENTITY_ROTATION(veh, 0.0f, 180.0f, 0.0f, 2, 1);
+		ENTITY::SET_ENTITY_VELOCITY(veh, 0.0f, 0.0f, -150.0f);
+
+		vehs.push_back(veh);
+		notExplodedVehs.insert(veh);
+
+		if (ENTITY::DOES_ENTITY_EXIST(veh))
+		{
+			ChaosMod::vehsSet.insert(veh);
+		}
+
+
+		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+	}
+
+	for (auto veh : notExplodedVehs)
+	{
+		Vector3 vel = ENTITY::GET_ENTITY_VELOCITY(veh, 0);
+		if (vel.z >= -0.5f)
+		{
+			VEHICLE::EXPLODE_VEHICLE(veh, 1, 0, 0);
+			notExplodedVehs.erase(veh);
+		}
+	}
+}

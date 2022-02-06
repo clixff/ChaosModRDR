@@ -101,6 +101,9 @@ void MarkPedAsCompanion(Ped ped)
 
 	/** BLIP_ADD_MODIFIER */
 	RADAR::_0x662D364ABF16DE2F(blip, blipModifier);
+
+	/** Allow talk */
+	PED::SET_PED_CONFIG_FLAG(ped, 130, 0);
 }
 
 void MarkPedAsEnemy(Ped ped)
@@ -139,6 +142,12 @@ void MarkPedAsEnemy(Ped ped)
 	PED::SET_PED_COMBAT_ATTRIBUTES(ped, 3, true);
 
 	AI::TASK_COMBAT_PED(ped, PLAYER::PLAYER_PED_ID(), 0, 16);
+}
+
+void FixEntityInCutscene(Entity entity)
+{
+	Vector3 vec = ENTITY::GET_ENTITY_COORDS(entity, true, 0);
+	ENTITY::SET_ENTITY_COORDS(entity, vec.x, vec.y, vec.z, 0, 0, 0, 0);
 }
 
 void EffectSpawnSoldier::OnActivate() 
@@ -569,10 +578,6 @@ void EffectSpawnAngryDwarf::OnActivate()
 {
 	Effect::OnActivate();
 
-	/** Spawn donkey */
-
-	Effect::OnActivate();
-
 	static Hash horseModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Donkey_01");
 
 	Ped horse = SpawnPedAroundPlayer(horseModel);
@@ -891,6 +896,10 @@ void EffectSpawnBearCompanion::OnActivate()
 	Ped ped = SpawnPedAroundPlayer(skinModel);
 
 	MarkPedAsCompanion(ped);
+
+	PED::SET_PED_COMBAT_ATTRIBUTES(ped, 17, false);
+	PED::SET_PED_COMBAT_ATTRIBUTES(ped, 5, true);
+	PED::SET_PED_COMBAT_ATTRIBUTES(ped, 46, true);
 }
 
 void EffectSpawnAngryCorpse::OnActivate()
@@ -1071,16 +1080,14 @@ void EffectSpawnGrieferMicah::OnActivate()
 
 	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 10, false);
 
-	static Hash weaponHashDynamite = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_THROWN_DYNAMITE");
-	static Hash weaponHashMolotov = GAMEPLAY::GET_HASH_KEY((char*)"WEAPON_THROWN_MOLOTOV");
+	int randNum = rand() % 2;
 
-	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHashDynamite, 20, 1, 0x2cd419dc);
-	WEAPON::SET_PED_AMMO(ped, weaponHashDynamite, 20);
+	Hash weaponHash = randNum ? GET_HASH("WEAPON_THROWN_DYNAMITE") : GET_HASH("WEAPON_THROWN_MOLOTOV");
 
-	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHashMolotov, 20, 1, 0x2cd419dc);
-	WEAPON::SET_PED_AMMO(ped, weaponHashMolotov, 20);
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 20, 1, 0x2cd419dc);
+	WEAPON::SET_PED_AMMO(ped, weaponHash, 20);
 
-	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHashDynamite, 1, 0, 0, 0);
+	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, 1, 0, 0, 0);
 
 	/** PCF_NoCriticalHits */
 	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
@@ -1766,10 +1773,7 @@ void EffectExplosiveCombat::OnTick()
 		Vector3 vec;
 		bool bCoordValid = WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(ped, &vec);
 
-		static Hash unarmed = GET_HASH("WEAPON_UNARMED");
-		Hash weaponHash = 0;
-
-		if (bCoordValid && WEAPON::GET_CURRENT_PED_WEAPON(ped, &weaponHash, 0, 0, 0) && weaponHash == unarmed)
+		if (bCoordValid)
 		{
 			FIRE::ADD_EXPLOSION(vec.x, vec.y, vec.z, 27, 1.0f, true, false, 1.0f);
 		}
@@ -1896,9 +1900,9 @@ void EffectSpawnTwitchViewer::Spawn(std::string name)
 
 	PED::_0x4A48B6E03BABB4AC(ped, (Any*)name.c_str());
 
-	Ped pedCopy = ped;
+	//Ped pedCopy = ped;
 
-	ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&pedCopy);
+	//ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&pedCopy);
 
 	/** _SET_PED_SCALE */
 	invoke<Void>(0x25ACFC650B65C538, ped, 0.9f + (float(rand() % 11) / 100.0f));
@@ -1907,27 +1911,9 @@ void EffectSpawnTwitchViewer::Spawn(std::string name)
 	ENTITY::SET_ENTITY_HEALTH(ped, 200, 0);
 	/** PCF_NoCriticalHits */
 	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
-	/** PCF_AllowInCombatInteractionLockonOnTargetPed */
-	//PED::SET_PED_CONFIG_FLAG(ped, 359, true);
 
-	bool bEnemy = rand() % 2;
 
-	bEnemy = false;
-
-	if (bEnemy)
-	{
-		//MarkPedAsEnemy(ped);
-		//static Hash blipHash = GET_HASH("BLIP_STYLE_ENEMY");
-
-		///** BLIP_ADD_FOR_ENTITY */
-		//Blip blip = RADAR::_0x23F74C2FDA6E7C61(blipHash, ped);
-	}
-	else
-	{
-		MarkPedAsCompanion(ped);
-		//AI::TASK_FOLLOW_TO_OFFSET_OF_ENTITY(ped, PLAYER::PLAYER_PED_ID(), 1.0f, 0.0f, 0.0f, 4.5f, -1.0f, -1.0f, 0, 0, 0, 0, 0);
-		//PED::SET_PED_KEEP_TASK(ped, true);
-	}
+	MarkPedAsCompanion(ped);
 
 	std::string str = "Spawned NPC with name " + name;
 
@@ -1954,7 +1940,7 @@ void EffectEveryoneIsLenny::OnActivate()
 
 		int relationships = PED::GET_RELATIONSHIP_BETWEEN_PEDS(ped, playerPed);
 
-		if (ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped) && relationships < 4)
+		if ((ENTITY::IS_ENTITY_A_MISSION_ENTITY(ped) && !ChaosMod::pedsSet.contains(ped)) && relationships < 4)
 		{
 			continue;
 		}
@@ -2070,4 +2056,58 @@ void EffectEveryoneIsLenny::OnActivate()
 
 		ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&lenny);
 	}
+}
+
+void EffectSpawnExtremeEvilMicah::OnActivate()
+{
+	Effect::OnActivate();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	static Hash pedModel = GAMEPLAY::GET_HASH_KEY((char*)"CS_MicahBell");
+
+	Ped ped = SpawnPedAroundPlayer(pedModel, false, true);
+	/** Set outfit */
+	invoke<Void>(0x77FF8D35EEC6BBC4, ped, 10, false);
+	/** Set explosion proof */
+	invoke<Void>(0xFAEE099C6F890BB8, ped, 4, 0);
+
+	MarkPedAsEnemy(ped);
+
+	RemoveAllPedWeapons(ped);
+
+	static Hash weaponHash = GET_HASH("WEAPON_BOW");
+	WEAPON::GIVE_DELAYED_WEAPON_TO_PED(ped, weaponHash, 9999, true, 0x2cd419dc);
+	WEAPON::SET_CURRENT_PED_WEAPON(ped, weaponHash, true, 0, 0, 0);
+
+
+	ENTITY::SET_ENTITY_MAX_HEALTH(ped, 800);
+	ENTITY::SET_ENTITY_HEALTH(ped, 800, 0);
+
+	/** PCF_NoCriticalHits */
+	PED::SET_PED_CONFIG_FLAG(ped, 263, true);
+
+	lastVec.x = lastVec.y = lastVec.z = 0;
+	micahPed = ped;
+}
+
+void EffectSpawnExtremeEvilMicah::OnTick()
+{
+	if (!ENTITY::DOES_ENTITY_EXIST(micahPed) || ENTITY::IS_ENTITY_DEAD(micahPed))
+	{
+		return;
+	}
+
+	Vector3 vec;
+
+	bool bCoordValid = WEAPON::GET_PED_LAST_WEAPON_IMPACT_COORD(micahPed, &vec);
+
+	if (!bCoordValid || (vec.x == lastVec.x && vec.y == lastVec.y && vec.z == lastVec.z))
+	{
+		return;
+	}
+
+	lastVec = vec;
+
+	FIRE::ADD_EXPLOSION(vec.x, vec.y, vec.z, 27, 1.0f, true, false, 1.0f);
 }

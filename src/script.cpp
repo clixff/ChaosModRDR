@@ -997,7 +997,9 @@ void ChaosMod::InitEffects()
 		new EffectSpawnTwitchViewer(),
 		new EffectEveryoneIsLenny(),
 		new EffectShadesOfGray(),
-		new EffectPotatoMode()
+		new EffectPotatoMode(),
+		new EffectSpawnExtremeEvilMicah(),
+		new EffectOilWagonsRain()
 	};
 
 	EffectsMap.clear();

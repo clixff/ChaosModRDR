@@ -240,3 +240,24 @@ public:
 
 	virtual void OnActivate() override;
 };
+
+class EffectOilWagonsRain : public Effect
+{
+public:
+	EffectOilWagonsRain()
+	{
+		ID = "oilwagons_rain";
+		name = "Oil Wagons Rain";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnDeactivate() override;
+
+	virtual void OnTick() override;
+
+private:
+	std::vector<Vehicle> vehs;
+	std::set<Vehicle> notExplodedVehs;
+};

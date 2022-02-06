@@ -725,6 +725,25 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectSpawnExtremeEvilMicah : public Effect
+{
+public:
+	EffectSpawnExtremeEvilMicah()
+	{
+		ID = "spawn_evil_micah";
+		name = "Spawn Extreme Griefer Micah";
+		bTimed = true;
+		EffectDuration = 45;
+	}
+
+	virtual void OnActivate() override;
+	virtual void OnTick() override;
+private:
+	Vector3 lastVec;
+	Ped micahPed;
+};
+
+
 std::vector<Ped> GetNearbyPeds(int32_t Max);
 void RemovePedFromVeh(Ped ped);
 
@@ -732,3 +751,5 @@ void RemoveAllPedWeapons(Ped ped);
 
 void MarkPedAsCompanion(Ped ped);
 void MarkPedAsEnemy(Ped ped);
+
+void FixEntityInCutscene(Entity entity);

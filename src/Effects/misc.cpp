@@ -382,6 +382,16 @@ void EffectRagdollEveryone::OnActivate()
 	{
 		if (ENTITY::DOES_ENTITY_EXIST(ped))
 		{
+			FixEntityInCutscene(ped);
+		}
+	}
+
+	WAIT(75);
+
+	for (Ped ped : nearbyPeds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
 			PED::SET_PED_TO_RAGDOLL(ped, 3000, 3000, 0, true, true, false);
 		}
 	}
@@ -399,6 +409,16 @@ void EffectLaunchPedsUp::OnActivate()
 	{
 		playerMount = PED::GET_MOUNT(playerPed);
 	}
+
+	for (auto ped : nearbyPeds)
+	{
+		if (ENTITY::DOES_ENTITY_EXIST(ped) && (!bPlayerOnMount || playerMount != ped))
+		{
+			FixEntityInCutscene(ped);
+		}
+	}
+
+	WAIT(75);
 
 	for (auto ped : nearbyPeds)
 	{
@@ -424,6 +444,7 @@ void EffectInvertedGravity::OnActivate()
 	{
 		if (ENTITY::DOES_ENTITY_EXIST(ped))
 		{
+			FixEntityInCutscene(ped);
 			PED::SET_PED_TO_RAGDOLL(ped, 20000, 20000, 0, true, true, false);
 		}
 	}
@@ -465,6 +486,10 @@ void EffectInvertedGravity::OnTick()
 	{
 		if (ENTITY::DOES_ENTITY_EXIST(entity))
 		{
+			if (ENTITY::IS_ENTITY_A_PED(entity))
+			{
+				PED::SET_PED_TO_RAGDOLL(entity, 3000, 3000, 0, true, true, false);
+			}
 			ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entity, 0, 0.0f, 0.0f, 25.0f, false, false, true, false);
 		}
 	}
@@ -478,7 +503,7 @@ void EffectDoomsday::OnActivate()
 	GAMEPLAY::SET_WEATHER_TYPE(weather, 0, 1, 0, 0.0, 0);
 	GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
 
-	GAMEPLAY::SET_WIND_SPEED(150.0f);
+	GAMEPLAY::SET_WIND_SPEED(350.0f);
 	GRAPHICS::SET_TIMECYCLE_MODIFIER((char*)"EagleEyeTest");
 	GRAPHICS::SET_TIMECYCLE_MODIFIER_STRENGTH(1.0f);
 }
@@ -498,7 +523,7 @@ void EffectDoomsday::OnDeactivate()
 
 void EffectDoomsday::OnTick()
 {
-	if (TimerTick(250))
+	if (TimerTick(500))
 	{
 		entities.clear();
 		auto nearbyPeds = GetNearbyPeds(45);
@@ -513,6 +538,11 @@ void EffectDoomsday::OnTick()
 		{
 			if (ENTITY::DOES_ENTITY_EXIST(ped))
 			{
+				if (!PED::IS_PED_RAGDOLL(ped))
+				{
+					FixEntityInCutscene(ped);
+				}
+
 				PED::SET_PED_TO_RAGDOLL(ped, 1000, 1000, 0, true, true, false);
 				entities.insert(ped);
 			}
@@ -539,20 +569,22 @@ void EffectDoomsday::OnTick()
 		randomDirection.x = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
 		randomDirection.y = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
 		randomDirection.z = float((rand() % 5) + 1) * (rand() % 2 ? -1.0f : 1.0f);
-
 	}
+
 
 	for (auto entity : entities)
 	{
 		if (ENTITY::DOES_ENTITY_EXIST(entity))
 		{
-			Vector3 direction = randomDirection;
+			Vector3 direction;
 
-			direction.x *= float((rand() % 51) + 50) / 100.0f;
-			direction.y *= float((rand() % 51) + 50) / 100.0f;
-			direction.z *= float((rand() % 51) + 50) / 100.0f;
+			direction.x = float((rand() % 70) + 5);
+			direction.y = float((rand() % 70) + 5);
+			direction.z = float((rand() % 10) + 0);
 
-			//ENTITY::APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entity, 0, randomDirection.x, randomDirection.y, randomDirection.z, false, false, true, false);
+			direction.x *= rand() % 2 ? -1.0f : 1.0f;
+			direction.y *= rand() % 2 ? -1.0f : 1.0f;
+
 			ENTITY::SET_ENTITY_VELOCITY(entity, direction.x, direction.y, direction.z);
 		}
 	}
@@ -566,6 +598,10 @@ void EffectPlayIntro::OnActivate()
 void EffectPlayIntro::OnDeactivate()
 {
 	GRAPHICS::ANIMPOSTFX_STOP((char*)"Title_GameIntro");
+	WAIT(500);
+	PLAYER::SET_PLAYER_CONTROL(PLAYER::PLAYER_ID(), true, 0, false);
+	UI::DISPLAY_HUD(true);
+	RADAR::DISPLAY_RADAR(true);
 }
 
 void SetWeather(Hash hash)
@@ -639,6 +675,10 @@ void EffectEarthquake::OnTick()
 		{
 			if (ENTITY::DOES_ENTITY_EXIST(ped))
 			{
+				if (!PED::IS_PED_RAGDOLL(ped))
+				{
+					FixEntityInCutscene(ped);
+				}
 				PED::SET_PED_TO_RAGDOLL(ped, 1000, 1000, 0, true, true, false);
 				entities.insert(ped);
 			}
@@ -668,7 +708,7 @@ void EffectEarthquake::OnTick()
 
 			randomDirection.x *= rand() % 2 ? -1.0f : 1.0f;
 			randomDirection.y *= rand() % 2 ? -1.0f : 1.0f;
-			randomDirection.z *= rand() % 2 ? -1.0f : 1.0f;
+			randomDirection.z *= rand() % 2 ? -1.0f : 0.5f;
 
 			ENTITY::SET_ENTITY_VELOCITY(entity, randomDirection.x, randomDirection.y, randomDirection.z);
 		}
@@ -829,7 +869,7 @@ void EffectLightningEnemy::OnActivate()
 			int rel = PED::GET_RELATIONSHIP_BETWEEN_PEDS(ped, playerPed);
 
 			/** If ped is an enemy */
-			if (rel == 5)
+			if (rel == 5 || rel == 4)
 			{
 				Vector3 vec = ENTITY::GET_ENTITY_COORDS(ped, true, 0);
 
@@ -1097,6 +1137,10 @@ void EffectGravityField::OnTick()
 
 		for (auto ped : peds)
 		{
+			if (!PED::IS_PED_RAGDOLL(ped))
+			{
+				FixEntityInCutscene(ped);
+			}
 			PED::SET_PED_TO_RAGDOLL(ped, 2000, 2000, 0, true, true, false);
 			entities.insert(ped);
 		}
@@ -1461,6 +1505,10 @@ void EffectInsaneGravity::OnTick()
 
 		for (auto ped : peds)
 		{
+			if (!PED::IS_PED_RAGDOLL(ped))
+			{
+				FixEntityInCutscene(ped);
+			}
 			PED::SET_PED_GRAVITY(ped, true);
 			PED::SET_PED_TO_RAGDOLL(ped, 5000, 5000, 0, true, true, false);
 			entities.insert(ped);

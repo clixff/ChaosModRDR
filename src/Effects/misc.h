@@ -638,7 +638,7 @@ public:
 	EffectInsaneGravity()
 	{
 		ID = "insane_gravity";
-		name = "Insane Graivty";
+		name = "Insane Gravity";
 		bTimed = true;
 		EffectDuration = 20;
 	}
