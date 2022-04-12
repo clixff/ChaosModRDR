@@ -245,7 +245,6 @@ void WebSocketServer::OnTwitchViewerSpawned(rapidjson::Document& document)
 
 void OnSubscribeEvent(rapidjson::Document& document)
 {
-    int subs = document["num_subs"].GetInt();
-    ChaosMod::ActivateRandomEffect(subs);
+    ChaosMod::ActivateSubEffect(document["num_subs"].GetInt());
 }
 

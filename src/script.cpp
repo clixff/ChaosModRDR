@@ -191,6 +191,14 @@ void ChaosMod::ToggleModStatus()
 	ChaosMod::globalMutex.unlock();
 }
 
+void ChaosMod::ActivateSubEffect(int num_subs)
+{
+    if (config.bSubs)
+    {
+        ActivateRandomEffect(config.bSingleShotSub ? 1 : num_subs);
+    }
+}
+
 void ChaosMod::ActivateRandomEffect(int num_effects)
 {
     auto effects = ChaosMod::GenerateEffectsWithChances(num_effects);

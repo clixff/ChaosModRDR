@@ -39,6 +39,8 @@ public:
 	uint32_t metaInterval = 900;
 
 	bool bTwitch = false;
+    bool bSubs = false;
+    bool bSingleShotSub = false;
 
 	std::vector<ConfigEffect> effects;
 

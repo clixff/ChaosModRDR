@@ -104,6 +104,7 @@ public:
 	void ToggleModStatus();
 
 	void ActivateEffect(Effect* effect);
+    void ActivateSubEffect(int num_subs);
     void ActivateRandomEffect();
 
 	WebSocketServer* wsServer = nullptr;
