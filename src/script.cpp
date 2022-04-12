@@ -191,6 +191,15 @@ void ChaosMod::ToggleModStatus()
 	ChaosMod::globalMutex.unlock();
 }
 
+void ChaosMod::ActivateRandomEffect(int num_effects)
+{
+    auto effects = ChaosMod::GenerateEffectsWithChances(num_effects);
+    for(auto effect : effects)
+    {
+        ActivateEffect(effect);
+    }
+}
+
 void ChaosMod::ActivateEffect(Effect* effect)
 {
 	if (!effect)

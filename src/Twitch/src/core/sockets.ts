@@ -18,7 +18,7 @@ async function onModEnabled(): Promise<void>
 	
 		if (login)
 		{
-			startListeningChat(login);
+			startListeningChat(login, gameWebSocketClient);
 		}
 	}
 	catch (err)

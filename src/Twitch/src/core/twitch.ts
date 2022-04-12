@@ -56,8 +56,17 @@ export async function getTwitchUser(): Promise<string | null>
     return null;
 }
 
+export function handleSub(ws: WebSocket, channel: string, username: string, num_subs: number): void
+{
+    ws.send(JSON.stringify({
+        type: "subscribe-event",
+        channel: channel,
+        username: username,
+        num_subs: num_subs
+    }));
+}
 
-export function startListeningChat(login: string): void
+export function startListeningChat(login: string, ws: WebSocket): void
 {
     if (client)
     {
@@ -91,7 +100,27 @@ export function startListeningChat(login: string): void
 
     client.connect();
 
-    client.on('message', (target, context, msg, self) =>
+    client.on("giftpaidupgrade", (channel: string, username: string, sender: string, userstate: any) => {
+        handleSub(ws, channel, username, 1);
+    });
+
+    client.on("resub", (channel: string, username: string, months: number, message: string, userstate: any, methods: any) => {
+        handleSub(ws, channel, username, 1);
+    });
+
+    client.on("subgift", (channel: string, username: string, months: number, recipient: string, methods: any, userstate: any) => {
+        handleSub(ws, channel, username, 1);
+    });
+
+    client.on("submysterygift", (channel: string, username: string, num_subs: number, methods: any, userstate: any) => {
+        handleSub(ws, channel, username, num_subs);
+    });
+
+    client.on("subscription", (channel: string, username: string, method: any, message: string, userstate: any) => {
+        handleSub(ws, channel, username, 1)
+    });
+
+    client.on('message', (target: string, context: any, msg: string, self: boolean) =>
     {
         msg = msg.trim();
 
@@ -131,7 +160,7 @@ export function startListeningChat(login: string): void
         }
     });
 
-    client.on('connected', (addr, port) => {
+    client.on('connected', (addr: string, port: number) => {
 		console.log(`[Twitch] Connected to ${addr}:${port}`)
 	});
 }
