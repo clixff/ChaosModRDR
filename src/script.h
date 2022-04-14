@@ -105,7 +105,7 @@ public:
 
 	void ActivateEffect(Effect* effect);
     void ActivateSubEffect(int num_subs);
-    void ActivateRandomEffect();
+    void ActivateRandomEffect(int num_effects);
 
 	WebSocketServer* wsServer = nullptr;
 

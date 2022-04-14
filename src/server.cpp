@@ -243,8 +243,7 @@ void WebSocketServer::OnTwitchViewerSpawned(rapidjson::Document& document)
 	ChaosMod::globalMutex.unlock();
 }
 
-void OnSubscribeEvent(rapidjson::Document& document)
+void WebSocketServer::OnSubscribeEvent(rapidjson::Document& document)
 {
-    ChaosMod::ActivateSubEffect(document["num_subs"].GetInt());
+    ChaosMod::Singleton->ActivateSubEffect(document["num_subs"].GetInt());
 }
-

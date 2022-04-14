@@ -201,7 +201,7 @@ void ChaosMod::ActivateSubEffect(int num_subs)
 
 void ChaosMod::ActivateRandomEffect(int num_effects)
 {
-    auto effects = ChaosMod::GenerateEffectsWithChances(num_effects);
+    auto effects = GenerateEffectsWithChances(num_effects);
     for(auto effect : effects)
     {
         ActivateEffect(effect);
