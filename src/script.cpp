@@ -195,17 +195,34 @@ void ChaosMod::ActivateSubEffect(int num_subs)
 {
     if (config.bSubs)
     {
-        ActivateRandomEffect(config.bSingleShotSub ? 1 : num_subs);
+		int multiplier = IsEffectActive("double_subs") ? 2 : 1;
+        ActivateRandomEffect((config.bSingleShotSub ? 1 : num_subs) * multiplier);
     }
 }
 
 void ChaosMod::ActivateRandomEffect(int num_effects)
 {
     auto effects = GenerateEffectsWithChances(num_effects);
-    for(auto effect : effects)
+    for (auto effect : effects)
     {
         ActivateEffect(effect);
     }
+}
+
+bool ChaosMod::IsEffectActive(std::string effect_id)
+{
+    if (activeMeta && (*activeMeta).ID == effect_id)
+    {
+        return true;
+    }
+    for (auto check_effect : activeEffects)
+    {
+        if ((*check_effect).ID == effect_id)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void ChaosMod::ActivateEffect(Effect* effect)
@@ -1028,7 +1045,8 @@ void ChaosMod::InitEffects()
 
 	AllMetaEffects = {
 		new MetaEffectTotalChaos(),
-		new MetaEffectComboTime()
+		new MetaEffectComboTime(),
+		new MetaEffectDoubleSubs()
 	};
 
 	MetaEffectsMap.clear();

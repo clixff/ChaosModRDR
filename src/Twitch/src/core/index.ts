@@ -1,6 +1,6 @@
 import { getConfig, readConfig } from "./config"; 
 import { startHTTPServer } from "./server";
-import { connectWebsocketClient, startWSServer } from "./sockets";
+import { connectWebsocketClient, startWSServer, getWebSocket } from "./sockets";
 import { getTwitchUser, startListeningChat } from "./twitch";
 
 export function randomInteger(min: number, max: number): number
@@ -21,7 +21,7 @@ async function Init(): Promise<void>
 
     if (login)
     {
-        startListeningChat(login);
+        startListeningChat(login, getWebSocket);
     }
 
     connectWebsocketClient();

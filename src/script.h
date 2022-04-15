@@ -107,6 +107,8 @@ public:
     void ActivateSubEffect(int num_subs);
     void ActivateRandomEffect(int num_effects);
 
+    bool IsEffectActive(std::string effect_id);
+
 	WebSocketServer* wsServer = nullptr;
 
 	std::thread wsThread;
