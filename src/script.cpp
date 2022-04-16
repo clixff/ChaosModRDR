@@ -819,6 +819,7 @@ void ChaosMod::InitEffects()
 		new EffectSpawnLenny(),
 		new EffectSpawnDrunkardJon(),
 		new EffectSpawnChicken(),
+		new EffectSpawnWolfPack(),
 		new EffectLaunchPlayerUp(),
 		new EffectSpawnHotchkissCannon(),
 		new EffectKidnapping(),

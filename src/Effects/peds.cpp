@@ -254,6 +254,19 @@ void EffectSpawnChicken::OnActivate()
 	MarkPedAsCompanion(ped);
 }
 
+void EffectSpawnWolfPack::OnActivate()
+{
+	Effect::OnActivate();
+
+	static Hash skinModel = GAMEPLAY::GET_HASH_KEY((char*)"A_C_Wolf");
+
+	for (int i = 0; i < 8; i++) {
+		Ped ped = SpawnPedAroundPlayer(skinModel);
+
+		MarkPedAsCompanion(ped);
+	}
+}
+
 void EffectKidnapping::OnActivate()
 {
 	Effect::OnActivate();

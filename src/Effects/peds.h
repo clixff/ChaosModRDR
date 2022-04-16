@@ -59,6 +59,19 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectSpawnWolfPack : public Effect
+{
+public:
+	EffectSpawnWolfPack()
+	{
+		ID = "spawn_wolf_pack";
+		name = "Spawn Companion Wolf Pack";
+		bTimed = false;
+	}
+
+	virtual void OnActivate() override;
+};
+
 class EffectKidnapping : public Effect
 {
 public:
