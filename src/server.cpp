@@ -245,5 +245,11 @@ void WebSocketServer::OnTwitchViewerSpawned(rapidjson::Document& document)
 
 void WebSocketServer::OnSubscribeEvent(rapidjson::Document& document)
 {
-    ChaosMod::Singleton->ActivateSubEffect(document["num_subs"].GetInt());
+	if (!document.HasMember("num_subs"))
+	{
+		return;
+	}
+	
+	int num_subs = document["num_subs"].GetInt();
+    ChaosMod::Singleton->ActivateSubEffect(num_subs);
 }

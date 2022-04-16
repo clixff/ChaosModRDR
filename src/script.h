@@ -175,6 +175,7 @@ private:
 	void ResetEffectsTimeout();
 
 	std::vector<Effect*> activeEffects;
+	std::vector<Effect*> subEffects;
 
 	void DrawEffectInUI(Effect* effect, int32_t index);
 

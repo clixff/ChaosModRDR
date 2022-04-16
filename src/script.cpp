@@ -140,6 +140,7 @@ void ChaosMod::ToggleModStatus()
 		}
 
 		activeEffects = {};
+		subEffects = {};
 
 		if (config.bTwitch && wsServer)
 		{
@@ -195,29 +196,30 @@ void ChaosMod::ActivateSubEffect(int num_subs)
 {
     if (config.bSubs)
     {
-		int multiplier = IsEffectActive("double_subs") ? 2 : 1;
-        ActivateRandomEffect((config.bSingleShotSub ? 1 : num_subs) * multiplier);
-    }
-}
+		ChaosMod::LogToFile(("Activating " + std::to_string(num_subs) + " sub effects").c_str());
+		bool double_subs_active = IsEffectActive("double_subs");
+		ChaosMod::LogToFile(("Double subs active: " + std::to_string(double_subs_active)).c_str());
+		int multiplier = double_subs_active ? 2 : 1;
+		int num_effects = (config.bSingleShotSub ? 1 : num_subs) * multiplier;
+		ChaosMod::LogToFile(("Generating " + std::to_string(num_effects) + " random effects").c_str());
+		auto effects = GenerateEffectsWithChances(num_effects);
 
-void ChaosMod::ActivateRandomEffect(int num_effects)
-{
-    auto effects = GenerateEffectsWithChances(num_effects);
-    for (auto effect : effects)
-    {
-        ActivateEffect(effect);
+		ChaosMod::globalMutex.lock();
+
+		for (auto* effect : effects)
+		{
+			subEffects.push_back(effect);
+		}
+
+		ChaosMod::globalMutex.unlock();
     }
 }
 
 bool ChaosMod::IsEffectActive(std::string effect_id)
 {
-    if (activeMeta && (*activeMeta).ID == effect_id)
-    {
-        return true;
-    }
     for (auto check_effect : activeEffects)
     {
-        if ((*check_effect).ID == effect_id)
+        if (check_effect->ID == effect_id)
         {
             return true;
         }
@@ -576,6 +578,19 @@ void ChaosMod::Update()
 				break;
 			}
 		}
+	}
+	
+	if (subEffects.size() > 0)
+	{
+		for (auto* effect : subEffects)
+		{
+			if (effect)
+			{
+				ChaosMod::LogToFile(("Activating sub effect: " + effect->ID).c_str());
+				ActivateEffect(effect);
+			}
+		}
+		subEffects.clear();
 	}
 
 	DrawUI();
