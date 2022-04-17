@@ -105,7 +105,7 @@ function updateVotes(votes: Array<number>, weighted_voting: boolean)
 
 
         let percent = 0;
-        let value = 0;
+        let value = "";
 
 
         if (!weighted_voting)
@@ -119,7 +119,7 @@ function updateVotes(votes: Array<number>, weighted_voting: boolean)
                     percent = 1;
                 }
             }
-            value = votes[i];
+            value = votes[i].toString();
         }
         else
         {
@@ -132,7 +132,7 @@ function updateVotes(votes: Array<number>, weighted_voting: boolean)
                     percent = 1;
                 }
             }
-            value = Math.round(percent * 100);
+            value = Math.round(percent * 100) + "%";
         }
 
         (option[1].children[0] as HTMLDivElement).style.transform = `scaleX(${percent})`;
