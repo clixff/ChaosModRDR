@@ -6,7 +6,7 @@ interface IData
 {
     votes: number;
     options: Array<[number, HTMLDivElement]>;
-};
+}
 
 
 const data: IData = 
@@ -67,8 +67,9 @@ function initOptions(num: number)
 initOptions(4);
 
 
-function updateEffects(effects: Array<string>): void
+function updateEffects(effects: Array<string>, weighted_voting: boolean): void
 {
+    let start_value = weighted_voting ? Math.round(100.0 / effects.length) + "%" : "0";
     for (let i = 0; i < effects.length; i++)
     {
         if (data.options[i])
@@ -78,14 +79,14 @@ function updateEffects(effects: Array<string>): void
             (wrapper.children[0] as HTMLDivElement).style.transform = 'scaleX(0.0)';
             (wrapper as HTMLDivElement).style.opacity = '1.0';
             (wrapper.children[1].children[1] as HTMLDivElement).innerText = effects[i];
-            (wrapper.children[1].children[2] as HTMLDivElement).innerText = `0`;
+            (wrapper.children[1].children[2] as HTMLDivElement).innerText = start_value;
         }
     }
 
     data.votes = 0;
 }
 
-function updateVotes(votes: Array<number>)
+function updateVotes(votes: Array<number>, weighted_voting: boolean)
 {
     data.votes = votes.reduce((prev, now) => { return now+prev; });
 
@@ -101,21 +102,41 @@ function updateVotes(votes: Array<number>)
         const option = data.options[i];
         option[0] = votes[i];
 
+
+
         let percent = 0;
+        let value = 0;
 
-        if (votes[i])
+
+        if (!weighted_voting)
         {
-            percent = votes[i] / data.votes;
-
-            if (percent > 1)
+            if (votes[i])
             {
-                percent = 1;
+                percent = votes[i] / data.votes;
+
+                if (percent > 1)
+                {
+                    percent = 1;
+                }
             }
+            value = votes[i];
+        }
+        else
+        {
+            if (votes[i])
+            {
+                percent = (votes[i] + 1) / votes.length;
+
+                if (percent > 1)
+                {
+                    percent = 1;
+                }
+            }
+            value = Math.round(percent * 100);
         }
 
         (option[1].children[0] as HTMLDivElement).style.transform = `scaleX(${percent})`;
-
-        (option[1].children[1].children[2] as HTMLDivElement).innerText = `${votes[i]}`;
+        (option[1].children[1].children[2] as HTMLDivElement).innerText = `${value}`;
     }
 }
 
@@ -252,10 +273,10 @@ function connectWS()
             {
                 switch (msg.type) {
                     case "new-options":
-                        updateEffects(msg.data);
+                        updateEffects(msg.data, msg.weighted_voting);
                         break;
                     case "update-votes":
-                        updateVotes(msg.data);
+                        updateVotes(msg.data, msg.weighted_voting);
                         break;
                     case "set-winner":
                         updateWinner(msg.data);

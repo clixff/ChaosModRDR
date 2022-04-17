@@ -76,8 +76,8 @@ export function connectWebsocketClient(): void
 			function resetPollAndSend()
 			{
 				resetPoll();
-				sendVotes(getVotesArray());
-				updatePollOptions(getPollNames());
+				sendVotes(getVotesArray(), _config.weighted_voting);
+				updatePollOptions(getPollNames(), _config.weighted_voting);
 			}
 
 			switch (msg)
@@ -100,7 +100,7 @@ export function connectWebsocketClient(): void
 				case 'vote_ended':
 					{
 						setPollVisible(true);
-						sendVotes(getVotesArray());
+						sendVotes(getVotesArray(), _config.weighted_voting);
 						setVotingActive(false);
 
 						const winner: number = getWinnerIndex(_config.weighted_voting);
@@ -135,8 +135,8 @@ export function connectWebsocketClient(): void
 									
 									updateEffectNamesFromGame(effectNames);
 									setVotingActive(true);
-									sendVotes(getVotesArray());
-									updatePollOptions(getPollNames());
+									sendVotes(getVotesArray(), _config.weighted_voting);
+									updatePollOptions(getPollNames(), _config.weighted_voting);
 									setPollVisible(true);
 									if (maxOptions != 4)
 									{
@@ -191,24 +191,24 @@ const overlayClients: Array<WebSocket> = [];
 
 let overlayServer: WebSocketServer | null = null;
 
-function sendVotes(votes: Array<number>)
+function sendVotes(votes: Array<number>, weighted_voting: boolean)
 {
 	if (overlayServer)
 	{
 		for (let ws of overlayServer.clients)
 		{
-			ws.send(JSON.stringify({ type: 'update-votes', data: votes }));
+			ws.send(JSON.stringify({ type: 'update-votes', data: votes, weighted_voting: weighted_voting }));
 		}
 	}
 }
 
-function updatePollOptions(options: Array<string>)
+function updatePollOptions(options: Array<string>, weighted_voting: boolean)
 {
 	if (overlayServer)
 	{
 		for (let ws of overlayServer.clients)
 		{
-			ws.send(JSON.stringify({ type: 'new-options', data: options }));
+			ws.send(JSON.stringify({ type: 'new-options', data: options, weighted_voting: weighted_voting }));
 		}
 	}
 }
