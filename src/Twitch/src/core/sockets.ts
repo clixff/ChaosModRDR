@@ -2,7 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { getConfig, readConfig } from './config';
 import { randomInteger } from './index';
 import { clearChatUsernames, getRandomTwitchNickname, getTwitchUser, startListeningChat } from './twitch';
-import { getPollNames, getVotesArray, getWInnerIndex, IsVotingEnabled, resetPoll, setVotingActive, updateEffectNamesFromGame } from './voting';
+import { getPollNames, getVotesArray, getWinnerIndex, IsVotingEnabled, resetPoll, setVotingActive, updateEffectNamesFromGame } from './voting';
 
 let gameWebSocketClient: WebSocket | null = null;
 let clientReconnectInterval: NodeJS.Timer | null = null;
@@ -103,7 +103,7 @@ export function connectWebsocketClient(): void
 						sendVotes(getVotesArray());
 						setVotingActive(false);
 
-						const winner: number = getWInnerIndex();
+						const winner: number = getWinnerIndex(_config.weighted_voting);
 
 						updateWinner(winner);
 
