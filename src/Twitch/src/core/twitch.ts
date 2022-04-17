@@ -115,9 +115,11 @@ export function startListeningChat(login: string, ws_provider: Function): void
         handleSub(ws_provider(), channel, username, 1);
     });
 
+    /*
     client.on("submysterygift", (channel: string, username: string, num_subs: number, methods: any, userstate: any) => {
         handleSub(ws_provider(), channel, username, num_subs);
     });
+     */
 
     client.on("subscription", (channel: string, username: string, method: any, message: string, userstate: any) => {
         handleSub(ws_provider(), channel, username, 1)
