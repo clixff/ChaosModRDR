@@ -145,9 +145,9 @@ void EffectTrainsawLaser::OnTick()
 
     static Hash trainHash = GAMEPLAY::GET_HASH_KEY((char*)"CABOOSE01X");
 
-    LoadModel(cartHash);
+    LoadModel(trainHash);
 
-    Vehicle veh = VEHICLE::CREATE_VEHICLE(cartHash, 0, 0,  35.0f, rand() % 360, false, false, false, false);
+    Vehicle veh = VEHICLE::CREATE_VEHICLE(trainHash, 0, 0,  35.0f, rand() % 360, false, false, false, false);
 
     ENTITY::SET_ENTITY_VELOCITY(veh, 0.0f, 0.0f, -100.0f);
 
