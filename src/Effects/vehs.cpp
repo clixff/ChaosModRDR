@@ -116,6 +116,51 @@ void EffectFlipAllVehs::OnActivate()
 	}
 }
 
+void EffectTrainsawLaser::OnActivate()
+{
+    vehs.clear();
+}
+
+void EffectTrainsawLaser::OnDeactivate()
+{
+    for (auto veh : vehs)
+    {
+        if (ENTITY::DOES_ENTITY_EXIST(veh))
+        {
+            VEHICLE::DELETE_VEHICLE(&veh);
+        }
+    }
+
+    vehs.clear();
+}
+
+void EffectTrainsawLaser::OnTick()
+{
+    Effect::OnTick();
+
+    if (!TimerTick(500))
+    {
+        return;
+    }
+
+    static Hash trainHash = GAMEPLAY::GET_HASH_KEY((char*)"CABOOSE01X");
+
+    LoadModel(cartHash);
+
+    Vehicle veh = VEHICLE::CREATE_VEHICLE(cartHash, 0, 0,  35.0f, rand() % 360, false, false, false, false);
+
+    ENTITY::SET_ENTITY_VELOCITY(veh, 0.0f, 0.0f, -100.0f);
+
+    STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(trainHash);
+
+    vehs.push_back(veh);
+
+    if (ENTITY::DOES_ENTITY_EXIST(veh))
+    {
+        ChaosMod::vehsSet.insert(veh);
+    }
+}
+
 void EffectMinecartRain::OnActivate()
 {
 	vehs.clear();

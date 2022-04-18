@@ -30,6 +30,27 @@ public:
 	virtual void OnActivate() override;
 };
 
+class EffectTrainsawLaser : public Effect
+{
+public:
+    EffectTrainsawLaser()
+    {
+        ID = "trainsaw_laser";
+        name = "Trainsaw Laser";
+        bTimed = true;
+        EffectDuration = 30;
+    }
+
+    virtual void OnActivate() override;
+    virtual void OnDeactivate() override;
+
+    virtual void OnTick() override;
+
+private:
+    std::vector<Vehicle> vehs;
+
+};
+
 class EffectMinecartRain : public Effect
 {
 public:

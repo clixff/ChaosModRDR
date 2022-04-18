@@ -872,6 +872,7 @@ void ChaosMod::InitEffects()
 		new EffectSpawnFrozenCouple(),
 		new EffectEarthquake(),
 		new EffectRemoveCurrentVehicle(),
+        new EffectTrainsawLaser(),
 		new EffectMinecartRain(),
 		new EffectGiveLasso(),
 		new EffectFullAcceleration(),
