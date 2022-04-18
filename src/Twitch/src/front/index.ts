@@ -125,7 +125,7 @@ function updateVotes(votes: Array<number>, weighted_voting: boolean)
         {
             if (votes[i])
             {
-                percent = (votes[i] + 1) / votes.length;
+                percent = (votes[i] + 1) / data.votes;
 
                 if (percent > 1)
                 {
