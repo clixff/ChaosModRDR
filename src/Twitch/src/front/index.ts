@@ -74,7 +74,7 @@ function updateEffects(effects: Array<string>, weighted_voting: boolean): void
     {
         if (data.options[i])
         {
-            data.options[i][0] = 0;
+            data.options[i][0] = weighted_voting ? 1 : 0;
             const wrapper = data.options[i][1];
             (wrapper.children[0] as HTMLDivElement).style.transform = 'scaleX(0.0)';
             (wrapper as HTMLDivElement).style.opacity = '1.0';
@@ -107,32 +107,23 @@ function updateVotes(votes: Array<number>, weighted_voting: boolean)
         let percent = 0;
         let value = "";
 
-
-        if (!weighted_voting)
+        if (votes[i])
         {
-            if (votes[i])
-            {
-                percent = votes[i] / data.votes;
+            percent = votes[i] / data.votes;
 
-                if (percent > 1)
-                {
-                    percent = 1;
-                }
-            }
-            value = votes[i].toString();
-        }
-        else
-        {
-            if (votes[i])
+            if (percent > 1)
             {
-                percent = (votes[i] + 1) / data.votes;
-
-                if (percent > 1)
-                {
-                    percent = 1;
-                }
+                percent = 1;
             }
-            value = Math.round(percent * 100) + "%";
+
+            if (!weighted_voting)
+            {
+                value = votes[i].toString();
+            }
+            else
+            {
+                value = Math.round(percent * 100) + "%";
+            }
         }
 
         (option[1].children[0] as HTMLDivElement).style.transform = `scaleX(${percent})`;
