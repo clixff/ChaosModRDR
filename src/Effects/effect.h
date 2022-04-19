@@ -69,6 +69,7 @@ public:
 
 	uint32_t DeactivationTime = 0;
 	uint32_t ActivationTime = 0;
+	uint32_t DisplayTime = 0;
 
 	static std::vector<const char*> WeaponNames;
 	static std::vector<Hash> WeaponHashes;
