@@ -677,7 +677,7 @@ void ChaosMod::DrawUI()
 		auto* effect = displayedEffects[i];
 		if (effect)
 		{
-			if (GetTickCount() >= effect->DisplayTime && !(effect->bTimed && GetTickCount() >= effect->DeactivationTime))
+			if (GetTickCount() >= max(effect->DisplayTime, effect->DeactivationTime))
 			{
 				displayedEffects.erase(displayedEffects.begin() + i);
 				i--;
