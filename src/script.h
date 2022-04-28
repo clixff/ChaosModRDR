@@ -176,6 +176,7 @@ private:
 
 	std::vector<Effect*> activeEffects;
 	std::vector<Effect*> subEffects;
+	std::vector<Effect*> displayedEffects;
 
 	void DrawEffectInUI(Effect* effect, int32_t index);
 

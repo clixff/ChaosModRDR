@@ -240,6 +240,8 @@ void ChaosMod::ActivateEffect(Effect* effect)
 		effect->DeactivationTime = effect->ActivationTime + (effect->EffectDuration * 1000);
 	}
 
+	effect->DisplayTime = effect->ActivationTime + (config.effectDisplayTime * 1000);
+
 	prevActivatedEffect = effect;
 
 	effect->OnActivate();
@@ -718,9 +720,22 @@ void ChaosMod::DrawUI()
 	/** Draw progress bar foreground */
 	GRAPHICS::DRAW_RECT(effectTimeoutValue / 2.0f, ProgressBarHeight / 2.0f, effectTimeoutValue, ProgressBarHeight, color.R, color.G, color.B, color.A, 0, 0);
 
-	for (int32_t i = 0; i < activeEffects.size(); i++)
+
+	for (int32_t i = 0; i < displayedEffects.size(); i++)
 	{
-		DrawEffectInUI(activeEffects[i], i);
+		auto* effect = displayedEffects[i];
+		if (effect)
+		{
+			if (GetTickCount() >= max(effect->DisplayTime, effect->DeactivationTime))
+			{
+				displayedEffects.erase(displayedEffects.begin() + i);
+				i--;
+			}
+			else
+			{
+				DrawEffectInUI(activeEffects[i], i);
+			}
+		}
 	}
 
 	if (bEffectSelectionVisible)

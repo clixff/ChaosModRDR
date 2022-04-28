@@ -82,6 +82,11 @@ void Config::Read()
 		metaInterval = document["metaInterval"].GetUint();
 	}
 
+	if (document.HasMember("effectDisplayTime"))
+	{
+		effectDisplayTime = document["effectDisplayTime"].GetUint();
+	}
+
 	if (document.HasMember("controls"))
 	{
 		auto &controlsObject = document["controls"];
