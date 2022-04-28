@@ -7,12 +7,14 @@ export interface IConfig
     /** Use 127.0.0.1 for internal resources when true.  */
     local_ip: boolean;
     max_options: 4 | 8;
-};
+    weighted_voting: boolean;
+}
 
 let _config: IConfig = {
     token: "",
     local_ip: true,
-    max_options: 4
+    max_options: 4,
+    weighted_voting: false
 };
 
 let configPath = 'config.json';
@@ -54,7 +56,7 @@ export async function saveConfig(): Promise<void>
     {
         console.log(err);
     }
-};
+}
 
 export async function updateToken(newToken: string): Promise<void>
 {

@@ -49,32 +49,54 @@ export function newVote(optionNum: number, userID: string)
     }
 }
 
-export function getWinnerIDByVotes(votes: Array<number>): number
+export function getWinnerIDByVotes(votes: Array<number>, weighted_random: boolean): number
 {
-    const total = votes.reduce((prev, cur) => { return prev + cur; });
-    
-    /** Return random effect if no votes */
-    if (!total)
+    if (!weighted_random)
     {
-        return votes.length - 1;
+        const total = votes.reduce((prev, cur) => { return prev + cur; });
+
+        /** Return random effect if no votes */
+        if (!total)
+        {
+            return votes.length - 1;
+        }
+
+        let max = 0;
+        let indexMax = 0;
+
+        for (let i = 0; i < votes.length; i++)
+        {
+            if (votes[i] > max)
+            {
+                indexMax = i;
+                max = votes[i];
+            }
+        }
+        return indexMax;
     }
 
-    let max = 0;
-    let indexMax = 0;
+    let i: number;
+    let weights: number[] = [];
 
-    for (let i = 0; i < votes.length; i++)
+    for (i = 0; i < votes.length; i++)
     {
-        if (votes[i] > max)
+        weights[i] = votes[i] + (weights[i - 1] || 0);
+    }
+
+    let rand = Math.random() * weights[weights.length - 1];
+
+    for (i = 0; i < weights.length; i++)
+    {
+        if (weights[i] > rand)
         {
-            indexMax = i;
-            max = votes[i];
+            break;
         }
     }
 
-    return indexMax;
+    return i;
 }
 
-export function getWInnerIndex(): number
+export function getWinnerIndex(weighted_random: boolean): number
 {
     let arrVotes = [];
 
@@ -83,15 +105,13 @@ export function getWInnerIndex(): number
         arrVotes.push(poll[i].votes.length);
     }
 
-    const winnerId = getWinnerIDByVotes(arrVotes);
-
-    return winnerId;
+    return getWinnerIDByVotes(arrVotes, weighted_random);
 }
 
 export function setVotingActive(value: boolean): void
 {
     bVotingActive = value;
-};
+}
 
 export function getPollNames(): Array<string>
 {
