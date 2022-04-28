@@ -747,6 +747,17 @@ public:
 	}
 };
 
+class MetaEffectDoubleSubs : public MetaEffect
+{
+public:
+	MetaEffectDoubleSubs()
+	{
+		ID = "double_subs";
+		name = "Double Subs";
+		EffectDuration = 180;
+	}
+};
+
 
 std::vector<Entity> GetNearbyProps(int32_t Max);
 

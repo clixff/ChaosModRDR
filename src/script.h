@@ -104,6 +104,10 @@ public:
 	void ToggleModStatus();
 
 	void ActivateEffect(Effect* effect);
+    void ActivateSubEffect(int num_subs);
+    void ActivateRandomEffect(int num_effects);
+
+    bool IsEffectActive(std::string effect_id);
 
 	WebSocketServer* wsServer = nullptr;
 
@@ -171,6 +175,7 @@ private:
 	void ResetEffectsTimeout();
 
 	std::vector<Effect*> activeEffects;
+	std::vector<Effect*> subEffects;
 
 	void DrawEffectInUI(Effect* effect, int32_t index);
 

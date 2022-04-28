@@ -68,6 +68,15 @@ void Config::Read()
 		bTwitch = document["twitch"].GetBool();
 	}
 
+    if (document.HasMember("subEffects"))
+    {
+        bSubs = document["subEffects"].GetBool();
+    }
+
+    if (document.HasMember("singleEffectPerSub")){
+        bSingleShotSub = document["singleEffectPerSub"].GetBool();
+    }
+
 	if (document.HasMember("metaInterval"))
 	{
 		metaInterval = document["metaInterval"].GetUint();

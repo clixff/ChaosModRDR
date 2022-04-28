@@ -110,6 +110,10 @@ void WebSocketServer::OnMessage(websocketpp::connection_hdl hdl, _server::messag
 	{
 		OnTwitchViewerSpawned(document);
 	}
+    else if (eventType == "subscribe-event")
+    {
+        OnSubscribeEvent(document);
+    }
 }
 
 void WebSocketServer::OnConnect(websocketpp::connection_hdl hdl)
@@ -237,4 +241,15 @@ void WebSocketServer::OnTwitchViewerSpawned(rapidjson::Document& document)
 	ChaosMod::Singleton->twitchViewerNameToSpawn = name;
 
 	ChaosMod::globalMutex.unlock();
+}
+
+void WebSocketServer::OnSubscribeEvent(rapidjson::Document& document)
+{
+	if (!document.HasMember("num_subs"))
+	{
+		return;
+	}
+	
+	int num_subs = document["num_subs"].GetInt();
+    ChaosMod::Singleton->ActivateSubEffect(num_subs);
 }

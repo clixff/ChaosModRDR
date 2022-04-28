@@ -28,6 +28,7 @@ private:
 
 	void OnNewEffectActivated(rapidjson::Document& document);
 	void OnTwitchViewerSpawned(rapidjson::Document &document);
+    void OnSubscribeEvent(rapidjson::Document &document);
 
 	std::atomic<bool> bStarted = std::atomic<bool>(false);
 };

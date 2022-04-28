@@ -92,7 +92,7 @@ private:
 class MetaEffect : public Effect
 {
 public:
-	MetaEffect()
+	MetaEffect() : Effect()
 	{
 		bIsMeta = true;
 		bTimed = true;

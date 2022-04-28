@@ -18,7 +18,7 @@ async function onModEnabled(): Promise<void>
 	
 		if (login)
 		{
-			startListeningChat(login);
+			startListeningChat(login, getWebSocket);
 		}
 	}
 	catch (err)
@@ -33,6 +33,11 @@ let reconnectsCount = 0;
  * True - send 5-8 options
  */
 let bPrevOptionsType = false;
+
+export function getWebSocket() : WebSocket | null
+{
+	return gameWebSocketClient;
+}
 
 export function connectWebsocketClient(): void
 {
