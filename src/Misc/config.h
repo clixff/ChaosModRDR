@@ -27,26 +27,27 @@ class Config
 {
 public:
 	Config();
+	
 	~Config();
-
+	
 	/** Reads config file and saves data to this object */
 	void Read();
 
 public:
-
+	
 	uint32_t intervalTime = 60;
 	uint32_t votingTime = 30;
 	uint32_t metaInterval = 900;
 	uint32_t effectDisplayTime = 15;
-
+	
 	bool bTwitch = false;
-    bool bSubs = false;
-    bool bSingleShotSub = false;
-
-	std::vector<ConfigEffect> effects;
-
+	bool bSubs = false;
+	bool bSingleShotSub = false;
+	
+	std::vector <ConfigEffect> effects;
+	
 	ConfigControls controls;
 public:
 	static std::filesystem::path GetFilePath();
-
+	
 };

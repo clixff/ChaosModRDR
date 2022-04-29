@@ -4,7 +4,7 @@
 #include <vector>
 #include <set>
 
-std::vector<Vehicle> GetNearbyVehs(int32_t Max);
+std::vector <Vehicle> GetNearbyVehs(int32_t Max);
 
 class EffectSpawnWagon : public Effect
 {
@@ -26,29 +26,30 @@ public:
 		ID = "flip_vehs";
 		name = "Flip All Vehicles";
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
 class EffectTrainsawLaser : public Effect
 {
 public:
-    EffectTrainsawLaser()
-    {
-        ID = "trainsaw_laser";
-        name = "Trainsaw Laser";
-        bTimed = true;
-        EffectDuration = 30;
-    }
-
-    virtual void OnActivate() override;
-    virtual void OnDeactivate() override;
-
-    virtual void OnTick() override;
+	EffectTrainsawLaser()
+	{
+		ID = "trainsaw_laser";
+		name = "Trainsaw Laser";
+		bTimed = true;
+		EffectDuration = 30;
+	}
+	
+	virtual void OnActivate() override;
+	
+	virtual void OnDeactivate() override;
+	
+	virtual void OnTick() override;
 
 private:
-    std::vector<Vehicle> vehs;
-
+	std::vector <Vehicle> vehs;
+	
 };
 
 class EffectMinecartRain : public Effect
@@ -61,15 +62,16 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
-
+	
 	virtual void OnTick() override;
 
 private:
-	std::vector<Vehicle> vehs;
-
+	std::vector <Vehicle> vehs;
+	
 };
 
 class EffectFullAcceleration : public Effect
@@ -82,15 +84,17 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
-
+	
 	virtual void OnTick() override;
-private:
-	std::vector<Vehicle> vehs;
 
-	std::set<Ped> horses;
+private:
+	std::vector <Vehicle> vehs;
+	
+	std::set <Ped> horses;
 };
 
 class EffectEveryoneExitsVehs : public Effect
@@ -101,7 +105,7 @@ public:
 		ID = "everyone_exits_vehs";
 		name = "Everyone Exits Their Vehicles";
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -113,7 +117,7 @@ public:
 		ID = "set_to_random_veh";
 		name = "Set Player Into Random Vehicle";
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -125,7 +129,7 @@ public:
 		ID = "spawn_balloon";
 		name = "Spawn Hot Air Balloon";
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -137,7 +141,7 @@ public:
 		ID = "ignite_wagon";
 		name = "Ignite Player's Wagon";
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -149,7 +153,7 @@ public:
 		ID = "ignite_nearby_wagons";
 		name = "Ignite Nearby Wagons";
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -161,10 +165,10 @@ public:
 		ID = "spawn_canoe";
 		name = "Spawn Canoe";
 	}
-
-	virtual void OnActivate() override; 
+	
+	virtual void OnActivate() override;
 };
- 
+
 class EffectHorsesRain : public Effect
 {
 public:
@@ -175,14 +179,16 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
+	
 	virtual void OnTick() override;
 
 private:
-	std::vector<Ped> horses;
-
+	std::vector <Ped> horses;
+	
 };
 
 class EffectDetachWheels : public Effect
@@ -193,7 +199,7 @@ public:
 		ID = "detach_wheels";
 		name = "Detach Wheels From Player's Veh";
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -205,7 +211,7 @@ public:
 		ID = "set_peds_into_player_veh";
 		name = "Teleport Peds Into Player's Veh";
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -219,7 +225,7 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -232,7 +238,7 @@ public:
 		name = "Random Wheels Detaching";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -245,7 +251,7 @@ public:
 		name = "Spawn Random Vehicle";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -258,7 +264,7 @@ public:
 		name = "Every Horse Is A Donkey";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -272,13 +278,14 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
-
+	
 	virtual void OnTick() override;
 
 private:
-	std::vector<Vehicle> vehs;
-	std::set<Vehicle> notExplodedVehs;
+	std::vector <Vehicle> vehs;
+	std::set <Vehicle> notExplodedVehs;
 };

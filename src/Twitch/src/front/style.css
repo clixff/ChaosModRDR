@@ -1,5 +1,4 @@
-body, html, #wrapper
-{
+body, html, #wrapper {
     margin: 0;
     padding: 0;
     background: transparent;
@@ -7,13 +6,11 @@ body, html, #wrapper
     user-select: none;
 }
 
-#wrapper
-{
+#wrapper {
     transition: opacity 500ms ease;
 }
 
-#votes
-{
+#votes {
     font-size: 24px;
     color: white;
     text-shadow: -2px -2px 0 #000, 0 -2px 0 #000, 2px -2px 0 #000, 2px 0 0 #000, 2px 2px 0 #000, 0 2px 0 #000, -2px 2px 0 #000, -2px 0 0 #000;
@@ -22,8 +19,7 @@ body, html, #wrapper
     margin-bottom: 16px;
 }
 
-.vote-option
-{
+.vote-option {
     --width: 400px;
     --height: 35px;
 
@@ -43,8 +39,7 @@ body, html, #wrapper
     transition: opacity 300ms linear;
 }
 
-.vote-option-progress-bar
-{
+.vote-option-progress-bar {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -57,8 +52,7 @@ body, html, #wrapper
     transition: transform 300ms linear;
 }
 
-.vote-option-wrapper
-{
+.vote-option-wrapper {
     width: 100%;
     height: 100%;
     text-shadow: 2px 2px 6px #000000;
@@ -67,14 +61,13 @@ body, html, #wrapper
     align-items: center;
     justify-content: space-between;
     color: white;
-    font-weight: bold;  
+    font-weight: bold;
     font-size: 20px;
     position: absolute;
     z-index: 2;
 }
 
-.vote-option-name
-{
+.vote-option-name {
     font-size: 25px;
     left: 0;
     right: 0;
@@ -89,8 +82,7 @@ body, html, #wrapper
     white-space: nowrap;
 }
 
-.vote-count
-{
+.vote-count {
     position: absolute;
     right: 9px;
     margin: auto;
@@ -100,8 +92,7 @@ body, html, #wrapper
     height: fit-content;
 }
 
-.vote-index
-{
+.vote-index {
     position: absolute;
     left: 9px;
     margin: auto;
