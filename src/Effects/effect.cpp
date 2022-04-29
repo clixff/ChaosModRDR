@@ -9,7 +9,7 @@ std::vector<Hash> Effect::weatherHashes = std::vector<Hash>();
 
 Effect::Effect()
 {
-	internalTimer = 0;
+	internalTimer = {};
 }
 
 Effect::~Effect()
@@ -18,12 +18,12 @@ Effect::~Effect()
 
 void Effect::OnActivate()
 {
-	internalTimer = 0;
+	internalTimer = {};
 }
 
 void Effect::OnDeactivate()
 {
-	internalTimer = 0;
+	internalTimer = {};
 }
 
 void Effect::OnTick()
@@ -32,11 +32,16 @@ void Effect::OnTick()
 
 bool Effect::TimerTick(uint32_t maxMs)
 {
-	internalTimer += ChaosMod::GetDeltaTime();
+	return TimerTick(maxMs, 0);
+}
 
-	if (internalTimer >= maxMs)
+bool Effect::TimerTick(uint32_t maxMs, uint32_t timerIndex)
+{
+	internalTimer[timerIndex] += ChaosMod::GetDeltaTime();
+
+	if (internalTimer[timerIndex] >= maxMs)
 	{
-		internalTimer = internalTimer % maxMs;
+		internalTimer[timerIndex] = internalTimer[timerIndex] % maxMs;
 		return true;
 	}
 

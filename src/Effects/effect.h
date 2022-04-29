@@ -6,6 +6,7 @@
 #include <string>
 #include <stdint.h>
 #include <vector>
+#include <map>
 #include <windows.h>
 
 #define GET_HASH(str) GAMEPLAY::GET_HASH_KEY((char*)str)
@@ -82,12 +83,13 @@ public:
 	 * Returns whether time (maxMs) has expired or not
 	 */
 	bool TimerTick(uint32_t maxMs);
+	bool TimerTick(uint32_t maxMs, uint32_t timerIndex);
 
 	bool bIsMeta = false;
 
 	bool bIsFake = false;
 private:
-	uint32_t internalTimer = 0;
+	std::map<uint32_t, uint32_t> internalTimer = {};
 };
 
 class MetaEffect : public Effect
