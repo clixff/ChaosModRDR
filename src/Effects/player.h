@@ -15,7 +15,7 @@ public:
 		name = "Launch Player Up";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -28,7 +28,7 @@ public:
 		name = "To The Stars";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -41,7 +41,7 @@ public:
 		name = "Give 300$ to Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -54,7 +54,7 @@ public:
 		name = "Bankruptcy";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -67,7 +67,7 @@ public:
 		name = "Give a Rifle to Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -80,7 +80,7 @@ public:
 		name = "Give a Revolver To Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -94,7 +94,7 @@ public:
 		name = "No ammo";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -107,7 +107,7 @@ public:
 		name = "Remove All Player Weapons";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -121,7 +121,7 @@ public:
 		name = "Set Good Honor";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -134,7 +134,7 @@ public:
 		name = "Set Bad Honor";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -147,7 +147,7 @@ public:
 		name = "Reset Player's Honor";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -161,7 +161,7 @@ public:
 		name = "Drop current weapon";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -174,7 +174,7 @@ public:
 		name = "Heal Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -187,7 +187,7 @@ public:
 		name = "Almost Dead";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -200,7 +200,7 @@ public:
 		name = "Restore Player Stamina";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -213,7 +213,7 @@ public:
 		name = "Ragdoll";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -227,7 +227,7 @@ public:
 		name = "Give Random Weapon";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -241,10 +241,11 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
-
+	
 	virtual void OnTick() override;
 };
 
@@ -257,7 +258,7 @@ public:
 		name = "Stop Pursuit";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -270,7 +271,7 @@ public:
 		name = "Increase Bounty for Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -283,7 +284,7 @@ public:
 		name = "Remove Current Vehicle";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -296,7 +297,7 @@ public:
 		name = "Give Lasso to Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -310,7 +311,7 @@ public:
 		name = "Ignite Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -323,7 +324,7 @@ public:
 		name = "Kickflip";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -337,11 +338,13 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
-
+	
 	virtual void OnTick() override;
+
 private:
 	Vector3 lastVec;
 };
@@ -354,10 +357,11 @@ public:
 		bTimed = true;
 		EffectDuration = 20;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
-
+	
 	const char* skinToSet = "A_C_COW";
 private:
 	uint64_t oldSkin1{};
@@ -396,7 +400,7 @@ public:
 		name = "Player Is a Pig";
 		skinToSet = "A_C_Pig_01";
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -433,7 +437,7 @@ public:
 		bTimed = true;
 		EffectDuration = 15;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -447,9 +451,11 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
+	
 	virtual void OnDeactivate() override;
 };
 
@@ -463,11 +469,12 @@ public:
 		name = "Teleport To Waypoint";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
 void SetPlayerModel(const char* model, uint64_t* ptr1_val, uint64_t* ptr2_val);
+
 void ResetPlayerModel(uint64_t ptr1_val, uint64_t ptr2_val);
 
 class EffectExplosiveWeapons : public Effect
@@ -480,11 +487,13 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
-
+	
 	virtual void OnTick() override;
+
 private:
 	Vector3 lastVec;
 };
@@ -499,11 +508,13 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
-
+	
 	virtual void OnTick() override;
+
 private:
 	Vector3 lastVec;
 };
@@ -519,7 +530,7 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -534,8 +545,9 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
 };
 
@@ -548,7 +560,7 @@ public:
 		name = "Give a Sniper Rifle To Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -561,7 +573,7 @@ public:
 		name = "Give a Dynamite To Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -574,7 +586,7 @@ public:
 		name = "Give Throwing Knives To Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -587,7 +599,7 @@ public:
 		name = "Teleport Player a Few Meters";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -601,7 +613,7 @@ public:
 		name = "Blacking Out";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -614,7 +626,7 @@ public:
 		name = "Set Random Clothes";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -627,7 +639,7 @@ public:
 		name = "Most Wanted";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -640,7 +652,7 @@ public:
 		name = "Set Winter Outfit";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -654,7 +666,7 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -668,7 +680,7 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -682,7 +694,7 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -696,7 +708,7 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -710,7 +722,7 @@ public:
 		bTimed = true;
 		EffectDuration = 20;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -725,7 +737,7 @@ public:
 		bTimed = true;
 		EffectDuration = 20;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -739,9 +751,11 @@ public:
 		bTimed = true;
 		EffectDuration = 20;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
+	
 	virtual void OnTick() override;
 };
 
@@ -754,7 +768,7 @@ public:
 		name = "Random Honor Change";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -767,7 +781,7 @@ public:
 		name = "Invert And Increase Current Velocity";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -781,7 +795,7 @@ public:
 		name = "Increase Current Velocity";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -796,7 +810,7 @@ public:
 		bTimed = true;
 		EffectDuration = 20;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -811,8 +825,9 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
 };
 
@@ -825,8 +840,9 @@ public:
 		name = "Player Is a Bird";
 		skinToSet = "A_C_BlueJay_01";
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
 };
 
@@ -840,9 +856,11 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
+
 private:
 	Ped clone = 0;
 	Hash pedSkin = 0;
@@ -858,9 +876,11 @@ public:
 		bTimed = true;
 		EffectDuration = 20;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
+
 private:
 	float heading = 0.0f;
 };
@@ -874,7 +894,7 @@ public:
 		name = "Player Loses Weight";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -888,7 +908,7 @@ public:
 		name = "Player Gains Weight";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -902,7 +922,7 @@ public:
 		name = "Set Random Hat";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -916,11 +936,13 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
-
+	
 	virtual void OnTick() override;
+
 private:
 	Vector3 lastVec;
 };
@@ -935,8 +957,9 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
 };
 
@@ -949,7 +972,7 @@ public:
 		name = "Set Random Velocity";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -963,7 +986,7 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -978,10 +1001,13 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
+	
 	virtual void OnDeactivate() override;
+
 private:
 	Camera cam;
 };
@@ -995,7 +1021,7 @@ public:
 		name = "Agitate Player's Horse";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -1008,7 +1034,7 @@ public:
 		name = "Teleport To Random Location";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -1023,15 +1049,18 @@ public:
 		EffectDuration = 20;
 		bIsFake = true;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
+	
 	virtual void OnDeactivate() override;
+
 private:
 	Vector3 oldCoord;
 	std::string oldName;
-
+	
 	bool bTeleportedBack = false;
-
+	
 	void TeleportToOldCoord();
 };
