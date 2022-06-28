@@ -10,7 +10,7 @@ You can enable **Twitch Integration** and your viewers will be able to vote for 
 You can find a list of effects **[here](https://docs.google.com/spreadsheets/d/1Z7dflg-n9VaXPnsqlzortFaUpkuy7XWrB9BGvJ8ilQk)**.
 
 ## Installation
-- Install **[Script Hook RDR2](http://www.dev-c.com/rdr2/scripthookrdr2/)**.
+- Install **[Script Hook RDR2](http://www.dev-c.com/rdr2/scripthookrdr2/)**. Files **dinput8.dll** and **ScriptHookRDR2.dll** should be located in the *main directory* of RDR2.
 - Download the latest mod version from the **[Releases page](https://github.com/clixff/ChaosModRDR/releases)**.
 - Extract all files from the archive to the **game directory**. 
 - Press **F7** in the game to *enable / disable* the mod. Mod is tested on game versions **1.0.1311.23** and **1.0.1436.28**.
@@ -21,7 +21,7 @@ You can find a list of effects **[here](https://docs.google.com/spreadsheets/d/1
 - Re-enable mod with **F7**. Now your viewers can vote for effects in chat.
 - If voting doesn't work and the **token** param is empty in **config.json** file, run the game as administrator.
 ## Twitch poll overlay
-In **OBS** add new a **Browser source**. Enter these params:
+In **OBS** add a new **Browser source**. Enter these params:
 <hr/>
 
 **URL**: `http://127.0.0.1:9148/`
@@ -55,6 +55,10 @@ Don't forget to press **F7** in game when you have made changes.
 
 
 ## FAQ
+**Q**: **This mod doesn't start when I press F7**
+
+**A**: Make sure **Script Hook RDR2** is installed correctly. Files **dinput8.dll** and **ScriptHookRDR2.dll** should be located in the *main directory* of RDR2.
+
 **Q**: **How to change the time between activation of effects?**
 
 **A**: Change the **interval** parameter in the config file.
