@@ -89,7 +89,7 @@ Don't forget to press **F7** in game when you have made changes.
 
 **Q**: **I need additional help**
 
-**A**: Add me on Discord (*zoidman#6344*) if you need help with the mod
+**A**: Add me on Discord (*@zoidman*) if you need help with the mod
 
 
 ## Suggestions and bug reports
