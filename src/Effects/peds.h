@@ -16,7 +16,7 @@ public:
 		name = "Spawn Soldier Companion";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -29,7 +29,7 @@ public:
 		name = "Spawn Drunkard Jon";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -42,7 +42,7 @@ public:
 		name = "Spawn Companion Lenny";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -55,7 +55,20 @@ public:
 		name = "Spawn Chicken Companion";
 		bTimed = false;
 	}
+	
+	virtual void OnActivate() override;
+};
 
+class EffectSpawnWolfPack : public Effect
+{
+public:
+	EffectSpawnWolfPack()
+	{
+		ID = "spawn_wolf_pack";
+		name = "Spawn Companion Wolf Pack";
+		bTimed = false;
+	}
+	
 	virtual void OnActivate() override;
 };
 
@@ -69,8 +82,9 @@ public:
 		bTimed = true;
 		EffectDuration = 15;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
 };
 
@@ -83,7 +97,7 @@ public:
 		name = "Spawn Horse";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -96,7 +110,7 @@ public:
 		name = "Spawn Mule";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -109,7 +123,7 @@ public:
 		name = "Spawn Donkey";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -122,7 +136,7 @@ public:
 		name = "Spawn Mini Donkey";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -135,7 +149,7 @@ public:
 		name = "Spawn Giant Donkey";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -148,7 +162,7 @@ public:
 		name = "Spawn Serial Killer";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -161,7 +175,7 @@ public:
 		name = "Spawn Vampire";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -174,7 +188,7 @@ public:
 		name = "Spawn Giant Cop";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -187,7 +201,7 @@ public:
 		name = "Spawn Angry Skeleton";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -200,7 +214,7 @@ public:
 		name = "Spawn Angry Dwarf";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -213,7 +227,7 @@ public:
 		name = "Spawn Companion Bertram";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -226,7 +240,7 @@ public:
 		name = "Spawn Frozen Couple";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -240,7 +254,7 @@ public:
 		name = "Spawn Robot Companion";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -253,7 +267,7 @@ public:
 		name = "Spawn Lasso Guy";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -267,8 +281,9 @@ public:
 		bTimed = true;
 		EffectDuration = 20;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
 };
 
@@ -281,7 +296,7 @@ public:
 		name = "Spawn Parrot Companion";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -294,7 +309,7 @@ public:
 		name = "Spawn Shire Horse";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -307,7 +322,7 @@ public:
 		name = "Undead Nightmare";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -320,7 +335,7 @@ public:
 		name = "Spawn Dog Companion";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -333,7 +348,7 @@ public:
 		name = "Spawn Cat Companion";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -346,7 +361,7 @@ public:
 		name = "Spawn Bear Companion";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -359,7 +374,7 @@ public:
 		name = "Spawn Angry Corpse";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -373,7 +388,7 @@ public:
 		name = "Spawn Angry Caveman";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -386,7 +401,7 @@ public:
 		name = "Spawn Angry Twin";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -399,7 +414,7 @@ public:
 		name = "Spawn Angry Cowboy";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -412,7 +427,7 @@ public:
 		name = "Spawn Undead Boss";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -425,7 +440,7 @@ public:
 		name = "Spawn Griefer Micah";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -439,9 +454,11 @@ public:
 		bTimed = true;
 		EffectDuration = 20;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnDeactivate() override;
+
 private:
 	Ped dutch;
 };
@@ -455,7 +472,7 @@ public:
 		name = "Spawn Predator";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -470,7 +487,7 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnTick() override;
 };
 
@@ -484,12 +501,14 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
-private:
-	std::set<Ped> peds;
 
+private:
+	std::set <Ped> peds;
+	
 	float heading = 0.0f;
 };
 
@@ -502,7 +521,7 @@ public:
 		name = "Clone Random Enemy";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -516,12 +535,15 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
+	
 	virtual void OnDeactivate() override;
+
 private:
-	std::set<Ped> peds;
+	std::set <Ped> peds;
 };
 
 class EffectPedsFleeing : public Effect
@@ -533,7 +555,7 @@ public:
 		name = "Nearby Peds Are Fleeing";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -546,7 +568,7 @@ public:
 		name = "Heal Nearby Peds";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -559,7 +581,7 @@ public:
 		name = "Revive Dead Peds";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -572,7 +594,7 @@ public:
 		name = "Spawn Angry Tommy";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -586,12 +608,15 @@ public:
 		bTimed = true;
 		EffectDuration = 25;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
+	
 	virtual void OnDeactivate() override;
+
 private:
-	std::set<Ped> peds;
+	std::set <Ped> peds;
 	std::map<Ped, char*> pedAnimNames;
 };
 
@@ -604,7 +629,7 @@ public:
 		name = "Explode Nearby Peds";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -617,7 +642,7 @@ public:
 		name = "Nearby Ped Is Player's Companion";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -631,11 +656,13 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
+
 private:
-	std::set<Ped> peds;
+	std::set <Ped> peds;
 };
 
 class EffectNearbyPedIsEnemy : public Effect
@@ -647,7 +674,7 @@ public:
 		name = "Nearby Ped Is Player's Enemy";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -661,11 +688,13 @@ public:
 		bTimed = true;
 		EffectDuration = 30;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
+
 private:
-	std::set<Ped> peds;
+	std::set <Ped> peds;
 };
 
 class EffectODriscolls : public Effect
@@ -677,7 +706,7 @@ public:
 		name = "Spawn O'Driscoll Boys";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -690,7 +719,7 @@ public:
 		name = "Bandito Kidnaps Player";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -703,10 +732,11 @@ public:
 		name = "Spawn Random Twitch Viewer";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
-
+	
 	void Spawn(std::string name);
+
 private:
 	Ped ped = 0;
 };
@@ -721,7 +751,7 @@ public:
 		name = "Nearby Peds Are Lenny";
 		bTimed = false;
 	}
-
+	
 	virtual void OnActivate() override;
 };
 
@@ -735,21 +765,25 @@ public:
 		bTimed = true;
 		EffectDuration = 45;
 	}
-
+	
 	virtual void OnActivate() override;
+	
 	virtual void OnTick() override;
+
 private:
 	Vector3 lastVec;
 	Ped micahPed;
 };
 
 
-std::vector<Ped> GetNearbyPeds(int32_t Max);
+std::vector <Ped> GetNearbyPeds(int32_t Max);
+
 void RemovePedFromVeh(Ped ped);
 
 void RemoveAllPedWeapons(Ped ped);
 
 void MarkPedAsCompanion(Ped ped);
+
 void MarkPedAsEnemy(Ped ped);
 
 void FixEntityInCutscene(Entity entity);
